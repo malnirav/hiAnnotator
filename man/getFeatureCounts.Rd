@@ -3,8 +3,7 @@
 \title{Get counts of annotation within a defined window around each query range/position.}
 \usage{
   getFeatureCounts(sites.rd, features.rd, colnam = NULL,
-    chromSizes = NULL,
-    widths = c(`1k` = 500, `10k` = 5000, `1M` = 5e+05),
+    chromSizes = NULL, widths = c(1000, 10000, 1e+06),
     weightsColname = NULL, doInChunks = FALSE,
     chunkSize = 10000, parallel = FALSE, ...)
 }
@@ -24,8 +23,8 @@
   region.}
 
   \item{widths}{named vector of window sizes to be used for
-  casting a net around each position. Default: \code{c("1k"
-  = 500,"10k" = 5000,"1M" = 500000)}}
+  casting a net around each position. Default:
+  \code{c(1000,10000,1000000)}}
 
   \item{weightsColname}{if defined, weigh each row from
   features.rd when performing the counts}
@@ -57,7 +56,7 @@
   first augments the ranges within the query by flanking
   starts and stops with window width. Therefore, a start of
   12 and end of 14 with width 10 will yield a range of
-  2,24. This new range is then compared against the subject
+  8,17. This new range is then compared against the subject
   to find any overlapping ranges and then tallied up. If
   weights are assigned to each positions in the subject,
   then tallied counts are multiplied accordingly. If

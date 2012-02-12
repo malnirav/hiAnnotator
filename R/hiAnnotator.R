@@ -131,7 +131,7 @@ makeRangedData<-function(x,positionsOnly=FALSE,soloStart=FALSE,chromCol=NULL,str
     }
     
     ## only do stop if soloStart=F ##
-    if(!soloStart & is.null(stopCol)) {
+    if(!as.logical(soloStart) & is.null(stopCol)) {
         stopCol<-getRelevantCol(names(x),c("txend","end","stop","chromend"),"end",multiple.ok=TRUE)
         names(x)[stopCol[1]]<-"end" 
     } else {
@@ -167,7 +167,7 @@ makeRangedData<-function(x,positionsOnly=FALSE,soloStart=FALSE,chromCol=NULL,str
         x$end<-x$start
     }
     
-    if(positionsOnly) {
+    if(as.logical(positionsOnly)) {
         sites.rd<-as(x[,c("space","start","end","strand")],"RangedData")
     } else {
         sites.rd<-as(x,"RangedData")
@@ -547,6 +547,23 @@ getLowestDists<-function(query=NULL,subject=NULL,subjectOrt=NULL,ok.chrs=NULL,re
     return(res.nrst.i)
 }
 
+#' Generate a window size label.
+#'
+#' Function to generate asthetically pleasing window size label given an integer. This is one of the helper function used in \code{\link{getFeatureCounts}} & \code{\link{getFeatureCountsBig}}. 
+#'
+#' @param x vector of integers to generate the labels for. 
+#'
+#' @return a character vector of length(x) which has x normalized and suffixed by bp, Kb, Mb, or Gb depending on respective interval sizes.
+#'
+#' @seealso \code{\link{getFeatureCounts}}, \code{\link{makeRangedData}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
+#'
+#' # Convert a data frame to RangedData object
+#' getWindowLabel(c(0,1e7,1e3,1e6,2e9))
+getWindowLabel<-function(x) {
+	ind <- cut(abs(x), c(0, 1e3, 1e6, 1e9, 1e12), include.lowest = TRUE, right = FALSE, labels = FALSE)
+	paste(x/c(1, 1e3, 1e6, 1e9, 1e12)[ind],c("bp", "Kb", "Mb", "Gb")[ind],sep="")
+}
+
 #' Resize a RangedData object.
 #'
 #' Function to resize a RangedData object by the given width, max space/chromosome size, and the boundary. This is one of the helper function used in \code{\link{getFeatureCounts}} & \code{\link{getFeatureCountsBig}}. 
@@ -592,13 +609,13 @@ resizeRangedData<-function(rd,width=NULL,boundary="center",spaceSizes=NULL,space
 
 #' Get counts of annotation within a defined window around each query range/position. 
 #'
-#' Given a query object and window size(s), the function first augments the ranges within the query by flanking starts and stops with window width. Therefore, a start of 12 and end of 14 with width 10 will yield a range of 2,24. This new range is then compared against the subject to find any overlapping ranges and then tallied up. If weights are assigned to each positions in the subject, then tallied counts are multiplied accordingly. If annotation object is large, spanning greater than 100 million rows, then getFeatureCountsBig is used which drops any weight column if specified or additional parameters passed to \code{\link{findOverlaps}}.
+#' Given a query object and window size(s), the function first augments the ranges within the query by flanking starts and stops with window width. Therefore, a start of 12 and end of 14 with width 10 will yield a range of 8,17. This new range is then compared against the subject to find any overlapping ranges and then tallied up. If weights are assigned to each positions in the subject, then tallied counts are multiplied accordingly. If annotation object is large, spanning greater than 100 million rows, then getFeatureCountsBig is used which drops any weight column if specified or additional parameters passed to \code{\link{findOverlaps}}.
 #'
 #' @param sites.rd RangedData object to be used as the query.
 #' @param features.rd RangedData obj to be used as the subject or the annotation table.
 #' @param colnam column name to be added to sites.rd for the newly calculated annotation...serves as a prefix to windows sizes!
 #' @param chromSizes named vector of chromosome/space sizes to be used for testing if a position is off the mappable region.
-#' @param widths named vector of window sizes to be used for casting a net around each position. Default: \code{c("1k" = 500,"10k" = 5000,"1M" = 500000)}
+#' @param widths named vector of window sizes to be used for casting a net around each position. Default: \code{c(1000,10000,1000000)}
 #' @param weightsColname if defined, weigh each row from features.rd when performing the counts
 #' @param doInChunks break up sites.rd into small pieces of chunkSize to perform the calculations. Default to FALSE. Useful if you are expecting to find great deal of overlap between sites.rd and features.rd.
 #' @param chunkSize number of rows to use per chunk of sites.rd. Default to 10000. Only used if doInChunks=TRUE.
@@ -631,7 +648,7 @@ resizeRangedData<-function(rd,width=NULL,boundary="center",spaceSizes=NULL,space
 #' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene",seqlengths(Hsapiens), parallel=T)
 #' geneCounts
 #' # For large annotations, use getFeatureCountsBig
-getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL, widths=c('1k' = 500,'10k' = 5000,'1M' = 500000), weightsColname=NULL, doInChunks=FALSE, chunkSize=10000, parallel=FALSE, ...) {
+getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL, widths=c(1000,10000,1000000), weightsColname=NULL, doInChunks=FALSE, chunkSize=10000, parallel=FALSE, ...) {
     if (!any(names(sites.rd) %in% names(features.rd))) {
         stop("There are no spaces/chromosomes that are shared between the query (sites.rd) and subject (features.rd)")
     }
@@ -665,7 +682,8 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
             return(res)
         } else {
             weighted<-ifelse(is.null(weightsColname),FALSE,TRUE)
-        
+        	names(widths) <- getWindowLabel(widths)
+        	
             ## use only chromosomes that are present in both sites.rd and features.rd ##
             ok.chrs <- intersect(names(sites.rd),names(features.rd))
             features.rd <- features.rd[names(features.rd) %in% ok.chrs]
@@ -699,24 +717,25 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
 
 #' Get counts of annotation within a defined window around each query range/position for large annotation objects spanning greater than 100 million rows. This is still in beta phase. 
 #'
-#' Given a query object and window size(s), the function first augments the ranges within the query by flanking starts and stops with window width/2. Therefore, a start of 12 and end of 14 with width 10 will yield a range of 2,24. This new range is then compared against the midpoints of subject to find any overlapping ranges and then tallied up. Note that here counting is doing using midpoint of the ranges in subject instead of start-stop boundaries. 
+#' Given a query object and window size(s), the function first augments the ranges within the query by flanking starts and stops with window width. Therefore, a start of 12 and end of 14 with width 10 will yield a range of 8,17. This new range is then compared against the midpoints of subject to find any overlapping ranges and then tallied up. Note that here counting is doing using midpoint of the ranges in subject instead of start-stop boundaries. 
 #'
 #' @param sites.rd RangedData object to be used as the query.
 #' @param features.rd RangedData obj to be used as the subject or the annotation table.
 #' @param colnam column name to be added to sites.rd for the newly calculated annotation...serves as a prefix to windows sizes!
-#' @param widths named vector of window sizes to be used for casting a net around each position. Default: \code{c("1k" = 500,"10k" = 5000,"1M" = 500000)}
+#' @param widths named vector of window sizes to be used for casting a net around each position. Default: \code{c(1000,10000,1000000)}
 #'
 #' @return a RangedData object with new annotation columns appended at the end of sites.rd.
 #'
 #' @seealso \code{\link{makeRangedData}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}, \code{\link{getFeatureCounts}}.
-getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c('1k' = 500,'10k' = 5000,'1M' = 500000)) {
+getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(1000,10000,1000000)) {
     if (!any(names(sites.rd) %in% names(features.rd))) {
         stop("There are no spaces/chromosomes that are shared between the query (sites.rd) and subject (features.rd)")
     }
     if(is.null(colnam)) {
         stop("Please define the colnam parameter for the new column(s) to be appended.")
     }
-
+	names(widths) <- getWindowLabel(widths)
+	
     ## use only chromosomes that are present in both sites.rd and features.rd ##
     ok.chrs <- intersect(names(sites.rd),names(features.rd))
     features.rd <- ranges(features.rd[names(features.rd) %in% ok.chrs])
