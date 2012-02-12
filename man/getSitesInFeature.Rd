@@ -1,0 +1,91 @@
+\name{getSitesInFeature}
+\alias{getSitesInFeature}
+\title{Find overlapping positions/ranges that match between the query and subject.}
+\usage{
+  getSitesInFeature(sites.rd, features.rd, colnam = NULL,
+    asBool = F, feature.colnam = NULL,
+    strand.colnam = NULL, parallel = FALSE, ...)
+}
+\arguments{
+  \item{sites.rd}{RangedData object to be used as the
+  query.}
+
+  \item{features.rd}{RangedData obj to be used as the
+  subject or the annotation table.}
+
+  \item{colnam}{column name to be added to sites.rd for the
+  newly calculated annotation...serves a core!}
+
+  \item{asBool}{Flag indicating whether to return results
+  as TRUE/FALSE or the property of an overlapping
+  feature..namely feature name and orientation if
+  available. Defaults to FALSE.}
+
+  \item{feature.colnam}{column name from features.rd to be
+  used for retrieving the feature name. By default this is
+  NULL assuming that features.rd has a column that includes
+  the word 'name' somewhere in it. Not required if
+  asBool=TRUE.}
+
+  \item{strand.colnam}{column name from features.rd to be
+  used for retrieving the feature orientation. By default
+  this is NULL assuming that features.rd has a column that
+  includes the word 'strand' somewhere in it. If it doesn't
+  the function will assume the supplied annotation has no
+  orientation information '*'. Not required if
+  asBool=TRUE.}
+
+  \item{parallel}{use parallel backend to perform
+  calculation with \code{\link{foreach}}. Defaults to
+  FALSE. Not applicable when asBool=T. If no parallel
+  backend is registered, then a serial version of foreach
+  is ran using \code{\link{registerDoSEQ()}}.}
+
+  \item{...}{Additional parameters for
+  \code{\link{findOverlaps}}.}
+}
+\value{
+  a RangedData object with new annotation columns appended
+  at the end of sites.rd.
+}
+\description{
+  When used in genomic context, the function annotates
+  genomic positions of interest with information like if
+  they were in a gene or cpg island or whatever annotation
+  that was supplied in the subject.
+}
+\note{
+  Try not to use this function for >50 spaces unless you
+  have tons fo memory. If parallel=TRUE, then be sure to
+  have a paralle backend registered before running the
+  function. One can use any of the following libraries
+  compatible with \code{\link{foreach}}: doMC, doSMP,
+  doSNOW, doMPI. For example: library(doSMP); w <-
+  startWorkers(2); registerDoSMP(w)
+}
+\examples{
+# Convert a data frame to RangedData object
+data(sites)
+head(sites)
+alldata.rd <- makeRangedData(sites,soloStart=TRUE)
+alldata.rd
+
+data(genes)
+head(genes)
+genes.rd <- makeRangedData(genes)
+genes.rd
+
+InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene")
+InGenes
+InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE)
+InGenes
+# Parallel version of getSitesInFeature
+InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,parallel=TRUE)
+InGenes
+}
+\seealso{
+  \code{\link{makeRangedData}},
+  \code{\link{getFeatureCounts}},
+  \code{\link{getNearestFeature}}.
+}
+
