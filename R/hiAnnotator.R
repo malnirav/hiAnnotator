@@ -557,6 +557,7 @@ getLowestDists<-function(query=NULL,subject=NULL,subjectOrt=NULL,ok.chrs=NULL,re
 #'
 #' @seealso \code{\link{getFeatureCounts}}, \code{\link{makeRangedData}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
 #'
+#' @examples
 #' # Convert a data frame to RangedData object
 #' getWindowLabel(c(0,1e7,1e3,1e6,2e9))
 getWindowLabel<-function(x) {
@@ -579,6 +580,7 @@ getWindowLabel<-function(x) {
 #'
 #' @seealso \code{\link{getFeatureCounts}}, \code{\link{makeRangedData}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
 #'
+#' @examples
 #' # Convert a data frame to RangedData object
 #' library(BSgenome.Hsapiens.UCSC.hg18)
 #' data(sites)

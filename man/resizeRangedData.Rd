@@ -37,16 +37,18 @@
   \code{\link{getFeatureCounts}} &
   \code{\link{getFeatureCountsBig}}.
 }
+\examples{
+# Convert a data frame to RangedData object
+library(BSgenome.Hsapiens.UCSC.hg18)
+data(sites)
+alldata.rd <- makeRangedData(sites,soloStart=TRUE)
+resizeRangedData(alldata.rd,width=10000,spaceSizes=seqlengths(Hsapiens))
+resizeRangedData(alldata.rd,width=10000,limitLess=T)
+}
 \seealso{
   \code{\link{getFeatureCounts}},
   \code{\link{makeRangedData}},
   \code{\link{getNearestFeature}},
   \code{\link{getSitesInFeature}}.
-
-  # Convert a data frame to RangedData object
-  library(BSgenome.Hsapiens.UCSC.hg18) data(sites)
-  alldata.rd <- makeRangedData(sites,soloStart=TRUE)
-  resizeRangedData(alldata.rd,width=10000,spaceSizes=seqlengths(Hsapiens))
-  resizeRangedData(alldata.rd,width=10000,limitLess=T)
 }
 

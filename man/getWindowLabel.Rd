@@ -18,13 +18,14 @@
   function used in \code{\link{getFeatureCounts}} &
   \code{\link{getFeatureCountsBig}}.
 }
+\examples{
+# Convert a data frame to RangedData object
+getWindowLabel(c(0,1e7,1e3,1e6,2e9))
+}
 \seealso{
   \code{\link{getFeatureCounts}},
   \code{\link{makeRangedData}},
   \code{\link{getNearestFeature}},
   \code{\link{getSitesInFeature}}.
-
-  # Convert a data frame to RangedData object
-  getWindowLabel(c(0,1e7,1e3,1e6,2e9))
 }
 
