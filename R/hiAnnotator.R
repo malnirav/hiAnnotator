@@ -594,10 +594,9 @@ resizeRangedData<-function(rd,width=NULL,boundary="center",spaceSizes=NULL,space
 	if(!as.logical(limitLess)) {
 		stopifnot(!is.null(spaceSizes))
 		new.rd <- restrict(new.rd, start=spaceMin)
-		overEdge<-lapply(names(new.rd),function(x) which(end(new.rd[[x]])>spaceSizes[x]))
-		names(overEdge)<-names(new.rd)
-		if (any(lapply(overEdge,length)>0)) {
-			overEdge.chr<-names(which(lapply(overEdge,length)>0))
+		overEdge<-sapply(names(new.rd),function(x) which(end(new.rd[[x]])>spaceSizes[x]),simplify=FALSE)
+		if (any(sapply(overEdge,length)>0)) {
+			overEdge.chr<-names(which(sapply(overEdge,length)>0))
 			for (f in overEdge.chr) {
 				end(new.rd[[f]])[ as.numeric(unlist(overEdge[f]))]<-spaceSizes[f]
 			} 
