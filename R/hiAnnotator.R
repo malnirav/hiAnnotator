@@ -224,7 +224,7 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
         stop("Please define the colnam parameter for the new column(s) to be appended.")
     }
     ## use only chromosomes that are present in both sites.rd and features.rd ##
-    ok.chrs <- intersect(names(sites.rd),names(features.rd))
+    ok.chrs <- intersect(space(sites.rd),space(features.rd))
     features.rd$usablerows<-space(features.rd) %in% ok.chrs
     features.rd <- subset(features.rd,usablerows,drop=TRUE)
     features.rd$usablerows<-NULL
@@ -275,7 +275,7 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     # first get the nearest indices
     res <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("query","subject"),.packages="IRanges") %dopar% { as.matrix(nearest(query[[x]], subject[[x]], select="all")) }     
     names(res)<-ok.chrs
-    stopifnot(identical(lapply(query,length),lapply(res,function(x) length(unique(x[,"query"])) ))) ## check for safety
+    stopifnot(identical(lapply(query,length)[ok.chrs],lapply(res,function(x) length(unique(x[,"query"])) )[ok.chrs])) ## check for safety
     
     # check if >1 nearest matches found, get the indices of the feature with shortest distance to 5p/3p
     res <- getLowestDists(query,subject,subjectOrt=vals.s[,"strand"],ok.chrs=ok.chrs,res.nrst=res,side=side,cores.use=1)
@@ -371,7 +371,7 @@ get2NearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either"
         stop("Please define the colnam parameter for the new column(s) to be appended.")
     }
     ## use only chromosomes that are present in both sites.rd and features.rd ##
-    ok.chrs <- intersect(names(sites.rd),names(features.rd))
+    ok.chrs <- intersect(space(sites.rd),space(features.rd))
     features.rd$usablerows<-space(features.rd) %in% ok.chrs
     features.rd <- subset(features.rd,usablerows,drop=TRUE)
     features.rd$usablerows<-NULL
@@ -690,7 +690,7 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
         	}
         	
             ## use only chromosomes that are present in both sites.rd and features.rd ##
-            ok.chrs <- intersect(names(sites.rd),names(features.rd))
+            ok.chrs <- intersect(space(sites.rd),space(features.rd))
             features.rd <- features.rd[names(features.rd) %in% ok.chrs]
             
             query <- sites.rd[,-c(1:length(colnames(sites.rd)))]
@@ -746,7 +746,7 @@ getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(100
     }
 	
     ## use only chromosomes that are present in both sites.rd and features.rd ##
-    ok.chrs <- intersect(names(sites.rd),names(features.rd))
+    ok.chrs <- intersect(space(sites.rd),space(features.rd))
     features.rd <- ranges(features.rd[names(features.rd) %in% ok.chrs])
     good.rows <- space(sites.rd) %in% ok.chrs
     
