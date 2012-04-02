@@ -231,7 +231,8 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     
     if(is.null(feature.colnam)) {
         featureName<-getRelevantCol(colnames(features.rd),c("name","featureName"),"featureName",multiple.ok=TRUE)
-        feature.colnam<-colnames(features.rd)[featureName][1]  
+        feature.colnam<-colnames(features.rd)[featureName][1]
+        message("Using column ", feature.colnam, " for feature.colnam parameter.")
     }
     
     ## do a check of strand column in sites.rd ##
@@ -261,21 +262,24 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     
     query <- ranges(sites.rd)
 
-    if (side=='5p')
-        subject <- flank(ranges(features.rd),start=split(features.rd$strand=="+",features.rd$space),width=-1) ##get only 5 prime sides of features
+    subject <- ranges(features.rd) ## start with both sides of features...aka side='either'
     
-    if (side=='3p')
-        subject <- flank(ranges(features.rd),start=split(features.rd$strand=="-",features.rd$space),width=-1) ##get only 3 prime sides of features
-    
-    if (side=='either')
-        subject <- ranges(features.rd)
+    if(side %in% c('5p','3p')) {
+        features.gr <- as(features.rd,"GRanges")
+        
+        if (side=='5p')
+            subject <- ranges(as(flank(features.gr,width=-1,start=strand(features.gr)=="+"),"RangedData")) ##get only 5 prime sides of features
+             
+        if (side=='3p')
+            subject <- ranges(as(flank(features.gr,width=-1,start=strand(features.gr)=="-"),"RangedData")) ##get only 3 prime sides of features                    
+    }
     
     if(!parallel) { registerDoSEQ() }
     
     # first get the nearest indices
     res <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("query","subject"),.packages="IRanges") %dopar% { as.matrix(nearest(query[[x]], subject[[x]], select="all")) }     
     names(res)<-ok.chrs
-    stopifnot(identical(lapply(query,length)[ok.chrs],lapply(res,function(x) length(unique(x[,"query"])) )[ok.chrs])) ## check for safety
+    stopifnot(identical(lapply(query,length)[ok.chrs],lapply(res,function(x) length(unique(x[,"queryHits"])) )[ok.chrs])) ## check for safety
     
     # check if >1 nearest matches found, get the indices of the feature with shortest distance to 5p/3p
     res <- getLowestDists(query,subject,subjectOrt=vals.s[,"strand"],ok.chrs=ok.chrs,res.nrst=res,side=side,cores.use=1)
@@ -287,9 +291,9 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     }
     
     # for the feature of shortest indices, get the names, and strand attributes
-    featureName <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("vals.s","res","feature.colnam")) %dopar% { vals.s[[x]][res[[x]][,"subject"],feature.colnam] }     
+    featureName <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("vals.s","res","feature.colnam")) %dopar% { vals.s[[x]][res[[x]][,"subjectHits"],feature.colnam] }     
     
-    ort <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("vals.s","res","feature.colnam")) %dopar% { vals.s[[x]][res[[x]][,"subject"],"strand"] }     
+    ort <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("vals.s","res","feature.colnam")) %dopar% { vals.s[[x]][res[[x]][,"subjectHits"],"strand"] }     
     
     names(featureName) <- names(ort) <- ok.chrs
     
@@ -301,20 +305,20 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
         toprune$featureName <- featureName[[x]]
         toprune$ort <- ort[[x]]
         toprune <- unique(toprune[,-2])
-        counts <- table(toprune$query)
-        ismulti <- toprune$query %in% as.numeric(names(counts[counts>1]))
+        counts <- table(toprune$queryHits)
+        ismulti <- toprune$queryHits %in% as.numeric(names(counts[counts>1]))
         if(any(ismulti)) {
             goods <- toprune[!ismulti,]
             toprune <- toprune[ismulti,]
-            tempStore <- with(toprune,tapply(featureName,query,paste,collapse=","))
-            toprune$featureName <- as.character(tempStore[as.character(toprune$query)])            
-            tempStore <- with(toprune,tapply(ort,query,paste,collapse=","))
-            toprune$ort <- as.character(tempStore[as.character(toprune$query)])            
-            tempStore <- with(toprune,sapply(tapply(lowestDist,query,abs),min)) ## if a site falls exactly between two genes pick one the abs(lowest)
-            toprune$lowestDist <- as.numeric(tempStore[as.character(toprune$query)])
+            tempStore <- with(toprune,tapply(featureName,queryHits,paste,collapse=","))
+            toprune$featureName <- as.character(tempStore[as.character(toprune$queryHits)])            
+            tempStore <- with(toprune,tapply(ort,queryHits,paste,collapse=","))
+            toprune$ort <- as.character(tempStore[as.character(toprune$queryHits)])            
+            tempStore <- with(toprune,sapply(tapply(lowestDist,queryHits,abs),min)) ## if a site falls exactly between two genes pick one the abs(lowest)
+            toprune$lowestDist <- as.numeric(tempStore[as.character(toprune$queryHits)])
             toprune <- rbind(goods,unique(toprune))
         }
-        return(orderBy(~query,toprune))
+        return(orderBy(~queryHits,toprune))
     }  
     names(res.i) <- ok.chrs
     
@@ -409,14 +413,17 @@ get2NearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either"
     
     query <- ranges(sites.rd)
 
-    if (side=='5p')
-        subject <- flank(ranges(features.rd),start=split(features.rd$strand=="+",features.rd$space),width=-1) ##get only 5 prime sides of features
+    subject <- ranges(features.rd) ## start with both sides of features...aka side='either'
     
-    if (side=='3p')
-        subject <- flank(ranges(features.rd),start=split(features.rd$strand=="-",features.rd$space),width=-1) ##get only 3 prime sides of features
-    
-    if (side=='either')
-        subject <- ranges(features.rd)
+    if(side %in% c('5p','3p')) {
+        features.gr <- as(features.rd,"GRanges")
+        
+        if (side=='5p')
+            subject <- ranges(as(flank(features.gr,width=-1,start=strand(features.gr)=="+"),"RangedData")) ##get only 5 prime sides of features
+             
+        if (side=='3p')
+            subject <- ranges(as(flank(features.gr,width=-1,start=strand(features.gr)=="-"),"RangedData")) ##get only 3 prime sides of features                    
+    }
     
     ## u = upstream, d = downstream
     ## thinking concept: u2.....u1.....intSite(+).....d1.....d2
@@ -489,11 +496,11 @@ getLowestDists<-function(query=NULL,subject=NULL,subjectOrt=NULL,ok.chrs=NULL,re
     ## convert res.nrst to a matrix if its a list of integers/numeric resulting from using the default nearest() used in get2NearestFeature()
     ismatrixFlag <- TRUE
     if(all(unlist(lapply(res.nrst,class))!="matrix")) {
-        res.nrst <- lapply(res.nrst,function(x) as.matrix(cbind(query=1:length(x),subject=x)) )
+        res.nrst <- lapply(res.nrst,function(x) as.matrix(cbind(queryHits=1:length(x),subjectHits=x)) )
         ismatrixFlag <- FALSE
     }
 
-    if(any(unlist(sapply(ok.chrs,function(x) res.nrst[[x]][,"subject"]>length(subject[[x]]) | res.nrst[[x]][,"subject"]<1)))) {
+    if(any(unlist(sapply(ok.chrs,function(x) res.nrst[[x]][,"subjectHits"]>length(subject[[x]]) | res.nrst[[x]][,"subjectHits"]<1)))) {
         stop("Subject indicies out of vector range in res.nrst ... this can introduce NAs and cause science to fail!")
     }
     
@@ -501,24 +508,24 @@ getLowestDists<-function(query=NULL,subject=NULL,subjectOrt=NULL,ok.chrs=NULL,re
     
     if (side=="either") {
         ## get the lowest dist to either annot boundary from 5p side of the query
-        dist.s <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("query","subject","res.nrst"),.packages="IRanges") %dopar% { start(query[[x]][res.nrst[[x]][,"query"]])-start(subject[[x]][res.nrst[[x]][,"subject"]]) }     
-        dist.e <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("query","subject","res.nrst"),.packages="IRanges") %dopar% { start(query[[x]][res.nrst[[x]][,"query"]])-end(subject[[x]][res.nrst[[x]][,"subject"]]) }     
+        dist.s <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("query","subject","res.nrst"),.packages="IRanges") %dopar% { start(query[[x]][res.nrst[[x]][,"queryHits"]])-start(subject[[x]][res.nrst[[x]][,"subjectHits"]]) }     
+        dist.e <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("query","subject","res.nrst"),.packages="IRanges") %dopar% { start(query[[x]][res.nrst[[x]][,"queryHits"]])-end(subject[[x]][res.nrst[[x]][,"subjectHits"]]) }     
         names(dist.s) <- names(dist.e) <- ok.chrs
 
         dist5p <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("dist.s","dist.e")) %dopar% { ifelse(abs(dist.s[[x]])<abs(dist.e[[x]]),dist.s[[x]],dist.e[[x]]) }
 
         ## get the lowest dist to either annot boundary from 3p side of the query
-        dist.s <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("query","subject","res.nrst"),.packages="IRanges") %dopar% { end(query[[x]][res.nrst[[x]][,"query"]])-start(subject[[x]][res.nrst[[x]][,"subject"]]) }     
-        dist.e <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("query","subject","res.nrst"),.packages="IRanges") %dopar% { end(query[[x]][res.nrst[[x]][,"query"]])-end(subject[[x]][res.nrst[[x]][,"subject"]]) }     
+        dist.s <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("query","subject","res.nrst"),.packages="IRanges") %dopar% { end(query[[x]][res.nrst[[x]][,"queryHits"]])-start(subject[[x]][res.nrst[[x]][,"subjectHits"]]) }     
+        dist.e <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("query","subject","res.nrst"),.packages="IRanges") %dopar% { end(query[[x]][res.nrst[[x]][,"queryHits"]])-end(subject[[x]][res.nrst[[x]][,"subjectHits"]]) }     
         names(dist.s) <- names(dist.e) <- ok.chrs
 
         dist3p <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("dist.s","dist.e")) %dopar% { ifelse(abs(dist.s[[x]])<abs(dist.e[[x]]),dist.s[[x]],dist.e[[x]]) }               
     } else {
         ## get the lowest dist to annot boundary from 5p side of the query
-        dist5p <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("query","subject","res.nrst"),.packages="IRanges") %dopar% { start(query[[x]][res.nrst[[x]][,"query"]])-start(subject[[x]][res.nrst[[x]][,"subject"]]) }
+        dist5p <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("query","subject","res.nrst"),.packages="IRanges") %dopar% { start(query[[x]][res.nrst[[x]][,"queryHits"]])-start(subject[[x]][res.nrst[[x]][,"subjectHits"]]) }
         
         ## get the lowest dist to annot boundary from 3p side of the query
-        dist3p <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("query","subject","res.nrst"),.packages="IRanges") %dopar% { end(query[[x]][res.nrst[[x]][,"query"]])-start(subject[[x]][res.nrst[[x]][,"subject"]]) }
+        dist3p <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("query","subject","res.nrst"),.packages="IRanges") %dopar% { end(query[[x]][res.nrst[[x]][,"queryHits"]])-start(subject[[x]][res.nrst[[x]][,"subjectHits"]]) }
     }
     
     names(dist3p) <- names(dist5p) <- ok.chrs
@@ -530,13 +537,13 @@ getLowestDists<-function(query=NULL,subject=NULL,subjectOrt=NULL,ok.chrs=NULL,re
     stopifnot(identical(unlist(lapply(res.nrst[ok.chrs],nrow)),unlist(lapply(dist.lowest,length)))) ## check for safety
     
     ## fix signs to match biological upstream or downstream
-    dist.lowest2 <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("subjectOrt","res.nrst","dist.lowest")) %dopar% { ifelse(subjectOrt[[x]][res.nrst[[x]][,"subject"]]=="-",-dist.lowest[[x]],dist.lowest[[x]]) }    
+    dist.lowest2 <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("subjectOrt","res.nrst","dist.lowest")) %dopar% { ifelse(subjectOrt[[x]][res.nrst[[x]][,"subjectHits"]]=="-",-dist.lowest[[x]],dist.lowest[[x]]) }    
     names(dist.lowest2) <- ok.chrs
     
     res.nrst <- mapply(function(x,y) cbind(x,lowestDist=y),res.nrst,dist.lowest2, SIMPLIFY=F)
     res.nrst.i <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("res.nrst")) %dopar% {     
-        mins <- tapply(abs(res.nrst[[x]][,"lowestDist"]),res.nrst[[x]][,"query"],min); 
-        res.nrst[[x]][mins[as.character(res.nrst[[x]][,"query"])]==abs(res.nrst[[x]][,"lowestDist"]),]
+        mins <- tapply(abs(res.nrst[[x]][,"lowestDist"]),res.nrst[[x]][,"queryHits"],min); 
+        res.nrst[[x]][mins[as.character(res.nrst[[x]][,"queryHits"])]==abs(res.nrst[[x]][,"lowestDist"]),]
     }
     names(res.nrst.i)<-ok.chrs
     
@@ -701,8 +708,8 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
                 query <- resizeRangedData(query,width=x,spaceSizes=chromSizes)
                 if (weighted) {
                     res <- as.data.frame(as.matrix(findOverlaps(query,features.rd,...)))
-                    res$weights <- features.rd[res$subject,][[weightsColname]]
-                    tapply(res$weights,res$query,sum)            
+                    res$weights <- features.rd[res$subjectHits,][[weightsColname]]
+                    tapply(res$weights,res$queryHits,sum)            
                 } else {
                     ## dont use countOverlaps() since it returns overlapping ranges from other spaces/chrs if it was a factor
                     as.table(findOverlaps(query,features.rd,...))  
@@ -836,45 +843,45 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=F, feat
             }
         }
                 
-        res$features <- unlist(values(features.rd))[feature.colnam][,1][res$subject]
+        res$features <- unlist(values(features.rd))[feature.colnam][,1][res$subjectHits]
         if(skipStrandCalc) {
             res$strands <- "*"
         } else {
-            res$strands <- unlist(values(features.rd))[strand.colnam][,1][res$subject]
+            res$strands <- unlist(values(features.rd))[strand.colnam][,1][res$subjectHits]
         }
         
         ## collapse rows where query returned two hits with the same featureNames due to alternative splicing or something else.
-        res <- unique(res[,c("query","features","strands")]) 
+        res <- unique(res[,c("queryHits","features","strands")]) 
         
         counts <- table(res$query)    
-        res$multipleHit <- res$query %in% as.numeric(names(counts[counts>1]))
+        res$multipleHit <- res$queryHits %in% as.numeric(names(counts[counts>1]))
         res$featureName <- res$features
         res$strand <- res$strands
         
         if(!parallel) { registerDoSEQ() }
         
         if(any(res$multipleHit)) {
-            res.unique <- unique(subset(res,!multipleHit,select=c("query","featureName","strand"),drop=TRUE))
+            res.unique <- unique(subset(res,!multipleHit,select=c("queryHits","featureName","strand"),drop=TRUE))
             res <- subset(res,multipleHit,drop=TRUE)        
             
-            combos <- split(res$features,res$query)
+            combos <- split(res$features,res$queryHits)
             tmp <- foreach(x=iter(combos),.inorder=TRUE) %dopar% { paste(x,collapse=",") }
             names(tmp)<-names(combos)        
-            res[,"featureName"] <- unlist(tmp[as.character(res$query)])
+            res[,"featureName"] <- unlist(tmp[as.character(res$queryHits)])
             
             if(skipStrandCalc) {
                 res[,"strand"] <- "*"
             } else {
-                combos <- split(res$strands,res$query)
+                combos <- split(res$strands,res$queryHits)
                 tmp <- foreach(x=iter(combos),.inorder=TRUE) %dopar% { paste(x,collapse=",") }
                 names(tmp)<-names(combos)        
-                res[,"strand"] <- unlist(tmp[as.character(res$query)])
+                res[,"strand"] <- unlist(tmp[as.character(res$queryHits)])
             }
             
-            res <- unique(res[,c("query","featureName","strand")])
+            res <- unique(res[,c("queryHits","featureName","strand")])
             res <- rbind(res,res.unique)
         } else {
-            res <- unique(subset(res,!multipleHit,select=c("query","featureName","strand"),drop=TRUE))
+            res <- unique(subset(res,!multipleHit,select=c("queryHits","featureName","strand"),drop=TRUE))
         }
         
         ## for collapsed rows take the uniques and add them back to sites.rd        
