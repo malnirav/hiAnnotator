@@ -265,13 +265,13 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     subject <- ranges(features.rd) ## start with both sides of features...aka side='either'
     
     if(side %in% c('5p','3p')) {
-        features.gr <- as(features.rd,"GRanges")
-        
+        ##get only 5 prime sides of features
         if (side=='5p')
-            subject <- ranges(as(flank(features.gr,width=-1,start=strand(features.gr)=="+"),"RangedData")) ##get only 5 prime sides of features
-             
+            subject <- ranges(RangedData(IRanges(start=ifelse(features.rd$strand=="+",start(features.rd),end(features.rd)),width=1),space=space(features.rd)))  
+        
+        ##get only 3 prime sides of features
         if (side=='3p')
-            subject <- ranges(as(flank(features.gr,width=-1,start=strand(features.gr)=="-"),"RangedData")) ##get only 3 prime sides of features                    
+            subject <- ranges(RangedData(IRanges(start=ifelse(features.rd$strand=="-",start(features.rd),end(features.rd)),width=1),space=space(features.rd)))                     
     }
     
     if(!parallel) { registerDoSEQ() }
@@ -416,13 +416,13 @@ get2NearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either"
     subject <- ranges(features.rd) ## start with both sides of features...aka side='either'
     
     if(side %in% c('5p','3p')) {
-        features.gr <- as(features.rd,"GRanges")
-        
+        ##get only 5 prime sides of features
         if (side=='5p')
-            subject <- ranges(as(flank(features.gr,width=-1,start=strand(features.gr)=="+"),"RangedData")) ##get only 5 prime sides of features
-             
+            subject <- ranges(RangedData(IRanges(start=ifelse(features.rd$strand=="+",start(features.rd),end(features.rd)),width=1),space=space(features.rd)))  
+        
+        ##get only 3 prime sides of features
         if (side=='3p')
-            subject <- ranges(as(flank(features.gr,width=-1,start=strand(features.gr)=="-"),"RangedData")) ##get only 3 prime sides of features                    
+            subject <- ranges(RangedData(IRanges(start=ifelse(features.rd$strand=="-",start(features.rd),end(features.rd)),width=1),space=space(features.rd)))                     
     }
     
     ## u = upstream, d = downstream
