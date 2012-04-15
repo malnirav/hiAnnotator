@@ -1,3 +1,5 @@
+~ Visit http://malnirav.github.com/hiAnnotator/ to see a quick tutorial.
+
 ~ Running the parallel version of getNearestFeature, getSitesInFeature, getFeatureCounts:
     1) Load one of the following libraries depending on machine/OS: doMC, doSMP, doSNOW, doMPI. 
     
