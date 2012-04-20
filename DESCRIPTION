@@ -19,6 +19,7 @@ Description: hiAnnotator contains set of functions which allow users to
 Depends:
     IRanges,
     foreach,
+    iterators,
     doBy,
     rtracklayer
 License: GPL (>= 2)
