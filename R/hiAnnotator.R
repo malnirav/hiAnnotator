@@ -258,6 +258,7 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
         for (x in names(which(factorCols))) { features.rd[[x]]<-as.character(features.rd[[x]]) }        
     }
     
+    ## extract required objects to streamline downstream code ##
     vals.s <- values(features.rd)
     
     query <- ranges(sites.rd)
@@ -276,7 +277,7 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     
     if(!parallel) { registerDoSEQ() }
     
-    # first get the nearest indices
+    ## first get the nearest indices ##
     res <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("query","subject"),.packages="IRanges") %dopar% { as.matrix(nearest(query[[x]], subject[[x]], select="all")) }     
     names(res)<-ok.chrs
     stopifnot(identical(lapply(query,length)[ok.chrs],lapply(res,function(x) length(unique(x[,"queryHits"])) )[ok.chrs])) ## check for safety
@@ -284,13 +285,13 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     # check if >1 nearest matches found, get the indices of the feature with shortest distance to 5p/3p
     res <- getLowestDists(query,subject,subjectOrt=vals.s[,"strand"],ok.chrs=ok.chrs,res.nrst=res,side=side,cores.use=1)
     
-    # fix any cases where matrix got converted to integer due to only value found
+    ## fix any cases where matrix got converted to integer due to only value found ##
     if(any(unlist(lapply(res,class))!="matrix")) {
         tofix <- names(which(unlist(lapply(res,class))!="matrix"))
         for (i in tofix) { res[[i]] <- t(res[[i]]) }
     }
     
-    # for the feature of shortest indices, get the names, and strand attributes
+    ## for the feature of shortest indices, get the names, and strand attributes
     featureName <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("vals.s","res","feature.colnam")) %dopar% { vals.s[[x]][res[[x]][,"subjectHits"],feature.colnam] }     
     
     ort <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("vals.s","res","feature.colnam")) %dopar% { vals.s[[x]][res[[x]][,"subjectHits"],"strand"] }     
@@ -300,6 +301,7 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     stopifnot(identical(lapply(res,nrow),lapply(featureName,length))) ## check for safety
     stopifnot(identical(lapply(res,nrow),lapply(ort,length))) ## check for safety
     
+    ## fix cases where two equally nearest features were returned by concatenating feature names and Ort while returning one distance per query
     res.i <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("ort","res","featureName")) %dopar% {
         toprune <- as.data.frame(res[[x]])
         toprune$featureName <- featureName[[x]]
@@ -322,6 +324,7 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     }  
     names(res.i) <- ok.chrs
     
+    ## add columns back to query object
     prefix <- ifelse(side=="either","",side)
     good.rows <- space(sites.rd) %in% ok.chrs
     
@@ -408,6 +411,7 @@ get2NearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either"
         for (x in names(which(factorCols))) { features.rd[[x]]<-as.character(features.rd[[x]]) }        
     }
     
+    ## extract objects/lists of interest for dowstream code
     vals.q <- values(sites.rd) 
     vals.s <- values(features.rd)
     
@@ -437,6 +441,7 @@ get2NearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either"
         
     dist.nrst <- getLowestDists(query,subject,vals.s[,"strand"],ok.chrs,res,side,1)
     
+    ## perform upstream-downstream checks by testing distances
     u1 <- sapply(ok.chrs, function(x) ifelse(dist.nrst[[x]]<0, res[[x]], ifelse(vals.q[[x]][,"strand"]=="+",res.left1[[x]],res.right1[[x]])))   
     d1 <- sapply(ok.chrs, function(x) ifelse(dist.nrst[[x]]<0, ifelse(vals.q[[x]][,"strand"]=="+",res.right1[[x]],res.left1[[x]]), res[[x]]))
     u2 <- sapply(ok.chrs, function(x) ifelse(dist.nrst[[x]]<0, ifelse(vals.q[[x]][,"strand"]=="+",res.left1[[x]],res.right1[[x]]), ifelse(vals.q[[x]][,"strand"]=="+",res.left2[[x]],res.right2[[x]])))
@@ -449,6 +454,7 @@ get2NearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either"
     message("thinking concept: u2.....u1.....intSite(+).....d1.....d2")
     message("thinking concept: d2.....d1.....intSite(-).....u1.....u2")
     
+    ## add columns back to query object
     for (f in c("u1","u2","d1","d2")) {
         message(f)
         res.nrst<-get(f)
@@ -540,6 +546,7 @@ getLowestDists<-function(query=NULL,subject=NULL,subjectOrt=NULL,ok.chrs=NULL,re
     dist.lowest2 <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("subjectOrt","res.nrst","dist.lowest")) %dopar% { ifelse(subjectOrt[[x]][res.nrst[[x]][,"subjectHits"]]=="-",-dist.lowest[[x]],dist.lowest[[x]]) }    
     names(dist.lowest2) <- ok.chrs
     
+    ## fix cases where two nested features were returned by choosing the lowest absolute distances for both features.
     res.nrst <- mapply(function(x,y) cbind(x,lowestDist=y),res.nrst,dist.lowest2, SIMPLIFY=F)
     res.nrst.i <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("res.nrst")) %dopar% {     
         mins <- tapply(abs(res.nrst[[x]][,"lowestDist"]),res.nrst[[x]][,"queryHits"],min); 
@@ -704,6 +711,7 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
             
             if(!parallel) { registerDoSEQ() }
             
+            ## perform overlap analysis in parallel by windows
             allcounts <- foreach(x=iter(widths),.inorder=TRUE,.packages="IRanges",.export=c("query", "features.rd", "weighted", "weightsColname", "chromSizes","resizeRangedData")) %dopar% {            
                 query <- resizeRangedData(query,width=x,spaceSizes=chromSizes)
                 if (weighted) {
@@ -716,7 +724,8 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
                 }
             }
             names(allcounts)<-names(widths)
-     
+            
+            ## add columns back to query object
             for (windowName in names(widths)) {
                 columnName <- paste(colnam,names(widths[ windowName ] ),sep=".")
                 sites.rd[[columnName]] <- 0
@@ -757,6 +766,7 @@ getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(100
     features.rd <- ranges(features.rd[names(features.rd) %in% ok.chrs])
     good.rows <- space(sites.rd) %in% ok.chrs
     
+    ## get counts of midpoints using findInterval and add columns back to query object
     for (windowName in names(widths)) {
         cat(".")
         columnName <- paste(colnam,names(widths[ windowName ] ),sep=".")
@@ -825,9 +835,11 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=F, feat
         res <- sites.rd %in% features.rd
         sites.rd[[colnam]] <- unlist(res)
     } else {
+        ## find overlaps!
         res <- as.data.frame(as.matrix(findOverlaps(sites.rd,features.rd,...)))
         stopifnot(!any(is.na(res)))                    
-
+        
+        ## get feature names and strand for identifying overlapping genes
         if(is.null(feature.colnam)) {
             featureName<-getRelevantCol(colnames(features.rd),c("name","featureName"),"featureName",multiple.ok=TRUE)
             feature.colnam<-colnames(features.rd)[featureName][1]
