@@ -312,9 +312,9 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
         if(any(ismulti)) {
             goods <- toprune[!ismulti,]
             toprune <- toprune[ismulti,]
-            tempStore <- with(toprune,tapply(featureName,queryHits,paste,collapse=","))
+            tempStore <- with(toprune,sapply(tapply(featureName,queryHits,unique),paste,collapse=","))
             toprune$featureName <- as.character(tempStore[as.character(toprune$queryHits)])            
-            tempStore <- with(toprune,tapply(ort,queryHits,paste,collapse=","))
+            tempStore <- with(toprune,sapply(tapply(ort,queryHits,unique),paste,collapse=","))
             toprune$ort <- as.character(tempStore[as.character(toprune$queryHits)])            
             tempStore <- with(toprune,sapply(tapply(lowestDist,queryHits,abs),min)) ## if a site falls exactly between two genes pick one the abs(lowest)
             toprune$lowestDist <- as.numeric(tempStore[as.character(toprune$queryHits)])
@@ -877,7 +877,7 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=F, feat
             res <- subset(res,multipleHit,drop=TRUE)        
             
             combos <- split(res$features,res$queryHits)
-            tmp <- foreach(x=iter(combos),.inorder=TRUE) %dopar% { paste(x,collapse=",") }
+            tmp <- foreach(x=iter(combos),.inorder=TRUE) %dopar% { paste(unique(x),collapse=",") }
             names(tmp)<-names(combos)        
             res[,"featureName"] <- unlist(tmp[as.character(res$queryHits)])
             
@@ -885,7 +885,7 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=F, feat
                 res[,"strand"] <- "*"
             } else {
                 combos <- split(res$strands,res$queryHits)
-                tmp <- foreach(x=iter(combos),.inorder=TRUE) %dopar% { paste(x,collapse=",") }
+                tmp <- foreach(x=iter(combos),.inorder=TRUE) %dopar% { paste(unique(x),collapse=",") }
                 names(tmp)<-names(combos)        
                 res[,"strand"] <- unlist(tmp[as.character(res$queryHits)])
             }
