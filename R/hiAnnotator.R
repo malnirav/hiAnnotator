@@ -235,9 +235,7 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     }
     ## use only chromosomes that are present in both sites.rd and features.rd ##
     ok.chrs <- intersect(space(sites.rd),space(features.rd))
-    features.rd$usablerows<-space(features.rd) %in% ok.chrs
-    features.rd <- subset(features.rd,usablerows,drop=TRUE)
-    features.rd$usablerows<-NULL
+    features.rd <- features.rd[names(features.rd) %in% ok.chrs]
     
     if(is.null(feature.colnam)) {
         featureName<-getRelevantCol(colnames(features.rd),c("name","featureName"),"featureName",multiple.ok=TRUE)
@@ -391,10 +389,8 @@ get2NearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either"
     }
     ## use only chromosomes that are present in both sites.rd and features.rd ##
     ok.chrs <- intersect(space(sites.rd),space(features.rd))
-    features.rd$usablerows<-space(features.rd) %in% ok.chrs
-    features.rd <- subset(features.rd,usablerows,drop=TRUE)
-    features.rd$usablerows<-NULL
-    
+	features.rd <- features.rd[names(features.rd) %in% ok.chrs]    
+
     if(is.null(feature.colnam)) {
         featureName<-getRelevantCol(colnames(features.rd),c("name","featureName"),"featureName",multiple.ok=TRUE)
         feature.colnam<-colnames(features.rd)[featureName][1]  
@@ -648,7 +644,7 @@ resizeRangedData<-function(rd,width=NULL,boundary="center",spaceSizes=NULL,space
 #' @param features.rd RangedData obj to be used as the subject or the annotation table.
 #' @param colnam column name to be added to sites.rd for the newly calculated annotation...serves as a prefix to windows sizes!
 #' @param chromSizes named vector of chromosome/space sizes to be used for testing if a position is off the mappable region.
-#' @param widths a named/numeric vector of window sizes to be used for casting a net around each position. Default: \code{c(1000,10000,1000000)}
+#' @param widths a named/numeric vector of window sizes to be used for casting a net around each position. Default: \code{c(1000,10000,1000000)}. Any width(s) lower than the width of ranges in sites.rd will be ignored since it truncates the final ranges. For example: width of 0 when applied to [752926,779603] will result to [766265,766264] where the midpoint is used for resizing the range.
 #' @param weightsColname if defined, weigh each row from features.rd when performing the counts
 #' @param doInChunks break up sites.rd into small pieces of chunkSize to perform the calculations. Default to FALSE. Useful if you are expecting to find great deal of overlap between sites.rd and features.rd.
 #' @param chunkSize number of rows to use per chunk of sites.rd. Default to 10000. Only used if doInChunks=TRUE.
@@ -732,8 +728,12 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
             if(!parallel) { registerDoSEQ() }
             
             ## perform overlap analysis in parallel by windows
-            allcounts <- foreach(x=iter(widths),.inorder=TRUE,.packages="IRanges",.export=c("query", "features.rd", "weighted", "weightsColname", "chromSizes","resizeRangedData")) %dopar% {            
-                query <- resizeRangedData(query,width=x,spaceSizes=chromSizes)
+            allcounts <- foreach(x=iter(widths),.inorder=TRUE,.packages="IRanges",.export=c("query", "features.rd", "weighted", "weightsColname", "chromSizes","resizeRangedData")) %dopar% {
+            	# only resize if defined windows is > width of all ranges in the query
+            	if(all(x > width(query))) {
+					query <- resizeRangedData(query,width=x,spaceSizes=chromSizes)
+                }
+                
                 if (weighted) {
                     res <- as.data.frame(as.matrix(findOverlaps(query,features.rd,...)))
                     res$weights <- features.rd[res$subjectHits,][[weightsColname]]

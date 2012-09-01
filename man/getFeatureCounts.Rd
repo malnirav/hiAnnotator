@@ -24,7 +24,11 @@
 
   \item{widths}{a named/numeric vector of window sizes to
   be used for casting a net around each position. Default:
-  \code{c(1000,10000,1000000)}}
+  \code{c(1000,10000,1000000)}. Any width(s) lower than the
+  width of ranges in sites.rd will be ignored since it
+  truncates the final ranges. For example: width of 0 when
+  applied to [752926,779603] will result to [766265,766264]
+  where the midpoint is used for resizing the range.}
 
   \item{weightsColname}{if defined, weigh each row from
   features.rd when performing the counts}
