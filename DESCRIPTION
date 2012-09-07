@@ -21,7 +21,8 @@ Depends:
     foreach,
     iterators,
     doBy,
-    rtracklayer
+    rtracklayer,
+    dataframe
 License: GPL (>= 2)
 LazyLoad: yes
 Collate:

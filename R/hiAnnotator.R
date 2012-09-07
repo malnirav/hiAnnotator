@@ -1,3 +1,13 @@
+#' Annotating RangedData objects with hiAnnotator.
+#'
+#' hiAnnotator contains set of functions which allow users to annotate a RangedData object with custom set of annotations. The basic philosophy of this package is to take two RangedData objects (query & subject) with common set of space (i.e. chromosomes) and return associated annotation per space and rows from the query matching space and rows from the subject (i.e. genes or cpg islands).
+# This package comes with three types of annotation functions which calculates if a position from query is: within a feature, near a feature, or count features in defined window sizes. Moreover, each function is equipped with parallel backend to utilize foreach package. The package is also equipped with a wrapper function, which finds appropriate columns needed to make a RangedData object from a common data frame.
+#'
+#' @import IRanges foreach iterators doBy RMySQL rtracklayer dataframe
+#' @docType package
+#' @name hiAnnotator
+NULL
+
 #' Initiate UCSC genome browser session given the freeze argument.
 #'
 #' @param freeze one of following: hg18, mm8, rheM, etc. Default is hg18.
