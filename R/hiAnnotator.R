@@ -345,6 +345,7 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     ## add columns back to query object
     prefix <- ifelse(side=="either","",side)
     good.rows <- space(sites.rd) %in% ok.chrs
+    colnam <- cleanColname(colnam)
     
     sites.rd[[paste(prefix,colnam,sep="")]][good.rows] <- unsplit(lapply(res.i,"[[","featureName"), space(sites.rd)[good.rows], drop = TRUE)
     sites.rd[[paste(prefix,colnam,"Ort",sep="")]][good.rows] <- unsplit(lapply(res.i,"[[","ort"), space(sites.rd)[good.rows], drop = TRUE)
@@ -471,7 +472,9 @@ get2NearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either"
     message("u = upstream, d = downstream")
     message("thinking concept: u2.....u1.....intSite(+).....d1.....d2")
     message("thinking concept: d2.....d1.....intSite(-).....u1.....u2")
-    
+
+    colnam <- cleanColname(colnam)
+
     ## add columns back to query object
     for (f in c("u1","u2","d1","d2")) {
         message(f)
@@ -594,7 +597,6 @@ getLowestDists<-function(query=NULL,subject=NULL,subjectOrt=NULL,ok.chrs=NULL,re
 #' @export
 #'
 #' @examples
-#' # Convert a data frame to RangedData object
 #' getWindowLabel(c(0,1e7,1e3,1e6,2e9))
 getWindowLabel<-function(x) {
 	ind <- cut(abs(x), c(0, 1e3, 1e6, 1e9, 1e12), include.lowest = TRUE, right = FALSE, labels = FALSE)
@@ -620,9 +622,9 @@ getWindowLabel<-function(x) {
 #'
 #' @examples
 #' # Convert a data frame to RangedData object
-#' library(BSgenome.Hsapiens.UCSC.hg18)
 #' data(sites)
 #' alldata.rd <- makeRangedData(sites,soloStart=TRUE)
+#' library(BSgenome.Hsapiens.UCSC.hg18)
 #' resizeRangedData(alldata.rd,width=10000,spaceSizes=seqlengths(Hsapiens))
 #' resizeRangedData(alldata.rd,width=10000,limitLess=T)
 resizeRangedData<-function(rd,width=NULL,boundary="center",spaceSizes=NULL,spaceMin=1,limitLess=FALSE) {
@@ -755,6 +757,8 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
             }
             names(allcounts)<-names(widths)
             
+            colnam <- cleanColname(colnam)
+            
             ## add columns back to query object
             for (windowName in names(widths)) {
                 columnName <- paste(colnam,names(widths[ windowName ] ),sep=".")
@@ -764,6 +768,31 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
             sites.rd
         }
     }
+}
+
+#' Clean the supplied string from punctuations and spaces.
+#'
+#' Function to clean the supplied string from punctuations and spaces so it can be used as column headings.
+#'
+#' @param x string or a vector to be cleaned.
+#' @param description OPTIONAL string identifying the purpose supplied string in x to be displayed in the cleaning message.
+#'
+#' @return cleaned string or a vector.
+#'
+#' @seealso \code{\link{getFeatureCounts}}, \code{\link{makeRangedData}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
+#'
+#' @export
+#'
+#' @examples
+#' cleanColname("HIV-test")
+#' cleanColname("HIV*test")
+#' cleanColname("HIV-test","myAlias")
+cleanColname <- function(x, description="colnam") {
+	if(any(grepl("[[:punct:]]",x) | grepl("[[:space:]]",x))) {
+		message("Cleaning the supplied '",description,"'")
+		x <- gsub("\\_+","_",gsub("[[:space:]]","_",gsub("[[:punct:]]","_",x)))
+	}
+	return(x)
 }
 
 #' Get counts of annotation within a defined window around each query range/position for large annotation objects spanning greater than 100 million rows. This is still in beta phase. 
@@ -797,6 +826,8 @@ getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(100
     ok.chrs <- intersect(space(sites.rd),space(features.rd))
     features.rd <- ranges(features.rd[names(features.rd) %in% ok.chrs])
     good.rows <- space(sites.rd) %in% ok.chrs
+    
+    colnam <- cleanColname(colnam)
     
     ## get counts of midpoints using findInterval and add columns back to query object
     for (windowName in names(widths)) {
@@ -931,6 +962,8 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=F, feat
         }
         
         ## for collapsed rows take the uniques and add them back to sites.rd        
+        colnam <- cleanColname(colnam)
+        
         sites.rd[[colnam]] <- FALSE
         sites.rd[[paste(colnam,"Ort",sep="")]] <- NA
         sites.rd[[colnam]][res$query] <- as.character(res$featureName)

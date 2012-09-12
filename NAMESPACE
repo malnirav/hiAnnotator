@@ -1,3 +1,4 @@
+export(cleanColname)
 export(doAnnotation)
 export(get2NearestFeature)
 export(getFeatureCounts)
