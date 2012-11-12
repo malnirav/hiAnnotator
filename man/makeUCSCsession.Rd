@@ -17,9 +17,9 @@
   argument.
 }
 \examples{
-session<-makeUCSCsession()
+session <- makeUCSCsession()
 genome(session)
-session<-makeUCSCsession("mm8")
+session <- makeUCSCsession("mm8")
 genome(session)
 }
 \seealso{

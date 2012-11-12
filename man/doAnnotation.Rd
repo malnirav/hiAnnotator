@@ -23,7 +23,7 @@
   code{\link{getSitesInFeature}}
 }
 \examples{
-# Convert a data frame to RangedData object
+# Convert a dataframe to RangedData object
 data(sites)
 head(sites)
 alldata.rd <- makeRangedData(sites,soloStart=TRUE)

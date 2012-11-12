@@ -7,29 +7,29 @@
     startCol = NULL, stopCol = NULL)
 }
 \arguments{
-  \item{x}{data frame to be converted into RangedData
+  \item{x}{dataframe to be converted into a RangedData
   object}
 
   \item{positionsOnly}{boolean flag indicating to return
-  only position based data or everything from the data
-  frame. Defaults to FALSE.}
+  only position based data or everything from the
+  dataframe. Defaults to FALSE.}
 
   \item{soloStart}{flag denoting whether only one position
   based column is available. In other words, only starts
   are present and no stops. Default=FALSE.}
 
   \item{chromCol}{use the defined column name for
-  space/chromosome based data from the data frame. Defaults
+  space/chromosome based data from the dataframe. Defaults
   to NULL.}
 
   \item{strandCol}{use the defined column name for strand
-  or orientation from the data frame. Defaults to NULL.}
+  or orientation from the dataframe. Defaults to NULL.}
 
   \item{startCol}{use the defined column name for start
-  coordinate from the data frame. Defaults to NULL.}
+  coordinate from the dataframe. Defaults to NULL.}
 
   \item{stopCol}{use the defined column name for stop
-  coordinate from the data frame. Defaults to NULL and not
+  coordinate from the dataframe. Defaults to NULL and not
   required if soloStart=TRUE.}
 }
 \value{
@@ -50,7 +50,7 @@
   back to their respective rows accurately.
 }
 \examples{
-# Convert a data frame to RangedData object
+# Convert a dataframe to RangedData object
 data(sites)
 head(sites)
 
@@ -65,6 +65,7 @@ makeRangedData(genes,soloStart=TRUE)
 makeRangedData(genes)
 }
 \seealso{
+  \code{\link{makeGRanges}},
   \code{\link{getNearestFeature}},
   \code{\link{getFeatureCounts}},
   \code{\link{getSitesInFeature}}.

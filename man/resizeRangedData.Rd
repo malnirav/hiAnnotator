@@ -38,7 +38,7 @@
   \code{\link{getFeatureCountsBig}}.
 }
 \examples{
-# Convert a data frame to RangedData object
+# Convert a dataframe to RangedData object
 data(sites)
 alldata.rd <- makeRangedData(sites,soloStart=TRUE)
 library(BSgenome.Hsapiens.UCSC.hg18)
