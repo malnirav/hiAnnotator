@@ -47,7 +47,7 @@ resizeRangedData(alldata.rd,width=10000,limitLess=T)
 }
 \seealso{
   \code{\link{getFeatureCounts}},
-  \code{\link{makeRangedData}},
+  \code{\link{makeRangedData}}, \code{\link{makeGRanges}},
   \code{\link{getNearestFeature}},
   \code{\link{getSitesInFeature}}.
 }

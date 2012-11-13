@@ -24,6 +24,7 @@ genome(session)
 }
 \seealso{
   \code{\link{getUCSCtable}}, \code{\link{makeRangedData}},
+  \code{\link{makeGRanges}},
   \code{\link{getNearestFeature}},
   \code{\link{getSitesInFeature}}.
 }

@@ -7,11 +7,11 @@
     strand.colnam = NULL)
 }
 \arguments{
-  \item{sites.rd}{RangedData object to be used as the
-  query.}
+  \item{sites.rd}{RangedData/GRanges object to be used as
+  the query.}
 
-  \item{features.rd}{RangedData obj to be used as the
-  subject or the annotation table.}
+  \item{features.rd}{RangedData/GRanges object to be used
+  as the subject or the annotation table.}
 
   \item{colnam}{column name to be added to sites.rd for the
   newly calculated annotation...serves a core!}
@@ -34,8 +34,8 @@
   applies to strand column in sites.rd.}
 }
 \value{
-  a RangedData object with new annotation columns appended
-  at the end of sites.rd.
+  a RangedData/GRanges object with new annotation columns
+  appended at the end of sites.rd.
 }
 \description{
   Given a query object, the function retrieves the two
@@ -59,7 +59,7 @@
   or phenomena related to it.
 }
 \examples{
-# Convert a dataframe to RangedData object
+# Convert a dataframe to RangedData/GRanges object
 data(sites)
 head(sites)
 alldata.rd <- makeRangedData(sites,soloStart=TRUE)
@@ -79,7 +79,7 @@ nearestGenes
 }
 \seealso{
   \code{\link{getNearestFeature}},
-  \code{\link{makeRangedData}},
+  \code{\link{makeRangedData}}, \code{\link{makeGRanges}},
   \code{\link{getFeatureCounts}},
   \code{\link{getSitesInFeature}}.
 }

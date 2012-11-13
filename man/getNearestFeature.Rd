@@ -61,7 +61,7 @@
   startWorkers(2); registerDoSMP(w)
 }
 \examples{
-# Convert a dataframe to RangedData object
+# Convert a dataframe to RangedData/GRanges object
 data(sites)
 head(sites)
 alldata.rd <- makeRangedData(sites,soloStart=TRUE)

@@ -1,6 +1,6 @@
 \name{doAnnotation}
 \alias{doAnnotation}
-\title{Annotate a RangedData object using one of annotation functions.}
+\title{Annotate a RangedData/GRanges object using one of annotation functions.}
 \usage{
   doAnnotation(annotType = NULL, ...)
 }
@@ -12,8 +12,8 @@
   respective annotation function.}
 }
 \value{
-  a RangedData object with new annotation columns appended
-  at the end of sites.rd.
+  a RangedData/GRanges object with new annotation columns
+  appended at the end of sites.rd.
 }
 \description{
   This is a wrapper function which calls one of following
@@ -23,7 +23,7 @@
   code{\link{getSitesInFeature}}
 }
 \examples{
-# Convert a dataframe to RangedData object
+# Convert a dataframe to RangedData/GRanges object
 data(sites)
 head(sites)
 alldata.rd <- makeRangedData(sites,soloStart=TRUE)
@@ -41,7 +41,7 @@ doAnnotation(annotType="counts",alldata.rd,genes.rd,"NumOfGene",seqlengths(Hsapi
 doAnnotation(annotType="nearest",alldata.rd,genes.rd,"NearestGene")
 }
 \seealso{
-  \code{\link{makeRangedData}},
+  \code{\link{makeRangedData}}, \code{\link{makeGRanges}},
   \code{\link{getFeatureCounts}},
   \code{\link{getNearestFeature}},
   code{\link{getSitesInFeature}}.

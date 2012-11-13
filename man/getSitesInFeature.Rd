@@ -7,11 +7,11 @@
     strand.colnam = NULL, parallel = FALSE, ...)
 }
 \arguments{
-  \item{sites.rd}{RangedData object to be used as the
-  query.}
+  \item{sites.rd}{RangedData/GRanges object to be used as
+  the query.}
 
-  \item{features.rd}{RangedData obj to be used as the
-  subject or the annotation table.}
+  \item{features.rd}{RangedData/GRanges object to be used
+  as the subject or the annotation table.}
 
   \item{colnam}{column name to be added to sites.rd for the
   newly calculated annotation...serves a core!}
@@ -45,8 +45,8 @@
   \code{\link{findOverlaps}}.}
 }
 \value{
-  a RangedData object with new annotation columns appended
-  at the end of sites.rd.
+  a RangedData/GRanges object with new annotation columns
+  appended at the end of sites.rd.
 }
 \description{
   When used in genomic context, the function annotates
@@ -64,7 +64,7 @@
   startWorkers(2); registerDoSMP(w)
 }
 \examples{
-# Convert a dataframe to RangedData object
+# Convert a dataframe to RangedData/GRanges object
 data(sites)
 head(sites)
 alldata.rd <- makeRangedData(sites,soloStart=TRUE)
@@ -84,7 +84,7 @@ InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,parallel=T
 InGenes
 }
 \seealso{
-  \code{\link{makeRangedData}},
+  \code{\link{makeRangedData}}, \code{\link{makeGRanges}},
   \code{\link{getFeatureCounts}},
   \code{\link{getNearestFeature}}.
 }

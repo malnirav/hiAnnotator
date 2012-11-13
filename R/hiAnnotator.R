@@ -14,7 +14,7 @@ NULL
 #'
 #' @return browser session object compatible with rtracklayer functions.
 #'
-#' @seealso \code{\link{getUCSCtable}}, \code{\link{makeRangedData}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
+#' @seealso \code{\link{getUCSCtable}}, \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
 #'
 #' @export
 #'
@@ -69,7 +69,7 @@ getUCSCtable <- function(tableName,trackName,bsession=NULL,freeze="hg18",...) {
 #'
 #' @return the index of usable column(s) or an error if no applicable column is found.
 #'
-#' @seealso \code{\link{makeRangedData}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
+#' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
 #'
 #' @export
 #'
@@ -271,7 +271,7 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 #' @export
 #'
 #' @examples
-#' # Convert a dataframe to RangedData object
+#' # Convert a dataframe to RangedData/GRanges object
 #' data(sites)
 #' head(sites)
 #' alldata.rd <- makeRangedData(sites,soloStart=TRUE)
@@ -293,9 +293,15 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 #' nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TRUE)
 #' nearestGenes
 getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either", feature.colnam=NULL, strand.colnam=NULL, parallel=FALSE) {
+    stopifnot(nrow(sites.rd)>0)
+    stopifnot(nrow(features.rd)>0)
+    
+    grangesFlag <- FALSE
     if(class(sites.rd)=="GRanges" & class(features.rd)=="GRanges") {
-    	getNearestFeature.gr(sites.rd, features.rd, colnam, side, feature.colnam, strand.colnam, parallel)
-    } else {
+    	grangesFlag <- TRUE
+    	sites.rd <- as(sites.rd,"RangedData")
+    	features.rd <- as(features.rd,"RangedData")
+    }
     
     if (!any(names(sites.rd) %in% names(features.rd))) {
         stop("There are no spaces/chromosomes that are shared between the query (sites.rd) and subject (features.rd)")
@@ -419,200 +425,35 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     sites.rd[[paste(prefix,colnam,sep="")]][good.rows] <- unsplit(lapply(res.i,"[[","featureName"), space(sites.rd)[good.rows], drop = TRUE)
     sites.rd[[paste(prefix,colnam,"Ort",sep="")]][good.rows] <- unsplit(lapply(res.i,"[[","ort"), space(sites.rd)[good.rows], drop = TRUE)
     sites.rd[[paste(prefix,colnam,"Dist",sep="")]][good.rows] <- unsplit(lapply(res.i,"[[","lowestDist"), space(sites.rd)[good.rows], drop = TRUE)    
+    
+    if(grangesFlag) {
+    	sites.rd <- as(sites.rd,"GRanges")
+    }
+    
     sites.rd
-    }
-}
-
-#' Get nearest annotation boundary for a position range in GRanges object. 
-#'
-#' Given a query object, the function retrieves the nearest feature and its properties from a subject and then appends them as new columns within the query object. When used in genomic context, the function can be used to retrieve a nearest gene 5' or 3' end relative to genomic position of interest.
-#'
-#' @param sites.gr GRanges object to be used as the query.
-#' @param features.gr GRanges object to be used as the subject or the annotation table.
-#' @param colnam column name to be added to sites.rd for the newly calculated annotation...serves a core!
-#' @param side boundary of annotation to use to calculate the nearest distance. Options are '5p','3p', or the default 'either'.
-#' @param feature.colnam column name from features.gr to be used for retrieving the nearest feature name. By default this is NULL assuming that features.gr has a column that includes the word 'name' somewhere in it.
-#' @param strand.colnam column name from features.gr to be used for retrieving the nearest feature's orientation. By default this is NULL assuming that features.gr has a column that includes the word 'strand' somewhere in it or has populated strand slot. If it doesn't the function will assume the supplied annotation is in '+' orientation (5' -> 3'). The same applies to strand column in sites.gr.
-#' @param parallel use parallel backend to perform calculation with \code{\link{foreach}}. Defaults to FALSE. If no parallel backend is registered, then a serial version of foreach is ran using \code{\link{registerDoSEQ()}}.
-#'
-#' @return a GRanges object with new annotation columns appended at the end of sites.gr.
-#'
-#' @note If parallel=TRUE, then be sure to have a paralle backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For example: library(doSMP); w <- startWorkers(2); registerDoSMP(w)
-#'
-#' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, \code{\link{getSitesInFeature}}, \code{\link{get2NearestFeature}}.
-#'
-#' @export
-#'
-#' @examples
-#' # Convert a dataframe to GRanges object
-#' data(sites)
-#' head(sites)
-#' alldata.gr <- makeGRanges(sites,freeze="hg18",soloStart=TRUE)
-#' alldata.gr
-#'
-#' data(genes)
-#' head(genes)
-#' genes.gr <- makeGRanges(genes,freeze="hg18")
-#' genes.gr
-#'
-#' nearestGenes <- getNearestFeature.gr(alldata.gr,genes.gr,"NearestGene")
-#' nearestGenes
-#' nearestGenes <- getNearestFeature.gr(alldata.gr,genes.gr,"NearestGene",side="5p")
-#' nearestGenes
-#' nearestGenes <- getNearestFeature.gr(alldata.gr,genes.gr,"NearestGene",side="3p")
-#' nearestGenes
-#'
-#' # Parallel version of getNearestFeature
-#' nearestGenes <- getNearestFeature.gr(alldata.gr,genes.gr,"NearestGene", parallel=TRUE)
-#' nearestGenes
-getNearestFeature.gr <- function(sites.gr, features.gr, colnam=NULL, side="either", feature.colnam=NULL, strand.colnam=NULL, parallel=FALSE) {
-    if (!any(levels(seqnames(sites.gr)) %in% levels(seqnames(features.gr)))) {
-        stop("There are no seqnames/chromosomes that are shared between the query (sites.gr) and subject (features.gr)")
-    }
-    
-    if(is.null(colnam)) {
-        stop("Please define the colnam parameter for the new column(s) to be appended.")
-    }
-    
-    ## use only chromosomes that are present in both sites.gr and features.gr ##
-    ok.chrs <- intersect(levels(seqnames(sites.gr)),levels(seqnames(features.gr)))
-    features.gr <- keepSeqlevels(features.gr,ok.chrs)
-    
-    if(is.null(feature.colnam)) {
-        featureName <- getRelevantCol(names(mcols(features.gr)),c("name","featureName"),"featureName",multiple.ok=TRUE)
-        feature.colnam <- names(mcols(features.gr))[featureName][1]
-        message("Using column ", feature.colnam, " for feature.colnam parameter.")
-    }
-
-    ## do a check of strand column in sites.gr ##
-    if(all(strand(sites.gr)=="*")) { 
-        message("No orientation found in sites.gr. Using '+' as default.")
-        strand(sites.gr) <- "+" 
-    }
-    
-    ## do a check of strand column in features.gr ##
-    if(!is.null(strand.colnam)) {
-    	strand(features.gr) <- values(features.gr)[strand.colnam]
-    } else if(all(strand(features.gr)=="*")) {
-		message("No orientation column found in features.gr. Using '+' as default.")
-		strand(features.gr)  <- "+"
-    }
-    mcols(features.gr)$strandCol <- strand(features.gr)
-                
-    ## extract required objects to streamline downstream code ##    
-    query <- lapply(split(sites.gr,seqnames(sites.gr)),ranges)
-        
-    if(side %in% c('5p','3p')) {
-        ## get only 5 prime sides of features
-        if (side=='5p')
-            subject <- GRanges(IRanges(start=ifelse(as.character(strand(features.gr))=="+", start(features.gr), end(features.gr)), width=1), 
-            							seqnames=seqnames(features.gr))
-        
-        ## get only 3 prime sides of features
-        if (side=='3p')
-            subject <- GRanges(IRanges(start=ifelse(as.character(strand(features.gr))=="-", start(features.gr), end(features.gr)), width=1), 
-            							seqnames=seqnames(features.gr))
-        tempy <- split(subject,seqnames(subject))    							
-    } else {
-    	## start with both sides of features...aka side='either'
-    	tempy <- split(features.gr,seqnames(features.gr))    									
-    }
-    
-    subject <- lapply(tempy,ranges)
-	rm(tempy)
-
-	vals.s <- lapply(split(features.gr,seqnames(features.gr)) ,values)
-
-    if(!parallel) { registerDoSEQ() }
-    
-    ## first get the nearest indices ##
-    res <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("query","subject"),.packages="IRanges") %dopar% { as.matrix(nearest(query[[x]], subject[[x]], select="all")) }     
-    names(res) <- ok.chrs
-    stopifnot(identical(lapply(query,length)[ok.chrs],lapply(res,function(x) length(unique(x[,"queryHits"])) )[ok.chrs])) ## check for safety
-    
-    # check if >1 nearest matches found, get the indices of the feature with shortest distance to 5p/3p
-    res <- getLowestDists(query, subject, subjectOrt=as(sapply(sapply(vals.s,"[[","strandCol"),"as.character"),"CompressedCharacterList"), ok.chrs=ok.chrs, res.nrst=res, side=side, cores.use=1)
-    
-    ## fix any cases where matrix got converted to integer due to only value found ##
-    if(any(unlist(lapply(res,class))!="matrix")) {
-        tofix <- names(which(unlist(lapply(res,class))!="matrix"))
-        for (i in tofix) { res[[i]] <- t(res[[i]]) }
-    }
-    
-    ## for the feature of shortest indices, get the names, and strand attributes
-    featureName <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("vals.s","res","feature.colnam")) %dopar% { 
-    	vals.s[[x]][res[[x]][,"subjectHits"],feature.colnam]
-    }     
-    
-    ort <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("vals.s","res","feature.colnam")) %dopar% { 
-    	as.character(vals.s[[x]][res[[x]][,"subjectHits"],"strandCol"])
-    }     
-    
-    names(featureName) <- names(ort) <- ok.chrs
-    
-    stopifnot(identical(lapply(res,nrow),lapply(featureName,length))) ## check for safety
-    stopifnot(identical(lapply(res,nrow),lapply(ort,length))) ## check for safety
-    
-    ## fix cases where two equally nearest features were returned by concatenating feature names and Ort while returning one distance per query
-    res.i <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("ort","res","featureName")) %dopar% {
-        toprune <- as.data.frame(res[[x]])
-        toprune$featureName <- featureName[[x]]
-        toprune$ort <- ort[[x]]
-        toprune <- unique(toprune[,-2])
-        counts <- table(toprune$queryHits)
-        ismulti <- toprune$queryHits %in% as.numeric(names(counts[counts>1]))
-        if(any(ismulti)) {
-            goods <- toprune[!ismulti,]
-            toprune <- toprune[ismulti,]
-            tempStore <- with(toprune,sapply(tapply(featureName,queryHits,unique),paste,collapse=","))
-            toprune$featureName <- as.character(tempStore[as.character(toprune$queryHits)])            
-            tempStore <- with(toprune,sapply(tapply(ort,queryHits,unique),paste,collapse=","))
-            toprune$ort <- as.character(tempStore[as.character(toprune$queryHits)])            
-            tempStore <- with(toprune,sapply(tapply(lowestDist,queryHits,abs),min)) ## if a site falls exactly between two genes pick one the abs(lowest)
-            toprune$lowestDist <- as.numeric(tempStore[as.character(toprune$queryHits)])
-            toprune <- rbind(goods,unique(toprune))
-        }
-        return(orderBy(~queryHits,toprune))
-    }  
-    names(res.i) <- ok.chrs
-    
-    ## add columns back to query object
-    prefix <- ifelse(side=="either","",side)
-    good.rows <- as.character(seqnames(sites.gr)) %in% ok.chrs
-    colnam <- cleanColname(colnam)
-    
-    mcols(sites.gr)[paste(prefix,colnam,sep="")] <- NA
-    mcols(sites.gr)[[paste(prefix,colnam,sep="")]][good.rows] <- unsplit(lapply(res.i,"[[","featureName"), as.character(seqnames(sites.gr))[good.rows], drop = TRUE)
-
-    mcols(sites.gr)[paste(prefix,colnam,"Ort",sep="")] <- NA
-    mcols(sites.gr)[[paste(prefix,colnam,"Ort",sep="")]][good.rows] <- unsplit(lapply(res.i,"[[","ort"), as.character(seqnames(sites.gr))[good.rows], drop = TRUE)
-
-    mcols(sites.gr)[paste(prefix,colnam,"Dist",sep="")] <- NA
-    mcols(sites.gr)[[paste(prefix,colnam,"Dist",sep="")]][good.rows] <- unsplit(lapply(res.i,"[[","lowestDist"), as.character(seqnames(sites.gr))[good.rows], drop = TRUE)    
-    sites.gr
 }
 
 #' Get two nearest upstream and downstream annotation boundary for a position range. 
 #'
 #' Given a query object, the function retrieves the two nearest feature upstream and downstream along with their properties from a subject and then appends them as new columns within the query object. When used in genomic context, the function can be used to retrieve two nearest gene upstream and downstream of the genomic position of interest.
 #'
-#' @param sites.rd RangedData object to be used as the query.
-#' @param features.rd RangedData obj to be used as the subject or the annotation table.
+#' @param sites.rd RangedData/GRanges object to be used as the query.
+#' @param features.rd RangedData/GRanges object to be used as the subject or the annotation table.
 #' @param colnam column name to be added to sites.rd for the newly calculated annotation...serves a core!
 #' @param side boundary of annotation to use to calculate the nearest distance. Options are '5p','3p', or the default 'either'.
 #' @param feature.colnam column name from features.rd to be used for retrieving the nearest feature name. By default this is NULL assuming that features.rd has a column that includes the word 'name' somewhere in it.
 #' @param strand.colnam column name from features.rd to be used for retrieving the nearest feature's orientation. By default this is NULL assuming that features.rd has a column that includes the word 'strand' somewhere in it. If it doesn't the function will assume the supplied annotation is in '+' orientation (5' -> 3'). The same applies to strand column in sites.rd.
 #'
-#' @return a RangedData object with new annotation columns appended at the end of sites.rd.
+#' @return a RangedData/GRanges object with new annotation columns appended at the end of sites.rd.
 #'
 #' @note For cases where a position is at the edge and there are no feature up/down stream since it would fall off the chromosome, the function simply returns the nearest feature. In addition, if there are multiple locations where a query falls into, the function arbitrarily chooses one to serve as the nearest feature, then reports 2 upstream & downstream feature. That may occasionally yield features which are the same upstream and dowstream, which is commonly encountered when studying spliced genes or phenomena related to it. 
 #'
-#' @seealso \code{\link{getNearestFeature}}, \code{\link{makeRangedData}}, \code{\link{getFeatureCounts}}, \code{\link{getSitesInFeature}}.
+#' @seealso \code{\link{getNearestFeature}}, \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, \code{\link{getSitesInFeature}}.
 #'
 #' @export
 #'
 #' @examples
-#' # Convert a dataframe to RangedData object
+#' # Convert a dataframe to RangedData/GRanges object
 #' data(sites)
 #' head(sites)
 #' alldata.rd <- makeRangedData(sites,soloStart=TRUE)
@@ -631,12 +472,24 @@ getNearestFeature.gr <- function(sites.gr, features.gr, colnam=NULL, side="eithe
 #' nearestGenes
 #'
 get2NearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either", feature.colnam=NULL, strand.colnam=NULL) {
+	stopifnot(nrow(sites.rd)>0)
+    stopifnot(nrow(features.rd)>0)
+    
+    grangesFlag <- FALSE
+    if(class(sites.rd)=="GRanges" & class(features.rd)=="GRanges") {
+    	grangesFlag <- TRUE
+    	sites.rd <- as(sites.rd,"RangedData")
+    	features.rd <- as(features.rd,"RangedData")
+    }
+    
     if (!any(names(sites.rd) %in% names(features.rd))) {
         stop("There are no spaces/chromosomes that are shared between the query (sites.rd) and subject (features.rd)")
     }
+    
     if(is.null(colnam)) {
         stop("Please define the colnam parameter for the new column(s) to be appended.")
     }
+    
     ## use only chromosomes that are present in both sites.rd and features.rd ##
     ok.chrs <- intersect(space(sites.rd),space(features.rd))
 	features.rd <- features.rd[names(features.rd) %in% ok.chrs]    
@@ -733,7 +586,12 @@ get2NearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either"
         sites.rd[[coldef]][good.rows] <- unsplit(features, space(sites.rd)[good.rows], drop = TRUE)
         sites.rd[[paste(coldef,"Ort",sep=".")]][good.rows] <- unsplit(ort, space(sites.rd)[good.rows], drop = TRUE)
         sites.rd[[paste(coldef,"Dist",sep=".")]][good.rows] <- unsplit(dists, space(sites.rd)[good.rows], drop = TRUE)    
-    }        
+    }
+    
+    if(grangesFlag) {
+    	sites.rd <- as(sites.rd,"GRanges")
+    }
+            
     sites.rd
 }
 
@@ -833,7 +691,7 @@ getLowestDists <- function(query=NULL, subject=NULL, subjectOrt=NULL, ok.chrs=NU
 #'
 #' @return a character vector of length(x) which has x normalized and suffixed by bp, Kb, Mb, or Gb depending on respective interval sizes.
 #'
-#' @seealso \code{\link{getFeatureCounts}}, \code{\link{makeRangedData}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
+#' @seealso \code{\link{getFeatureCounts}}, \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
 #'
 #' @export
 #'
@@ -857,7 +715,7 @@ getWindowLabel <- function(x) {
 #'
 #' @return a RangedData object with ranges sized to width and/or truncated to spaceSizes and spaceMin unless limitLess=TRUE.
 #'
-#' @seealso \code{\link{getFeatureCounts}}, \code{\link{makeRangedData}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
+#' @seealso \code{\link{getFeatureCounts}}, \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
 #'
 #' @export
 #'
@@ -893,8 +751,8 @@ resizeRangedData <- function(rd,width=NULL,boundary="center",spaceSizes=NULL,spa
 #'
 #' Given a query object and window size(s), the function first augments the ranges within the query by flanking starts and stops with window width. Therefore, a start of 12 and end of 14 with width 10 will yield a range of 8,17. This new range is then compared against the subject to find any overlapping ranges and then tallied up. If weights are assigned to each positions in the subject, then tallied counts are multiplied accordingly. If annotation object is large, spanning greater than 100 million rows, then getFeatureCountsBig is used which drops any weight column if specified or additional parameters passed to \code{\link{findOverlaps}}.
 #'
-#' @param sites.rd RangedData object to be used as the query.
-#' @param features.rd RangedData obj to be used as the subject or the annotation table.
+#' @param sites.rd RangedData/GRanges object to be used as the query.
+#' @param features.rd RangedData/GRanges object to be used as the subject or the annotation table.
 #' @param colnam column name to be added to sites.rd for the newly calculated annotation...serves as a prefix to windows sizes!
 #' @param chromSizes named vector of chromosome/space sizes to be used for testing if a position is off the mappable region.
 #' @param widths a named/numeric vector of window sizes to be used for casting a net around each position. Default: \code{c(1000,10000,1000000)}. Any width(s) lower than the width of ranges in sites.rd will be ignored since it truncates the final ranges. For example: width of 0 when applied to [752926,779603] will result to [766265,766264] where the midpoint is used for resizing the range.
@@ -904,16 +762,16 @@ resizeRangedData <- function(rd,width=NULL,boundary="center",spaceSizes=NULL,spa
 #' @param parallel use parallel backend to perform calculation with \code{\link{foreach}}. Defaults to FALSE. If no parallel backend is registered, then a serial version of foreach is ran using \code{\link{registerDoSEQ()}}.
 #' @param ... Additional parameters for \code{\link{findOverlaps}}.
 #'
-#' @return a RangedData object with new annotation columns appended at the end of sites.rd. There will be a column for each width defined in widths parameter. If widths was a named vector i.e. c("100bp"=100,"1K"=1000), then the colname parameter will be pasted together with width name else default name will be generated by the function.
+#' @return a RangedData/GRanges object with new annotation columns appended at the end of sites.rd. There will be a column for each width defined in widths parameter. If widths was a named vector i.e. c("100bp"=100,"1K"=1000), then the colname parameter will be pasted together with width name else default name will be generated by the function.
 #'
 #' @note Try not to use this function for >50 spaces unless you have tons fo memory. If parallel=TRUE, then be sure to have a paralle backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For example: library(doSMP); w <- startWorkers(2); registerDoSMP(w)
 #'
-#' @seealso \code{\link{makeRangedData}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
+#' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
 #'
 #' @export
 #'
 #' @examples
-#' # Convert a dataframe to RangedData object
+#' # Convert a dataframe to RangedData/GRanges object
 #' data(sites)
 #' head(sites)
 #' alldata.rd <- makeRangedData(sites,soloStart=TRUE)
@@ -933,6 +791,16 @@ resizeRangedData <- function(rd,width=NULL,boundary="center",spaceSizes=NULL,spa
 #' geneCounts
 #' # For large annotations, use getFeatureCountsBig
 getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL, widths=c(1000,10000,1000000), weightsColname=NULL, doInChunks=FALSE, chunkSize=10000, parallel=FALSE, ...) {
+	stopifnot(nrow(sites.rd)>0)
+    stopifnot(nrow(features.rd)>0)
+    
+    grangesFlag <- FALSE
+    if(class(sites.rd)=="GRanges" & class(features.rd)=="GRanges") {
+    	grangesFlag <- TRUE
+    	sites.rd <- as(sites.rd,"RangedData")
+    	features.rd <- as(features.rd,"RangedData")
+    }
+    
     if (!any(names(sites.rd) %in% names(features.rd))) {
         stop("There are no spaces/chromosomes that are shared between the query (sites.rd) and subject (features.rd)")
     }
@@ -963,6 +831,11 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
                     res <- rbind(res,getFeatureCounts(sites.rd[starts[x]:stops[x],], features.rd, colnam, chromSizes, widths, weightsColname, parallel=parallel))
                 }
             }
+            
+			if(grangesFlag) {
+				re <- as(re,"GRanges")
+			}
+			
             return(res)
         } else {
             weighted <- ifelse(is.null(weightsColname),FALSE,TRUE)
@@ -1006,6 +879,11 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
                 sites.rd[[columnName]] <- 0
                 sites.rd[[columnName]][as.numeric(names(allcounts[[windowName]]))] <- as.numeric(allcounts[[windowName]])
             }
+            
+            if(grangesFlag) {
+				sites.rd <- as(sites.rd,"GRanges")
+			}
+			
             sites.rd
         }
     }
@@ -1020,7 +898,7 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
 #'
 #' @return cleaned string or a vector.
 #'
-#' @seealso \code{\link{getFeatureCounts}}, \code{\link{makeRangedData}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
+#' @seealso \code{\link{getFeatureCounts}}, \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
 #'
 #' @export
 #'
@@ -1040,17 +918,27 @@ cleanColname <- function(x, description="colnam") {
 #'
 #' Given a query object and window size(s), the function first augments the ranges within the query by flanking starts and stops with window width. Therefore, a start of 12 and end of 14 with width 10 will yield a range of 8,17. This new range is then compared against the midpoints of subject to find any overlapping ranges and then tallied up. Note that here counting is doing using midpoint of the ranges in subject instead of start-stop boundaries. 
 #'
-#' @param sites.rd RangedData object to be used as the query.
-#' @param features.rd RangedData obj to be used as the subject or the annotation table.
+#' @param sites.rd RangedData/GRanges object to be used as the query.
+#' @param features.rd RangedData/GRanges object to be used as the subject or the annotation table.
 #' @param colnam column name to be added to sites.rd for the newly calculated annotation...serves as a prefix to windows sizes!
 #' @param widths a named/numeric vector of window sizes to be used for casting a net around each position. Default: \code{c(1000,10000,1000000)}
 #'
-#' @return a RangedData object with new annotation columns appended at the end of sites.rd. There will be a column for each width defined in widths parameter. If widths was a named vector i.e. c("100bp"=100,"1K"=1000), then the colname parameter will be pasted together with width name else default name will be generated by the function.
+#' @return a RangedData/GRanges object with new annotation columns appended at the end of sites.rd. There will be a column for each width defined in widths parameter. If widths was a named vector i.e. c("100bp"=100,"1K"=1000), then the colname parameter will be pasted together with width name else default name will be generated by the function.
 #'
-#' @seealso \code{\link{makeRangedData}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}, \code{\link{getFeatureCounts}}.
+#' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}, \code{\link{getFeatureCounts}}.
 #'
 #' @export
 getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(1000,10000,1000000)) {
+	stopifnot(nrow(sites.rd)>0)
+    stopifnot(nrow(features.rd)>0)
+    
+    grangesFlag <- FALSE
+    if(class(sites.rd)=="GRanges" & class(features.rd)=="GRanges") {
+    	grangesFlag <- TRUE
+    	sites.rd <- as(sites.rd,"RangedData")
+    	features.rd <- as(features.rd,"RangedData")
+    }
+    
     if (!any(names(sites.rd) %in% names(features.rd))) {
         stop("There are no spaces/chromosomes that are shared between the query (sites.rd) and subject (features.rd)")
     }
@@ -1085,6 +973,10 @@ getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(100
         stopifnot(nrow(sites.rd)==sum(unlist(lapply(counts,length)))) 
         sites.rd[[columnName]][good.rows] <- unsplit(counts, space(sites.rd)[good.rows], drop = TRUE)
     }
+    
+    if(grangesFlag) {
+		sites.rd <- as(sites.rd,"GRanges")
+	}
     sites.rd
 }
 
@@ -1092,8 +984,8 @@ getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(100
 #'
 #' When used in genomic context, the function annotates genomic positions of interest with information like if they were in a gene or cpg island or whatever annotation that was supplied in the subject.
 #'
-#' @param sites.rd RangedData object to be used as the query.
-#' @param features.rd RangedData obj to be used as the subject or the annotation table.
+#' @param sites.rd RangedData/GRanges object to be used as the query.
+#' @param features.rd RangedData/GRanges object to be used as the subject or the annotation table.
 #' @param colnam column name to be added to sites.rd for the newly calculated annotation...serves a core!
 #' @param asBool Flag indicating whether to return results as TRUE/FALSE or the property of an overlapping feature..namely feature name and orientation if available. Defaults to FALSE.
 #' @param feature.colnam column name from features.rd to be used for retrieving the feature name. By default this is NULL assuming that features.rd has a column that includes the word 'name' somewhere in it. Not required if asBool=TRUE.
@@ -1101,16 +993,16 @@ getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(100
 #' @param parallel use parallel backend to perform calculation with \code{\link{foreach}}. Defaults to FALSE. Not applicable when asBool=T. If no parallel backend is registered, then a serial version of foreach is ran using \code{\link{registerDoSEQ()}}.
 #' @param ... Additional parameters for \code{\link{findOverlaps}}.
 #'
-#' @return a RangedData object with new annotation columns appended at the end of sites.rd.
+#' @return a RangedData/GRanges object with new annotation columns appended at the end of sites.rd.
 #'
 #' @note Try not to use this function for >50 spaces unless you have tons fo memory. If parallel=TRUE, then be sure to have a paralle backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For example: library(doSMP); w <- startWorkers(2); registerDoSMP(w)
 #'
-#' @seealso \code{\link{makeRangedData}}, \code{\link{getFeatureCounts}}, \code{\link{getNearestFeature}}.
+#' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, \code{\link{getNearestFeature}}.
 #'
 #' @export
 #'
 #' @examples
-#' # Convert a dataframe to RangedData object
+#' # Convert a dataframe to RangedData/GRanges object
 #' data(sites)
 #' head(sites)
 #' alldata.rd <- makeRangedData(sites,soloStart=TRUE)
@@ -1129,6 +1021,16 @@ getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(100
 #' InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,parallel=TRUE)
 #' InGenes
 getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=F, feature.colnam=NULL, strand.colnam=NULL, parallel=FALSE, ...) {    
+	stopifnot(nrow(sites.rd)>0)
+    stopifnot(nrow(features.rd)>0)
+    
+    grangesFlag <- FALSE
+    if(class(sites.rd)=="GRanges" & class(features.rd)=="GRanges") {
+    	grangesFlag <- TRUE
+    	sites.rd <- as(sites.rd,"RangedData")
+    	features.rd <- as(features.rd,"RangedData")
+    }
+    
     if(is.null(colnam)) {
         stop("Please define the colnam parameter for the new column(s) to be appended.")
     }
@@ -1210,24 +1112,29 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=F, feat
         sites.rd[[colnam]][res$query] <- as.character(res$featureName)
         sites.rd[[paste(colnam,"Ort",sep="")]][res$query] <- as.character(res$strand)
     }
+    
+    if(grangesFlag) {
+		sites.rd <- as(sites.rd,"GRanges")
+	}
+	
     sites.rd
 }
 
-#' Annotate a RangedData object using one of annotation functions. 
+#' Annotate a RangedData/GRanges object using one of annotation functions. 
 #'
 #' This is a wrapper function which calls one of following functions depending on annotType parameter: \code{\link{getFeatureCounts}}, \code{\link{getNearestFeature}}, code{\link{getSitesInFeature}} 
 #'
 #' @param annotType one of following: within, nearest, counts.
 #' @param ... Additional parameters to be passed to the respective annotation function.
 #'
-#' @return a RangedData object with new annotation columns appended at the end of sites.rd.
+#' @return a RangedData/GRanges object with new annotation columns appended at the end of sites.rd.
 #'
-#' @seealso \code{\link{makeRangedData}}, \code{\link{getFeatureCounts}}, \code{\link{getNearestFeature}}, code{\link{getSitesInFeature}}.
+#' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, \code{\link{getNearestFeature}}, code{\link{getSitesInFeature}}.
 #'
 #' @export
 #'
 #' @examples
-#' # Convert a dataframe to RangedData object
+#' # Convert a dataframe to RangedData/GRanges object
 #' data(sites)
 #' head(sites)
 #' alldata.rd <- makeRangedData(sites,soloStart=TRUE)

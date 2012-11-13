@@ -38,7 +38,7 @@ getRelevantCol(names(sites),c("chr","chromosome","tname","space","chrom","contig
 getRelevantCol(names(sites),c("ort","orientation","strand"),"strand")
 }
 \seealso{
-  \code{\link{makeRangedData}},
+  \code{\link{makeRangedData}}, \code{\link{makeGRanges}},
   \code{\link{getNearestFeature}},
   \code{\link{getSitesInFeature}}.
 }
