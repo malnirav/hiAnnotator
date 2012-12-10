@@ -34,7 +34,6 @@
   Function to resize a RangedData object by the given
   width, max space/chromosome size, and the boundary. This
   is one of the helper function used in
-  \code{\link{getFeatureCounts}} &
   \code{\link{getFeatureCountsBig}}.
 }
 \examples{
@@ -46,7 +45,7 @@ resizeRangedData(alldata.rd,width=10000,spaceSizes=seqlengths(Hsapiens))
 resizeRangedData(alldata.rd,width=10000,limitLess=T)
 }
 \seealso{
-  \code{\link{getFeatureCounts}},
+  \code{\link{getFeatureCountsBig}},
   \code{\link{makeRangedData}}, \code{\link{makeGRanges}},
   \code{\link{getNearestFeature}},
   \code{\link{getSitesInFeature}}.

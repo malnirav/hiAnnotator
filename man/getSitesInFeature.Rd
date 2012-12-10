@@ -55,13 +55,18 @@
   that was supplied in the subject.
 }
 \note{
-  Try not to use this function for >50 spaces unless you
-  have tons fo memory. If parallel=TRUE, then be sure to
-  have a paralle backend registered before running the
-  function. One can use any of the following libraries
-  compatible with \code{\link{foreach}}: doMC, doSMP,
-  doSNOW, doMPI. For example: library(doSMP); w <-
-  startWorkers(2); registerDoSMP(w)
+  \itemize{ \item If the input sites.rd parameter is
+  GRanges object, then it is converted to RangedData and
+  then converted back to GRanges at the end since
+  \code{\link{findOverlaps}} function operates much faster
+  on RangedData objects.  \item Try not to use this
+  function for >50 spaces unless you have tons fo memory.
+  \item If parallel=TRUE, then be sure to have a paralle
+  backend registered before running the function. One can
+  use any of the following libraries compatible with
+  \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For
+  example: library(doSMP); w <- startWorkers(2);
+  registerDoSMP(w) }
 }
 \examples{
 # Convert a dataframe to RangedData/GRanges object

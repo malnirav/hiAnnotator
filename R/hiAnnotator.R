@@ -8,6 +8,35 @@
 #' @name hiAnnotator
 NULL
 
+#' Sample HIV Integration Sites data
+#' 
+#' A sample dataset containing collection of unique HIV integration sites in the human genome mapped to UCSC freeze hg18.
+#' 
+#' \itemize{
+#'   \item id. A unique id for each row.
+#'   \item Position. The genomic coordinate of the integration site.
+#'   \item Chr. The chromosome of the integration site. 
+#'   \item Ort. The orientation or strand of the integration site. 
+#'   \item sampleName. Patient from which the gDNA sample was taken (artificially generated).
+#' }
+#' 
+#' @docType data
+#' @keywords datasets
+#' @format A data frame with 2408 rows and 5 variables
+#' @name sites
+NULL
+
+#' Sample RefSeq genes annotation
+#' 
+#' A sample annotation containing collection of genes from RefSeq database in the human genome mapped to UCSC freeze hg18. See UCSC table description page for the details regarding the column headings.
+#' 
+#' @source \url{http://genome.ucsc.edu/cgi-bin/hgTables?db=hg18&hgta_table=refGene&hgta_doSchema=describe+table+schema}
+#' @docType data
+#' @keywords datasets
+#' @format A data frame with 33965 rows and 9 variables
+#' @name genes
+NULL
+
 #' Initiate UCSC genome browser session given the freeze argument.
 #'
 #' @param freeze one of following: hg18, mm8, rheM, etc. Default is hg18.
@@ -44,9 +73,10 @@ makeUCSCsession <- function(freeze="hg18") {
 #' @export
 #'
 #' @examples
-#' refflat <- getUCSCtable("refFlat","RefSeq Genes") ## same as session <- makeUCSCsession(); refflat <- getUCSCtable("refFlat", "RefSeq Genes", bsession=session, freeze="hg18")
+#' refflat <- getUCSCtable("refFlat","RefSeq Genes") ## same as session <- makeUCSCsession(); 
+#' refflat <- getUCSCtable("refFlat", "RefSeq Genes", bsession=session, freeze="hg18")
 #' head(refflat)
-getUCSCtable <- function(tableName,trackName,bsession=NULL,freeze="hg18",...) {
+getUCSCtable <- function(tableName, trackName, bsession=NULL, freeze="hg18", ...) {
     if(is.null(bsession)) { 
         bsession <- makeUCSCsession(freeze)
     }
@@ -78,7 +108,7 @@ getUCSCtable <- function(tableName,trackName,bsession=NULL,freeze="hg18",...) {
 #' names(sites)
 #' getRelevantCol(names(sites),c("chr","chromosome","tname","space","chrom","contig"),"space")
 #' getRelevantCol(names(sites),c("ort","orientation","strand"),"strand")
-getRelevantCol <- function(col.names,col.options,col.type,multiple.ok=FALSE) {
+getRelevantCol <- function(col.names, col.options, col.type, multiple.ok=FALSE) {
     answer <- unique(as.numeric(unlist(sapply(col.options,function(x) grep(x,col.names,ignore.case=TRUE)))))
     if(length(answer)>1) {
         if(!multiple.ok) {
@@ -234,7 +264,7 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 			z <- gzcon(url(paste0("http://hgdownload.cse.ucsc.edu/goldenPath/", freeze, "/database/chromInfo.txt.gz")))
 			zlines <- try(readLines(z))
 			close(z)
-			if (class(zlines)=="try-error") stop("Could not get thru to UCSC server - try later?")
+			if (class(zlines)=="try-error") stop("Could not get thru to UCSC server - try later!")
 			raw.data <- textConnection(zlines)
 			chrom.info <- read.delim(raw.data,header=F,stringsAsFactors=F)[,1:2]
 			chrom.info <- structure(chrom.info$V2, names=chrom.info$V1)
@@ -704,7 +734,7 @@ getWindowLabel <- function(x) {
 
 #' Resize a RangedData object.
 #'
-#' Function to resize a RangedData object by the given width, max space/chromosome size, and the boundary. This is one of the helper function used in \code{\link{getFeatureCounts}} & \code{\link{getFeatureCountsBig}}. 
+#' Function to resize a RangedData object by the given width, max space/chromosome size, and the boundary. This is one of the helper function used in \code{\link{getFeatureCountsBig}}. 
 #'
 #' @param rd a RangedData object
 #' @param width the width of the resized ranges.
@@ -715,7 +745,7 @@ getWindowLabel <- function(x) {
 #'
 #' @return a RangedData object with ranges sized to width and/or truncated to spaceSizes and spaceMin unless limitLess=TRUE.
 #'
-#' @seealso \code{\link{getFeatureCounts}}, \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
+#' @seealso \code{\link{getFeatureCountsBig}}, \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
 #'
 #' @export
 #'
@@ -749,22 +779,26 @@ resizeRangedData <- function(rd,width=NULL,boundary="center",spaceSizes=NULL,spa
 
 #' Get counts of annotation within a defined window around each query range/position. 
 #'
-#' Given a query object and window size(s), the function first augments the ranges within the query by flanking starts and stops with window width. Therefore, a start of 12 and end of 14 with width 10 will yield a range of 8,17. This new range is then compared against the subject to find any overlapping ranges and then tallied up. If weights are assigned to each positions in the subject, then tallied counts are multiplied accordingly. If annotation object is large, spanning greater than 100 million rows, then getFeatureCountsBig is used which drops any weight column if specified or additional parameters passed to \code{\link{findOverlaps}}.
+#' Given a query object and window size(s), the function finds all the rows in subject which are <= window size/2 distance away. If weights are assigned to each positions in the subject, then tallied counts are multiplied accordingly. If annotation object is large, spanning greater than 100 million rows, then getFeatureCountsBig is used which drops any weight column if specified or additional parameters passed to \code{\link{findOverlaps}}.
 #'
 #' @param sites.rd RangedData/GRanges object to be used as the query.
 #' @param features.rd RangedData/GRanges object to be used as the subject or the annotation table.
 #' @param colnam column name to be added to sites.rd for the newly calculated annotation...serves as a prefix to windows sizes!
-#' @param chromSizes named vector of chromosome/space sizes to be used for testing if a position is off the mappable region.
-#' @param widths a named/numeric vector of window sizes to be used for casting a net around each position. Default: \code{c(1000,10000,1000000)}. Any width(s) lower than the width of ranges in sites.rd will be ignored since it truncates the final ranges. For example: width of 0 when applied to [752926,779603] will result to [766265,766264] where the midpoint is used for resizing the range.
-#' @param weightsColname if defined, weigh each row from features.rd when performing the counts
+#' @param widths a named/numeric vector of window sizes to be used for casting a net around each position. Default: \code{c(1000,10000,1000000)}.
+#' @param weightsColname if defined, weigh each row from features.rd when tallying up the counts.
 #' @param doInChunks break up sites.rd into small pieces of chunkSize to perform the calculations. Default to FALSE. Useful if you are expecting to find great deal of overlap between sites.rd and features.rd.
 #' @param chunkSize number of rows to use per chunk of sites.rd. Default to 10000. Only used if doInChunks=TRUE.
 #' @param parallel use parallel backend to perform calculation with \code{\link{foreach}}. Defaults to FALSE. If no parallel backend is registered, then a serial version of foreach is ran using \code{\link{registerDoSEQ()}}.
-#' @param ... Additional parameters for \code{\link{findOverlaps}}.
+#' @param ... Additional parameters for \code{\link{findOverlaps}}. Default parameters passed are query, subject, select='all', maxgap=widths/2.
 #'
 #' @return a RangedData/GRanges object with new annotation columns appended at the end of sites.rd. There will be a column for each width defined in widths parameter. If widths was a named vector i.e. c("100bp"=100,"1K"=1000), then the colname parameter will be pasted together with width name else default name will be generated by the function.
 #'
-#' @note Try not to use this function for >50 spaces unless you have tons fo memory. If parallel=TRUE, then be sure to have a paralle backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For example: library(doSMP); w <- startWorkers(2); registerDoSMP(w)
+#' @note 
+#' \itemize{
+#'   \item If the input sites.rd parameter is GRanges object, then it is converted to RangedData and then converted back to GRanges at the end since \code{\link{findOverlaps}} function operates much faster on RangedData objects. 
+#'   \item Try not to use this function for >50 spaces unless you have tons fo memory. 
+#'   \item If parallel=TRUE, then be sure to have a paralle backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For example: library(doSMP); w <- startWorkers(2); registerDoSMP(w)
+#' }
 #'
 #' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
 #'
@@ -782,15 +816,14 @@ resizeRangedData <- function(rd,width=NULL,boundary="center",spaceSizes=NULL,spa
 #' genes.rd <- makeRangedData(genes)
 #' genes.rd
 #'
-#' library(BSgenome.Hsapiens.UCSC.hg18)
 #'
-#' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene",seqlengths(Hsapiens))
+#' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene")
 #' geneCounts
 #' # Parallel version of getFeatureCounts
-#' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene",seqlengths(Hsapiens), parallel=T)
+#' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene", parallel=T)
 #' geneCounts
 #' # For large annotations, use getFeatureCountsBig
-getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL, widths=c(1000,10000,1000000), weightsColname=NULL, doInChunks=FALSE, chunkSize=10000, parallel=FALSE, ...) {
+getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL,widths=c(1000,10000,1000000), weightsColname=NULL, doInChunks=FALSE, chunkSize=10000, parallel=FALSE, chromSizes=NULL, ...) {
 	stopifnot(nrow(sites.rd)>0)
     stopifnot(nrow(features.rd)>0)
     
@@ -807,9 +840,10 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
     if(is.null(colnam)) {
         stop("Please define the colnam parameter for the new column(s) to be appended.")
     }
-    if(is.null(chromSizes)) {
-        stop("Please provide chromosome sizes. chromSizes=c('chr1'=247249719, 'chr2'=242951149...)")
-    }
+    if(!is.null(chromSizes)) {
+    	## for historical version...display a warning if this parameter is passed!
+        warning("decrepit option: chromSizes parameter is no longer required and will be ignored!")
+    }    
     
     if(nrow(features.rd)>=1e8) {
         message("Using getFeatureCountsBig() to get the job done!")
@@ -817,7 +851,7 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
     } else {
         if(doInChunks & chunkSize < nrow(sites.rd)) { # no need to execute all this if chunkSize is bigger than data size!!!           
             fun.call <- as.list(match.call())[-1]             
-            extraParams <- fun.call[!names(fun.call) %in% c("sites.rd", "features.rd", "colnam", "chromSizes", "widths", "weightsColname", "doInChunks", "chunkSize", "parallel")]
+            extraParams <- fun.call[!names(fun.call) %in% c("sites.rd", "features.rd", "colnam", "widths", "weightsColname", "doInChunks", "chunkSize", "parallel")]
             total <- nrow(sites.rd)        
             starts <- seq(1,total,by=chunkSize)
             stops <- unique(c(seq(chunkSize ,total,by=chunkSize),total))
@@ -826,9 +860,9 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
             res <- RangedData()
             for(x in 1:length(starts)) {                
                 if(length(extraParams)>1) {
-                    res <- rbind(res,getFeatureCounts(sites.rd[starts[x]:stops[x],], features.rd, colnam, chromSizes, widths, weightsColname, parallel=parallel, eval(as.expression(extraParams))))
+                    res <- rbind(res,getFeatureCounts(sites.rd[starts[x]:stops[x],], features.rd, colnam, widths, weightsColname, parallel=parallel, eval(as.expression(extraParams))))
                 } else {
-                    res <- rbind(res,getFeatureCounts(sites.rd[starts[x]:stops[x],], features.rd, colnam, chromSizes, widths, weightsColname, parallel=parallel))
+                    res <- rbind(res,getFeatureCounts(sites.rd[starts[x]:stops[x],], features.rd, colnam, widths, weightsColname, parallel=parallel))
                 }
             }
             
@@ -854,19 +888,15 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
             if(!parallel) { registerDoSEQ() }
             
             ## perform overlap analysis in parallel by windows
-            allcounts <- foreach(x=iter(widths),.inorder=TRUE,.packages="IRanges",.export=c("query", "features.rd", "weighted", "weightsColname", "chromSizes","resizeRangedData")) %dopar% {
-            	# only resize if defined windows is > width of all ranges in the query
-            	if(all(x > width(query))) {
-					query <- resizeRangedData(query,width=x,spaceSizes=chromSizes)
-                }
+            allcounts <- foreach(x=iter(widths),.inorder=TRUE,.packages="IRanges",.export=c("query", "features.rd", "weighted", "weightsColname", "resizeRangedData")) %dopar% {            	
                 
                 if (weighted) {
-                    res <- as.data.frame(as.matrix(findOverlaps(query,features.rd,...)))
+                    res <- as.data.frame(as.matrix(findOverlaps(query, features.rd, select='all', maxgap=x/2, ...)))
                     res$weights <- features.rd[res$subjectHits,][[weightsColname]]
                     tapply(res$weights,res$queryHits,sum)            
                 } else {
                     ## dont use countOverlaps() since it returns overlapping ranges from other spaces/chrs if it was a factor
-                    as.table(findOverlaps(query,features.rd,...))  
+                    as.table(findOverlaps(query, features.rd, select='all', maxgap=x/2, ...))  
                 }
             }
             names(allcounts) <- names(widths)
@@ -916,7 +946,7 @@ cleanColname <- function(x, description="colnam") {
 
 #' Get counts of annotation within a defined window around each query range/position for large annotation objects spanning greater than 100 million rows. This is still in beta phase. 
 #'
-#' Given a query object and window size(s), the function first augments the ranges within the query by flanking starts and stops with window width. Therefore, a start of 12 and end of 14 with width 10 will yield a range of 8,17. This new range is then compared against the midpoints of subject to find any overlapping ranges and then tallied up. Note that here counting is doing using midpoint of the ranges in subject instead of start-stop boundaries. 
+#' Given a query object and window size(s), the function finds all the rows in subject which are <= window size/2 distance away. This new range is then compared against the midpoints of subject to find any overlapping ranges and then tallied up. Note that here counting is done using midpoint of the ranges in subject instead of start-stop boundaries. 
 #'
 #' @param sites.rd RangedData/GRanges object to be used as the query.
 #' @param features.rd RangedData/GRanges object to be used as the subject or the annotation table.
@@ -995,7 +1025,12 @@ getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(100
 #'
 #' @return a RangedData/GRanges object with new annotation columns appended at the end of sites.rd.
 #'
-#' @note Try not to use this function for >50 spaces unless you have tons fo memory. If parallel=TRUE, then be sure to have a paralle backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For example: library(doSMP); w <- startWorkers(2); registerDoSMP(w)
+#' @note 
+#' \itemize{
+#'   \item If the input sites.rd parameter is GRanges object, then it is converted to RangedData and then converted back to GRanges at the end since \code{\link{findOverlaps}} function operates much faster on RangedData objects. 
+#'   \item Try not to use this function for >50 spaces unless you have tons fo memory. 
+#'   \item If parallel=TRUE, then be sure to have a paralle backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For example: library(doSMP); w <- startWorkers(2); registerDoSMP(w)
+#' }
 #'
 #' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, \code{\link{getNearestFeature}}.
 #'

@@ -30,14 +30,12 @@
 }
 \description{
   Given a query object and window size(s), the function
-  first augments the ranges within the query by flanking
-  starts and stops with window width. Therefore, a start of
-  12 and end of 14 with width 10 will yield a range of
-  8,17. This new range is then compared against the
-  midpoints of subject to find any overlapping ranges and
-  then tallied up. Note that here counting is doing using
-  midpoint of the ranges in subject instead of start-stop
-  boundaries.
+  finds all the rows in subject which are <= window size/2
+  distance away. This new range is then compared against
+  the midpoints of subject to find any overlapping ranges
+  and then tallied up. Note that here counting is done
+  using midpoint of the ranges in subject instead of
+  start-stop boundaries.
 }
 \seealso{
   \code{\link{makeRangedData}}, \code{\link{makeGRanges}},

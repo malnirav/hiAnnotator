@@ -1,5 +1,16 @@
+\docType{data}
 \name{genes}
 \alias{genes}
-\title{Sample RefSeq genes from UCSC hg18 freeze}
-\usage{data(genes)}
-\description{Sample RefSeq genes from UCSC hg18 freeze}
+\title{Sample RefSeq genes annotation}
+\format{A data frame with 33965 rows and 9 variables}
+\source{
+  \url{http://genome.ucsc.edu/cgi-bin/hgTables?db=hg18&hgta_table=refGene&hgta_doSchema=describe+table+schema}
+}
+\description{
+  A sample annotation containing collection of genes from
+  RefSeq database in the human genome mapped to UCSC freeze
+  hg18. See UCSC table description page for the details
+  regarding the column headings.
+}
+\keyword{datasets}
+

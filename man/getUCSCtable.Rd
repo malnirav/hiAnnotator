@@ -32,7 +32,8 @@
   name.
 }
 \examples{
-refflat <- getUCSCtable("refFlat","RefSeq Genes") ## same as session <- makeUCSCsession(); refflat <- getUCSCtable("refFlat", "RefSeq Genes", bsession=session, freeze="hg18")
+refflat <- getUCSCtable("refFlat","RefSeq Genes") ## same as session <- makeUCSCsession();
+refflat <- getUCSCtable("refFlat", "RefSeq Genes", bsession=session, freeze="hg18")
 head(refflat)
 }
 \seealso{
