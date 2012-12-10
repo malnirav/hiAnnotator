@@ -58,10 +58,10 @@
   distance away. If weights are assigned to each positions
   in the subject, then tallied counts are multiplied
   accordingly. If annotation object is large, spanning
-  greater than 100 million rows, then getFeatureCountsBig
-  is used which drops any weight column if specified or
-  additional parameters passed to
-  \code{\link{findOverlaps}}.
+  greater than 100 million rows, then
+  \code{\link{getFeatureCountsBig}} is used which drops any
+  weight column if specified or additional parameters
+  passed to \code{\link{findOverlaps}}.
 }
 \note{
   \itemize{ \item If the input sites.rd parameter is

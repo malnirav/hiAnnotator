@@ -779,7 +779,7 @@ resizeRangedData <- function(rd,width=NULL,boundary="center",spaceSizes=NULL,spa
 
 #' Get counts of annotation within a defined window around each query range/position. 
 #'
-#' Given a query object and window size(s), the function finds all the rows in subject which are <= window size/2 distance away. If weights are assigned to each positions in the subject, then tallied counts are multiplied accordingly. If annotation object is large, spanning greater than 100 million rows, then getFeatureCountsBig is used which drops any weight column if specified or additional parameters passed to \code{\link{findOverlaps}}.
+#' Given a query object and window size(s), the function finds all the rows in subject which are <= window size/2 distance away. If weights are assigned to each positions in the subject, then tallied counts are multiplied accordingly. If annotation object is large, spanning greater than 100 million rows, then \code{\link{getFeatureCountsBig}} is used which drops any weight column if specified or additional parameters passed to \code{\link{findOverlaps}}.
 #'
 #' @param sites.rd RangedData/GRanges object to be used as the query.
 #' @param features.rd RangedData/GRanges object to be used as the subject or the annotation table.
@@ -1183,7 +1183,7 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=F, feat
 #' library(BSgenome.Hsapiens.UCSC.hg18)
 #'
 #' doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene")
-#' doAnnotation(annotType="counts",alldata.rd,genes.rd,"NumOfGene",seqlengths(Hsapiens))
+#' doAnnotation(annotType="counts",alldata.rd,genes.rd,"NumOfGene")
 #' doAnnotation(annotType="nearest",alldata.rd,genes.rd,"NearestGene")
 doAnnotation <- function(annotType=NULL,...) {    
     if(is.null(annotType)) {
