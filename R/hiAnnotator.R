@@ -784,6 +784,7 @@ resizeRangedData <- function(rd,width=NULL,boundary="center",spaceSizes=NULL,spa
 #' @param sites.rd RangedData/GRanges object to be used as the query.
 #' @param features.rd RangedData/GRanges object to be used as the subject or the annotation table.
 #' @param colnam column name to be added to sites.rd for the newly calculated annotation...serves as a prefix to windows sizes!
+#' @param chromSizes named vector of chromosome/space sizes to be used for testing if a position is off the mappable region. DEPRECATED and will be removed in future release.
 #' @param widths a named/numeric vector of window sizes to be used for casting a net around each position. Default: \code{c(1000,10000,1000000)}.
 #' @param weightsColname if defined, weigh each row from features.rd when tallying up the counts.
 #' @param doInChunks break up sites.rd into small pieces of chunkSize to perform the calculations. Default to FALSE. Useful if you are expecting to find great deal of overlap between sites.rd and features.rd.
@@ -823,7 +824,7 @@ resizeRangedData <- function(rd,width=NULL,boundary="center",spaceSizes=NULL,spa
 #' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene", parallel=T)
 #' geneCounts
 #' # For large annotations, use getFeatureCountsBig
-getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL,widths=c(1000,10000,1000000), weightsColname=NULL, doInChunks=FALSE, chunkSize=10000, parallel=FALSE, chromSizes=NULL, ...) {
+getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL, widths=c(1000,10000,1000000), weightsColname=NULL, doInChunks=FALSE, chunkSize=10000, parallel=FALSE, ...) {
 	stopifnot(nrow(sites.rd)>0)
     stopifnot(nrow(features.rd)>0)
     
@@ -891,12 +892,12 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL,widths=c(1000,10
             allcounts <- foreach(x=iter(widths),.inorder=TRUE,.packages="IRanges",.export=c("query", "features.rd", "weighted", "weightsColname", "resizeRangedData")) %dopar% {            	
                 
                 if (weighted) {
-                    res <- as.data.frame(as.matrix(findOverlaps(query, features.rd, select='all', maxgap=x/2, ...)))
+                    res <- as.data.frame(as.matrix(findOverlaps(query, features.rd, select='all', maxgap=(x/2), ...)))
                     res$weights <- features.rd[res$subjectHits,][[weightsColname]]
                     tapply(res$weights,res$queryHits,sum)            
                 } else {
                     ## dont use countOverlaps() since it returns overlapping ranges from other spaces/chrs if it was a factor
-                    as.table(findOverlaps(query, features.rd, select='all', maxgap=x/2, ...))  
+                    as.table(findOverlaps(query, features.rd, select='all', maxgap=(x/2), ...))  
                 }
             }
             names(allcounts) <- names(widths)
