@@ -327,7 +327,7 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     stopifnot(nrow(features.rd)>0)
     
     grangesFlag <- FALSE
-    if(class(sites.rd)=="GRanges" & class(features.rd)=="GRanges") {
+    if(is(sites.rd,"GRanges") & is(features.rd)=="GRanges") {
     	grangesFlag <- TRUE
     	sites.rd <- as(sites.rd,"RangedData")
     	features.rd <- as(features.rd,"RangedData")
@@ -506,7 +506,7 @@ get2NearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either"
     stopifnot(nrow(features.rd)>0)
     
     grangesFlag <- FALSE
-    if(class(sites.rd)=="GRanges" & class(features.rd)=="GRanges") {
+    if(is(sites.rd,"GRanges") & is(features.rd)=="GRanges") {
     	grangesFlag <- TRUE
     	sites.rd <- as(sites.rd,"RangedData")
     	features.rd <- as(features.rd,"RangedData")
@@ -829,7 +829,7 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
     stopifnot(nrow(features.rd)>0)
     
     grangesFlag <- FALSE
-    if(class(sites.rd)=="GRanges" & class(features.rd)=="GRanges") {
+    if(is(sites.rd,"GRanges") & is(features.rd)=="GRanges") {
     	grangesFlag <- TRUE
     	sites.rd <- as(sites.rd,"RangedData")
     	features.rd <- as(features.rd,"RangedData")
@@ -964,7 +964,7 @@ getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(100
     stopifnot(nrow(features.rd)>0)
     
     grangesFlag <- FALSE
-    if(class(sites.rd)=="GRanges" & class(features.rd)=="GRanges") {
+    if(is(sites.rd,"GRanges") & is(features.rd)=="GRanges") {
     	grangesFlag <- TRUE
     	sites.rd <- as(sites.rd,"RangedData")
     	features.rd <- as(features.rd,"RangedData")
@@ -1061,7 +1061,7 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=F, feat
     stopifnot(nrow(features.rd)>0)
     
     grangesFlag <- FALSE
-    if(class(sites.rd)=="GRanges" & class(features.rd)=="GRanges") {
+    if(is(sites.rd,"GRanges") & is(features.rd)=="GRanges") {
     	grangesFlag <- TRUE
     	sites.rd <- as(sites.rd,"RangedData")
     	features.rd <- as(features.rd,"RangedData")
@@ -1158,14 +1158,16 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=F, feat
 
 #' Annotate a RangedData/GRanges object using one of annotation functions. 
 #'
-#' This is a wrapper function which calls one of following functions depending on annotType parameter: \code{\link{getFeatureCounts}}, \code{\link{getNearestFeature}}, code{\link{getSitesInFeature}} 
+#' This is a wrapper function which calls one of following functions depending on annotType parameter: \code{\link{getFeatureCounts}}, \code{\link{getFeatureCountsBig}}, \code{\link{getNearestFeature}}, code{\link{getSitesInFeature}} 
 #'
-#' @param annotType one of following: within, nearest, counts.
+#' @param annotType one of following: within, nearest, counts, countsBig.
 #' @param ... Additional parameters to be passed to the respective annotation function.
+#' @param postProcessFun function to call on the resulting object for any post processing steps.
+#' @param postProcessFunArgs additional arguments for postProcessFun as a list.
 #'
 #' @return a RangedData/GRanges object with new annotation columns appended at the end of sites.rd.
 #'
-#' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, \code{\link{getNearestFeature}}, code{\link{getSitesInFeature}}.
+#' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, \code{\link{getFeatureCountsBig}}, \code{\link{getNearestFeature}}, code{\link{getSitesInFeature}}.
 #'
 #' @export
 #'
@@ -1186,15 +1188,25 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=F, feat
 #' doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene")
 #' doAnnotation(annotType="counts",alldata.rd,genes.rd,"NumOfGene")
 #' doAnnotation(annotType="nearest",alldata.rd,genes.rd,"NearestGene")
-doAnnotation <- function(annotType=NULL,...) {    
-    if(is.null(annotType)) {
-        stop("Please define the annotType parameter to identify which type of annotation to perform: within, nearest, counts")
-    }
-	
-	switch(EXPR = annotType,
-		within = getSitesInFeature(...),
-		nearest = getNearestFeature(...),
-		counts = getFeatureCounts(...),
-		stop("Invalid annoType")
-	)
+#' doAnnotation(annotType="countsBig",alldata.rd,genes.rd,"ChipSeqCounts")
+#' geneCheck <- function(x,wanted) { x$isWantedGene <- x$InGene %in% wanted; return(x) }
+#' doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene", postProcessFun=geneCheck, postProcessFunArgs=list("wanted"=c("FOXJ3","SEPT9","RPTOR")) )
+doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL, postProcessFunArgs=list()) {    
+  if(is.null(annotType)) {
+    stop("Please define the annotType parameter to identify which type of annotation to perform: within, nearest, counts")
+  }
+  
+  res <- switch(EXPR = annotType,
+                within = getSitesInFeature(...),
+                nearest = getNearestFeature(...),
+                counts = getFeatureCounts(...),
+                countsBig = getFeatureCountsBig(...),     
+                stop("Invalid annoType")
+  )
+  
+  if(!is.null(postProcessFun)) {
+    res <- do.call(postProcessFun, append(postProcessFunArgs, list(res), after=0))
+  }
+  
+  res
 }

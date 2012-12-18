@@ -3,9 +3,9 @@
 \title{Get counts of annotation within a defined window around each query range/position.}
 \usage{
   getFeatureCounts(sites.rd, features.rd, colnam = NULL,
-    widths = c(1000, 10000, 1e+06), weightsColname = NULL,
-    doInChunks = FALSE, chunkSize = 10000,
-    parallel = FALSE, chromSizes = NULL, ...)
+    chromSizes = NULL, widths = c(1000, 10000, 1e+06),
+    weightsColname = NULL, doInChunks = FALSE,
+    chunkSize = 10000, parallel = FALSE, ...)
 }
 \arguments{
   \item{sites.rd}{RangedData/GRanges object to be used as
@@ -17,6 +17,11 @@
   \item{colnam}{column name to be added to sites.rd for the
   newly calculated annotation...serves as a prefix to
   windows sizes!}
+
+  \item{chromSizes}{named vector of chromosome/space sizes
+  to be used for testing if a position is off the mappable
+  region. DEPRECATED and will be removed in future
+  release.}
 
   \item{widths}{a named/numeric vector of window sizes to
   be used for casting a net around each position. Default:
