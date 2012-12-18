@@ -327,7 +327,7 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     stopifnot(nrow(features.rd)>0)
     
     grangesFlag <- FALSE
-    if(is(sites.rd,"GRanges") & is(features.rd)=="GRanges") {
+    if(is(sites.rd,"GRanges") & is(features.rd,"GRanges")) {
     	grangesFlag <- TRUE
     	sites.rd <- as(sites.rd,"RangedData")
     	features.rd <- as(features.rd,"RangedData")
@@ -506,7 +506,7 @@ get2NearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either"
     stopifnot(nrow(features.rd)>0)
     
     grangesFlag <- FALSE
-    if(is(sites.rd,"GRanges") & is(features.rd)=="GRanges") {
+    if(is(sites.rd,"GRanges") & is(features.rd,"GRanges")) {
     	grangesFlag <- TRUE
     	sites.rd <- as(sites.rd,"RangedData")
     	features.rd <- as(features.rd,"RangedData")
@@ -829,7 +829,7 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
     stopifnot(nrow(features.rd)>0)
     
     grangesFlag <- FALSE
-    if(is(sites.rd,"GRanges") & is(features.rd)=="GRanges") {
+    if(is(sites.rd,"GRanges") & is(features.rd,"GRanges")) {
     	grangesFlag <- TRUE
     	sites.rd <- as(sites.rd,"RangedData")
     	features.rd <- as(features.rd,"RangedData")
@@ -964,7 +964,7 @@ getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(100
     stopifnot(nrow(features.rd)>0)
     
     grangesFlag <- FALSE
-    if(is(sites.rd,"GRanges") & is(features.rd)=="GRanges") {
+    if(is(sites.rd,"GRanges") & is(features.rd,"GRanges")) {
     	grangesFlag <- TRUE
     	sites.rd <- as(sites.rd,"RangedData")
     	features.rd <- as(features.rd,"RangedData")
@@ -1061,7 +1061,7 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=F, feat
     stopifnot(nrow(features.rd)>0)
     
     grangesFlag <- FALSE
-    if(is(sites.rd,"GRanges") & is(features.rd)=="GRanges") {
+    if(is(sites.rd,"GRanges") & is(features.rd,"GRanges")) {
     	grangesFlag <- TRUE
     	sites.rd <- as(sites.rd,"RangedData")
     	features.rd <- as(features.rd,"RangedData")
