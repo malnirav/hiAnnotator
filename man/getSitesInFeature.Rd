@@ -3,7 +3,7 @@
 \title{Find overlapping positions/ranges that match between the query and subject.}
 \usage{
   getSitesInFeature(sites.rd, features.rd, colnam = NULL,
-    asBool = F, feature.colnam = NULL,
+    asBool = FALSE, feature.colnam = NULL,
     strand.colnam = NULL, parallel = FALSE, ...)
 }
 \arguments{

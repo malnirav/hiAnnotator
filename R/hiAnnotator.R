@@ -266,7 +266,7 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 			close(z)
 			if (class(zlines)=="try-error") stop("Could not get thru to UCSC server - try later!")
 			raw.data <- textConnection(zlines)
-			chrom.info <- read.delim(raw.data,header=F,stringsAsFactors=F)[,1:2]
+			chrom.info <- read.delim(raw.data,header=FALSE,stringsAsFactors=FALSE)[,1:2]
 			chrom.info <- structure(chrom.info$V2, names=chrom.info$V1)
 			close(raw.data)
 		}
@@ -323,8 +323,6 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 #' nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TRUE)
 #' nearestGenes
 getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either", feature.colnam=NULL, strand.colnam=NULL, parallel=FALSE) {
-    stopifnot(nrow(sites.rd)>0)
-    stopifnot(nrow(features.rd)>0)
     
     grangesFlag <- FALSE
     if(is(sites.rd,"GRanges") & is(features.rd,"GRanges")) {
@@ -332,7 +330,10 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     	sites.rd <- as(sites.rd,"RangedData")
     	features.rd <- as(features.rd,"RangedData")
     }
-    
+
+    stopifnot(nrow(sites.rd)>0)
+    stopifnot(nrow(features.rd)>0)
+
     if (!any(names(sites.rd) %in% names(features.rd))) {
         stop("There are no spaces/chromosomes that are shared between the query (sites.rd) and subject (features.rd)")
     }
@@ -502,8 +503,6 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
 #' nearestGenes
 #'
 get2NearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either", feature.colnam=NULL, strand.colnam=NULL) {
-	stopifnot(nrow(sites.rd)>0)
-    stopifnot(nrow(features.rd)>0)
     
     grangesFlag <- FALSE
     if(is(sites.rd,"GRanges") & is(features.rd,"GRanges")) {
@@ -511,6 +510,9 @@ get2NearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either"
     	sites.rd <- as(sites.rd,"RangedData")
     	features.rd <- as(features.rd,"RangedData")
     }
+
+	stopifnot(nrow(sites.rd)>0)
+    stopifnot(nrow(features.rd)>0)
     
     if (!any(names(sites.rd) %in% names(features.rd))) {
         stop("There are no spaces/chromosomes that are shared between the query (sites.rd) and subject (features.rd)")
@@ -699,7 +701,7 @@ getLowestDists <- function(query=NULL, subject=NULL, subjectOrt=NULL, ok.chrs=NU
     names(dist.lowest2) <- ok.chrs
     
     ## fix cases where two nested features were returned by choosing the lowest absolute distances for both features.
-    res.nrst <- mapply(function(x,y) cbind(x,lowestDist=y),res.nrst,dist.lowest2, SIMPLIFY=F)
+    res.nrst <- mapply(function(x,y) cbind(x,lowestDist=y),res.nrst,dist.lowest2, SIMPLIFY=FALSE)
     res.nrst.i <- foreach(x=iter(ok.chrs),.inorder=TRUE,.export=c("res.nrst")) %dopar% {     
         mins <- tapply(abs(res.nrst[[x]][,"lowestDist"]),res.nrst[[x]][,"queryHits"],min); 
         res.nrst[[x]][mins[as.character(res.nrst[[x]][,"queryHits"])]==abs(res.nrst[[x]][,"lowestDist"]),]
@@ -825,8 +827,6 @@ resizeRangedData <- function(rd,width=NULL,boundary="center",spaceSizes=NULL,spa
 #' geneCounts
 #' # For large annotations, use getFeatureCountsBig
 getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL, widths=c(1000,10000,1000000), weightsColname=NULL, doInChunks=FALSE, chunkSize=10000, parallel=FALSE, ...) {
-	stopifnot(nrow(sites.rd)>0)
-    stopifnot(nrow(features.rd)>0)
     
     grangesFlag <- FALSE
     if(is(sites.rd,"GRanges") & is(features.rd,"GRanges")) {
@@ -834,6 +834,9 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
     	sites.rd <- as(sites.rd,"RangedData")
     	features.rd <- as(features.rd,"RangedData")
     }
+
+	stopifnot(nrow(sites.rd)>0)
+    stopifnot(nrow(features.rd)>0)
     
     if (!any(names(sites.rd) %in% names(features.rd))) {
         stop("There are no spaces/chromosomes that are shared between the query (sites.rd) and subject (features.rd)")
@@ -925,7 +928,7 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
 #' Function to clean the supplied string from punctuations and spaces so it can be used as column headings.
 #'
 #' @param x string or a vector to be cleaned.
-#' @param description OPTIONAL string identifying the purpose supplied string in x to be displayed in the cleaning message.
+#' @param description OPTIONAL string identifying the purpose of the supplied string in x to be displayed in the cleaning message. This triggers a message.
 #'
 #' @return cleaned string or a vector.
 #'
@@ -937,9 +940,11 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
 #' cleanColname("HIV-test")
 #' cleanColname("HIV*test")
 #' cleanColname("HIV-test","myAlias")
-cleanColname <- function(x, description="colnam") {
+cleanColname <- function(x, description=NULL) {
 	if(any(grepl("[[:punct:]]",x) | grepl("[[:space:]]",x))) {
-		message("Cleaning the supplied '",description,"'")
+		if(!is.null(description)) { 
+			message("Cleaning the supplied '",description,"'") 
+		}
 		x <- gsub("\\_+","_",gsub("[[:space:]]","_",gsub("[[:punct:]]","_",x)))
 	}
 	return(x)
@@ -960,8 +965,6 @@ cleanColname <- function(x, description="colnam") {
 #'
 #' @export
 getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(1000,10000,1000000)) {
-	stopifnot(nrow(sites.rd)>0)
-    stopifnot(nrow(features.rd)>0)
     
     grangesFlag <- FALSE
     if(is(sites.rd,"GRanges") & is(features.rd,"GRanges")) {
@@ -969,6 +972,9 @@ getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(100
     	sites.rd <- as(sites.rd,"RangedData")
     	features.rd <- as(features.rd,"RangedData")
     }
+
+	stopifnot(nrow(sites.rd)>0)
+    stopifnot(nrow(features.rd)>0)
     
     if (!any(names(sites.rd) %in% names(features.rd))) {
         stop("There are no spaces/chromosomes that are shared between the query (sites.rd) and subject (features.rd)")
@@ -1056,9 +1062,7 @@ getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(100
 #' # Parallel version of getSitesInFeature
 #' InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,parallel=TRUE)
 #' InGenes
-getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=F, feature.colnam=NULL, strand.colnam=NULL, parallel=FALSE, ...) {    
-	stopifnot(nrow(sites.rd)>0)
-    stopifnot(nrow(features.rd)>0)
+getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=FALSE, feature.colnam=NULL, strand.colnam=NULL, parallel=FALSE, ...) {    
     
     grangesFlag <- FALSE
     if(is(sites.rd,"GRanges") & is(features.rd,"GRanges")) {
@@ -1067,6 +1071,9 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=F, feat
     	features.rd <- as(features.rd,"RangedData")
     }
     
+	stopifnot(nrow(sites.rd)>0)
+    stopifnot(nrow(features.rd)>0)
+
     if(is.null(colnam)) {
         stop("Please define the colnam parameter for the new column(s) to be appended.")
     }
@@ -1158,16 +1165,16 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=F, feat
 
 #' Annotate a RangedData/GRanges object using one of annotation functions. 
 #'
-#' This is a wrapper function which calls one of following functions depending on annotType parameter: \code{\link{getFeatureCounts}}, \code{\link{getFeatureCountsBig}}, \code{\link{getNearestFeature}}, code{\link{getSitesInFeature}} 
+#' This is a wrapper function which calls one of following functions depending on annotType parameter: \code{\link{getFeatureCounts}}, \code{\link{getFeatureCountsBig}}, \code{\link{getNearestFeature}}, \code{\link{get2NearestFeature}}, code{\link{getSitesInFeature}} 
 #'
-#' @param annotType one of following: within, nearest, counts, countsBig.
+#' @param annotType one of following: within, nearest, twoNearest, counts, countsBig.
 #' @param ... Additional parameters to be passed to the respective annotation function.
 #' @param postProcessFun function to call on the resulting object for any post processing steps.
 #' @param postProcessFunArgs additional arguments for postProcessFun as a list.
 #'
 #' @return a RangedData/GRanges object with new annotation columns appended at the end of sites.rd.
 #'
-#' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, \code{\link{getFeatureCountsBig}}, \code{\link{getNearestFeature}}, code{\link{getSitesInFeature}}.
+#' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, \code{\link{getFeatureCountsBig}}, \code{\link{getNearestFeature}}, \code{\link{get2NearestFeature}}, code{\link{getSitesInFeature}}.
 #'
 #' @export
 #'
@@ -1199,6 +1206,7 @@ doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL, postProcessFu
   res <- switch(EXPR = annotType,
                 within = getSitesInFeature(...),
                 nearest = getNearestFeature(...),
+                twoNearest = get2NearestFeature(...),
                 counts = getFeatureCounts(...),
                 countsBig = getFeatureCountsBig(...),     
                 stop("Invalid annoType")

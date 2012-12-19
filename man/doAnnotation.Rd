@@ -7,7 +7,7 @@
 }
 \arguments{
   \item{annotType}{one of following: within, nearest,
-  counts, countsBig.}
+  twoNearest, counts, countsBig.}
 
   \item{...}{Additional parameters to be passed to the
   respective annotation function.}
@@ -28,6 +28,7 @@
   \code{\link{getFeatureCounts}},
   \code{\link{getFeatureCountsBig}},
   \code{\link{getNearestFeature}},
+  \code{\link{get2NearestFeature}},
   code{\link{getSitesInFeature}}
 }
 \examples{
@@ -56,6 +57,7 @@ doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene", postProcessFun=gen
   \code{\link{getFeatureCounts}},
   \code{\link{getFeatureCountsBig}},
   \code{\link{getNearestFeature}},
+  \code{\link{get2NearestFeature}},
   code{\link{getSitesInFeature}}.
 }
 
