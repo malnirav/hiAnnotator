@@ -94,8 +94,8 @@ getUCSCtable <- function(tableName, trackName, bsession=NULL, freeze="hg18", ...
 #'
 #' @param col.names column names from a dataframe or a RangedData object
 #' @param col.options potential column names or partial names that may exist in col.names
-#' @param col.type type of column information the function is searching for, used in construction of error messages. 
-#' @param multiple.ok if multiple matches are found then return indices, else spit an error out.
+#' @param col.type type of column information the function is searching for, used in construction of error messages. Default is NULL.
+#' @param multiple.ok if multiple matches are found then return indices, else spit an error out. Default is TRUE.
 #'
 #' @return the index of usable column(s) or an error if no applicable column is found.
 #'
@@ -108,7 +108,7 @@ getUCSCtable <- function(tableName, trackName, bsession=NULL, freeze="hg18", ...
 #' names(sites)
 #' getRelevantCol(names(sites),c("chr","chromosome","tname","space","chrom","contig"),"space")
 #' getRelevantCol(names(sites),c("ort","orientation","strand"),"strand")
-getRelevantCol <- function(col.names, col.options, col.type, multiple.ok=FALSE) {
+getRelevantCol <- function(col.names, col.options, col.type=NULL, multiple.ok=FALSE) {
     answer <- unique(as.numeric(unlist(sapply(col.options,function(x) grep(x,col.names,ignore.case=TRUE)))))
     if(length(answer)>1) {
         if(!multiple.ok) {
@@ -325,50 +325,29 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either", feature.colnam=NULL, strand.colnam=NULL, parallel=FALSE) {
     
     grangesFlag <- FALSE
-    if(is(sites.rd,"GRanges") & is(features.rd,"GRanges")) {
-    	grangesFlag <- TRUE
-    	sites.rd <- as(sites.rd,"RangedData")
-    	features.rd <- as(features.rd,"RangedData")
-    }
-
-    stopifnot(nrow(sites.rd)>0)
-    stopifnot(nrow(features.rd)>0)
-
-    if (!any(names(sites.rd) %in% names(features.rd))) {
-        stop("There are no spaces/chromosomes that are shared between the query (sites.rd) and subject (features.rd)")
+    .checkArgsSetDefaults()
+    
+    ## do a check of strand column in features.rd ##
+    if(is.null(strand.colnam) & is.na(strandCol)) { 
+        message("No orientation column found in features.rd. Using '+' as default.")
+        features.rd$strand <- "+"
     }
     
-    if(is.null(colnam)) {
-        stop("Please define the colnam parameter for the new column(s) to be appended.")
-    }
-    
-    ## use only chromosomes that are present in both sites.rd and features.rd ##
-    ok.chrs <- intersect(space(sites.rd),space(features.rd))
-    features.rd <- features.rd[names(features.rd) %in% ok.chrs]
-    
-    if(is.null(feature.colnam)) {
-        featureName <- getRelevantCol(colnames(features.rd),c("name","featureName"),"featureName",multiple.ok=TRUE)
-        feature.colnam <- colnames(features.rd)[featureName][1]
-        message("Using column ", feature.colnam, " for feature.colnam parameter.")
+    if(!is.na(strandCol) & strandCol!="strand") { 
+    	features.rd$strand <- unlist(values(features.rd))[strandCol] 
     }
     
     ## do a check of strand column in sites.rd ##
-    answer <- unique(as.numeric(unlist(sapply(c("strand","orientation","ort"), function(x) grep(x,colnames(sites.rd), ignore.case = TRUE)))))
+    answer <- try(getRelevantCol(colnames(sites.rd),c("strand","orientation","ort"),"strand",multiple.ok=TRUE), silent=TRUE)
     strandCol <- colnames(sites.rd)[answer][1]
     if(is.na(strandCol)) { 
         message("No orientation column found in sites.rd. Using '+' as default.")
         sites.rd$strand <- "+" 
     }
-    
-    ## do a check of strand column in features.rd ##
-    answer <- unique(as.numeric(unlist(sapply(c("strand","orientation","ort"), function(x) grep(x,colnames(features.rd), ignore.case = TRUE)))))
-    strandCol <- colnames(features.rd)[answer][1]
-    if(is.null(strand.colnam) & is.na(strandCol)) { 
-        message("No orientation column found in features.rd. Using '+' as default.")
-        features.rd$strand <- "+"
-    }
-    if(!is.na(strandCol) & strandCol!="strand") { features.rd$strand <- unlist(values(features.rd))[strandCol] }
-    
+
+    ## use only chromosomes that are present in both sites.rd and features.rd ##
+	features.rd <- features.rd[names(features.rd) %in% ok.chrs]    
+        
     ## convert any factor columns to character to avoid downstream issues with NAs and unlisting of CompressedCharacterList object ##
     factorCols <- sapply(colnames(features.rd),function(x) class(features.rd[[x]]))=="factor"
     if(any(factorCols)) {
@@ -449,8 +428,7 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     names(res.i) <- ok.chrs
     
     ## add columns back to query object
-    prefix <- ifelse(side=="either","",side)
-    good.rows <- space(sites.rd) %in% ok.chrs
+    prefix <- ifelse(side=="either","",side)    
     colnam <- cleanColname(colnam)
     
     sites.rd[[paste(prefix,colnam,sep="")]][good.rows] <- unsplit(lapply(res.i,"[[","featureName"), space(sites.rd)[good.rows], drop = TRUE)
@@ -505,48 +483,28 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
 get2NearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either", feature.colnam=NULL, strand.colnam=NULL) {
     
     grangesFlag <- FALSE
-    if(is(sites.rd,"GRanges") & is(features.rd,"GRanges")) {
-    	grangesFlag <- TRUE
-    	sites.rd <- as(sites.rd,"RangedData")
-    	features.rd <- as(features.rd,"RangedData")
-    }
-
-	stopifnot(nrow(sites.rd)>0)
-    stopifnot(nrow(features.rd)>0)
-    
-    if (!any(names(sites.rd) %in% names(features.rd))) {
-        stop("There are no spaces/chromosomes that are shared between the query (sites.rd) and subject (features.rd)")
+    .checkArgsSetDefaults()
+        
+    ## do a check of strand column in features.rd ##
+    if(is.null(strand.colnam) & is.na(strandCol)) { 
+        message("No orientation column found in features.rd. Using '+' as default.")
+        features.rd$strand <- "+"
     }
     
-    if(is.null(colnam)) {
-        stop("Please define the colnam parameter for the new column(s) to be appended.")
-    }
-    
-    ## use only chromosomes that are present in both sites.rd and features.rd ##
-    ok.chrs <- intersect(space(sites.rd),space(features.rd))
-	features.rd <- features.rd[names(features.rd) %in% ok.chrs]    
-
-    if(is.null(feature.colnam)) {
-        featureName <- getRelevantCol(colnames(features.rd),c("name","featureName"),"featureName",multiple.ok=TRUE)
-        feature.colnam <- colnames(features.rd)[featureName][1]  
+    if(!is.na(strandCol) & strandCol!="strand") { 
+    	features.rd$strand <- unlist(values(features.rd))[strandCol] 
     }
     
     ## do a check of strand column in sites.rd ##
-    answer <- unique(as.numeric(unlist(sapply(c("strand","orientation","ort"), function(x) grep(x,colnames(sites.rd), ignore.case = TRUE)))))
+    answer <- try(getRelevantCol(colnames(sites.rd),c("strand","orientation","ort"),"strand",multiple.ok=TRUE), silent=TRUE)
     strandCol <- colnames(sites.rd)[answer][1]
     if(is.na(strandCol)) { 
         message("No orientation column found in sites.rd. Using '+' as default.")
         sites.rd$strand <- "+" 
     }
-    
-    ## do a check of strand column in features.rd ##
-    answer <- unique(as.numeric(unlist(sapply(c("strand","orientation","ort"), function(x) grep(x,colnames(features.rd), ignore.case = TRUE)))))
-    strandCol <- colnames(features.rd)[answer][1]
-    if(is.null(strand.colnam) & is.na(strandCol)) { 
-        message("No orientation column found in features.rd. Using '+' as default.")
-        features.rd$strand <- "+"
-    }
-    if(!is.na(strandCol) & strandCol!="strand") { features.rd$strand <- unlist(values(features.rd))[strandCol] }
+
+    ## use only chromosomes that are present in both sites.rd and features.rd ##
+	features.rd <- features.rd[names(features.rd) %in% ok.chrs]    
 
     ## convert any factor columns to character to avoid downstream issues with NAs and unlisting of CompressedCharacterList object ##
     factorCols <- sapply(colnames(features.rd),function(x) class(features.rd[[x]]))=="factor"
@@ -593,7 +551,6 @@ get2NearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either"
     d2 <- sapply(ok.chrs, function(x) ifelse(dist.nrst[[x]]<0, ifelse(vals.q[[x]][,"strand"]=="+",res.right2[[x]],res.left2[[x]]), ifelse(vals.q[[x]][,"strand"]=="+",res.right1[[x]],res.left1[[x]])))
 
     prefix <- ifelse(side=="either","Either",side)
-    good.rows <- space(sites.rd) %in% ok.chrs
     
     message("u = upstream, d = downstream")
     message("thinking concept: u2.....u1.....intSite(+).....d1.....d2")
@@ -829,21 +786,8 @@ resizeRangedData <- function(rd,width=NULL,boundary="center",spaceSizes=NULL,spa
 getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL, widths=c(1000,10000,1000000), weightsColname=NULL, doInChunks=FALSE, chunkSize=10000, parallel=FALSE, ...) {
     
     grangesFlag <- FALSE
-    if(is(sites.rd,"GRanges") & is(features.rd,"GRanges")) {
-    	grangesFlag <- TRUE
-    	sites.rd <- as(sites.rd,"RangedData")
-    	features.rd <- as(features.rd,"RangedData")
-    }
-
-	stopifnot(nrow(sites.rd)>0)
-    stopifnot(nrow(features.rd)>0)
+    .checkArgsSetDefaults()
     
-    if (!any(names(sites.rd) %in% names(features.rd))) {
-        stop("There are no spaces/chromosomes that are shared between the query (sites.rd) and subject (features.rd)")
-    }
-    if(is.null(colnam)) {
-        stop("Please define the colnam parameter for the new column(s) to be appended.")
-    }
     if(!is.null(chromSizes)) {
     	## for historical version...display a warning if this parameter is passed!
         warning("decrepit option: chromSizes parameter is no longer required and will be ignored!")
@@ -884,7 +828,6 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
         	}
         	
             ## use only chromosomes that are present in both sites.rd and features.rd ##
-            ok.chrs <- intersect(space(sites.rd),space(features.rd))
             features.rd <- features.rd[names(features.rd) %in% ok.chrs]
             
             query <- sites.rd[,-c(1:length(colnames(sites.rd)))]
@@ -967,21 +910,7 @@ cleanColname <- function(x, description=NULL) {
 getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(1000,10000,1000000)) {
     
     grangesFlag <- FALSE
-    if(is(sites.rd,"GRanges") & is(features.rd,"GRanges")) {
-    	grangesFlag <- TRUE
-    	sites.rd <- as(sites.rd,"RangedData")
-    	features.rd <- as(features.rd,"RangedData")
-    }
-
-	stopifnot(nrow(sites.rd)>0)
-    stopifnot(nrow(features.rd)>0)
-    
-    if (!any(names(sites.rd) %in% names(features.rd))) {
-        stop("There are no spaces/chromosomes that are shared between the query (sites.rd) and subject (features.rd)")
-    }
-    if(is.null(colnam)) {
-        stop("Please define the colnam parameter for the new column(s) to be appended.")
-    }
+    .checkArgsSetDefaults()
 
 	# only get labels if not supplied
     if(is.null(names(widths))) {
@@ -989,9 +918,7 @@ getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(100
     }
 	
     ## use only chromosomes that are present in both sites.rd and features.rd ##
-    ok.chrs <- intersect(space(sites.rd),space(features.rd))
     features.rd <- ranges(features.rd[names(features.rd) %in% ok.chrs])
-    good.rows <- space(sites.rd) %in% ok.chrs
     
     colnam <- cleanColname(colnam)
     
@@ -1065,22 +992,7 @@ getFeatureCountsBig <- function(sites.rd, features.rd, colnam=NULL, widths=c(100
 getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=FALSE, feature.colnam=NULL, strand.colnam=NULL, parallel=FALSE, ...) {    
     
     grangesFlag <- FALSE
-    if(is(sites.rd,"GRanges") & is(features.rd,"GRanges")) {
-    	grangesFlag <- TRUE
-    	sites.rd <- as(sites.rd,"RangedData")
-    	features.rd <- as(features.rd,"RangedData")
-    }
-    
-	stopifnot(nrow(sites.rd)>0)
-    stopifnot(nrow(features.rd)>0)
-
-    if(is.null(colnam)) {
-        stop("Please define the colnam parameter for the new column(s) to be appended.")
-    }
-    
-    if (!any(names(sites.rd) %in% names(features.rd))) {
-        stop("There are no spaces/chromosomes that are shared between the query (sites.rd) and subject (features.rd)")
-    }
+    .checkArgsSetDefaults()
     
     if (asBool) {
         res <- sites.rd %in% features.rd
@@ -1090,21 +1002,13 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, asBool=FALSE, 
         res <- as.data.frame(as.matrix(findOverlaps(sites.rd,features.rd,...)))
         stopifnot(!any(is.na(res)))                    
         
-        ## get feature names and strand for identifying overlapping genes
-        if(is.null(feature.colnam)) {
-            featureName <- getRelevantCol(colnames(features.rd),c("name","featureName"),"featureName",multiple.ok=TRUE)
-            feature.colnam <- colnames(features.rd)[featureName][1]
-        }
-        
+        ## get strand for identifying overlapping genes
         skipStrandCalc <- FALSE
-        if(is.null(strand.colnam)) {
-            strandCol <- grep('strand',colnames(features.rd),ignore.case=TRUE,value=TRUE)[1]
-            if(is.na(strandCol)) {
-                skipStrandCalc <- TRUE
-            } else {
-                strand.colnam <- strandCol
-            }
-        }
+        if(is.na(strandCol)) {
+			skipStrandCalc <- TRUE
+		} else {
+			strand.colnam <- strandCol
+		}
                 
         res$features <- unlist(values(features.rd))[feature.colnam][,1][res$subjectHits]
         if(skipStrandCalc) {
@@ -1217,4 +1121,59 @@ doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL, postProcessFu
   }
   
   res
+}
+
+#' Check args and set defaults.
+#'
+#' This function checks all the arguments passed to an annotation function and set default values for later use. Evaluation of this function happens in the parent function.
+#'
+.checkArgsSetDefaults <- function() {
+	
+	checks <- expression(
+		if(is(sites.rd,"GRanges")) {
+			grangesFlag <- TRUE
+			sites.rd <- as(sites.rd,"RangedData")
+		},
+		
+		if(is(features.rd,"GRanges")) {
+			features.rd <- as(features.rd,"RangedData")
+		},
+		
+		if(!identical(class(sites.rd),class(features.rd))) {
+			stop("sites.rd & features.rd are of different classes. Please make them the same class: GRanges or RangedData")			
+		},
+		
+		stopifnot(nrow(sites.rd)>0),
+		stopifnot(nrow(features.rd)>0),
+	
+		if(is.null(colnam)) {
+			stop("Please define the colnam parameter for the new column(s) to be appended.")
+		},
+		
+		if (!any(names(sites.rd) %in% names(features.rd))) {
+			stop("There are no spaces/chromosomes that are shared between the query (sites.rd) and subject (features.rd)")
+		},
+		
+		## get feature names column for adding feature name to sites.rd ##
+		if (exists("feature.colnam")) {
+			if(is.null(feature.colnam)) {
+				featureName <- getRelevantCol(colnames(features.rd),c("name","featureName"),"featureName",multiple.ok=TRUE)
+				feature.colnam <- colnames(features.rd)[featureName][1]
+			}
+		},
+		
+		## get strand names column for adding/getting strands of the feature to sites.rd ##
+		if (exists("strand.colnam")) {
+			if(is.null(strand.colnam)) {
+				answer <- try(getRelevantCol(colnames(features.rd),c("strand","orientation","ort"),"strand",multiple.ok=TRUE), silent=TRUE)
+				strandCol <- colnames(features.rd)[answer][1]
+			}
+		},
+		
+		## use only chromosomes that are present in both sites.rd and features.rd ##
+		ok.chrs <- intersect(space(sites.rd),space(features.rd)),
+		good.rows <- space(sites.rd) %in% ok.chrs		
+    )
+    
+    eval.parent(checks)
 }
