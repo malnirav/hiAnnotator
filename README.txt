@@ -1,6 +1,6 @@
-~ Visit http://malnirav.github.com/hiAnnotator/ to see a quick tutorial.
+## Visit http://malnirav.github.com/hiAnnotator/ to see a quick tutorial.
 
-~ Running the parallel version of getNearestFeature, getSitesInFeature, getFeatureCounts:
+## Running the parallel version of getNearestFeature, getSitesInFeature, getFeatureCounts:
     1) Load one of the following libraries depending on machine/OS: doMC, doSMP, doSNOW, doMPI. 
     
     2) Register the parallel backend using registerDoXXXX() function depending on the library. See the examples below:  
