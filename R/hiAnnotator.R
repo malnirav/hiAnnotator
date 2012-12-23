@@ -3,7 +3,7 @@
 #' hiAnnotator contains set of functions which allow users to annotate a RangedData or GRanges object with custom set of annotations. The basic philosophy of this package is to take two RangedData or GRanges objects (query & subject) with common set of space/seqnames (i.e. chromosomes) and return associated annotation per space and rows from the query matching space and rows from the subject (i.e. genes or cpg islands).
 # The package comes with three types of annotation functions which calculates if a position from query is: within a feature, near a feature, or count features in defined window sizes. Moreover, one can utilize parallel backend for each annotation function to utilize multiple processors. In addition, the package is equipped with a wrapper function, which finds appropriate columns needed to make a RangedData or GRanges object from a common dataframe..
 #'
-#' @import IRanges foreach iterators doBy RMySQL rtracklayer dataframe GenomicRanges BSgenome
+#' @import IRanges foreach iterators plyr RMySQL rtracklayer dataframe GenomicRanges BSgenome
 #' @docType package
 #' @name hiAnnotator
 NULL
@@ -213,10 +213,10 @@ makeRangedData <- function(x, positionsOnly=FALSE, soloStart=FALSE, chromCol=NUL
             stop("NAs found in column containing end positions")
         }
         x$mid <- with(x,(start+end)/2)
-        x <- orderBy(~space+mid,x)
+        x <- arrange(x,space,mid)
         x$mid <- NULL
     } else {  
-        x <- orderBy(~space+start,x)
+        x <- arrange(x,space,start)
         x$end <- x$start
     }
     
@@ -423,7 +423,7 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
             toprune$lowestDist <- as.numeric(tempStore[as.character(toprune$queryHits)])
             toprune <- rbind(goods,unique(toprune))
         }
-        return(orderBy(~queryHits,toprune))
+        return(arrange(toprune,queryHits))
     }  
     names(res.i) <- ok.chrs
     
@@ -884,13 +884,11 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
 #' cleanColname("HIV*test")
 #' cleanColname("HIV-test","myAlias")
 cleanColname <- function(x, description=NULL) {
-	if(any(grepl("[[:punct:]]",x) | grepl("[[:space:]]",x))) {
-		if(!is.null(description)) { 
-			message("Cleaning the supplied '",description,"'") 
-		}
-		x <- gsub("\\_+","_",gsub("[[:space:]]","_",gsub("[[:punct:]]","_",x)))
-	}
-	return(x)
+  newname <- gsub("[._]+","_",make.names(x,unique=TRUE))
+  if(any(newname != x ))
+    if(!is.null(description))
+      message("Cleaning the supplied '",description,"'")
+  newname
 }
 
 #' Get counts of annotation within a defined window around each query range/position for large annotation objects spanning greater than 100 million rows. This is still in beta phase. 
@@ -1107,13 +1105,13 @@ doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL, postProcessFu
     stop("Please define the annotType parameter to identify which type of annotation to perform: within, nearest, counts")
   }
   
-  res <- switch(EXPR = annotType,
+  res <- switch(match.arg(annotType, c("within", "nearest", "twoNearest", "counts", "countsBig")),
                 within = getSitesInFeature(...),
                 nearest = getNearestFeature(...),
                 twoNearest = get2NearestFeature(...),
                 counts = getFeatureCounts(...),
                 countsBig = getFeatureCountsBig(...),     
-                stop("Invalid annoType")
+                stop("Invalid annoType parameter")
   )
   
   if(!is.null(postProcessFun)) {
