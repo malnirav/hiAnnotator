@@ -21,12 +21,13 @@ Depends:
     IRanges,
     foreach,
     iterators,
-    doBy,
     RMySQL,
     rtracklayer,
     dataframe,
     GenomicRanges,
     BSgenome
+Imports:
+	plyr   
 License: GPL (>= 2)
 LazyLoad: yes
 Collate:
