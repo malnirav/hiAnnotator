@@ -17,8 +17,8 @@
   newly calculated annotation...serves a core!}
 
   \item{side}{boundary of annotation to use to calculate
-  the nearest distance. Options are '5p','3p', or the
-  default 'either'.}
+  the nearest distance. Options are '5p','3p',
+  'either'(default), or 'midpoint'.}
 
   \item{feature.colnam}{column name from features.rd to be
   used for retrieving the nearest feature name. By default
@@ -47,16 +47,17 @@
   interest.
 }
 \note{
-  For cases where a position is at the edge and there are
-  no feature up/down stream since it would fall off the
-  chromosome, the function simply returns the nearest
-  feature. In addition, if there are multiple locations
-  where a query falls into, the function arbitrarily
-  chooses one to serve as the nearest feature, then reports
-  2 upstream & downstream feature. That may occasionally
-  yield features which are the same upstream and dowstream,
-  which is commonly encountered when studying spliced genes
-  or phenomena related to it.
+  When side='midpoint', the distance to nearest feature is
+  calculated by (start+stop)/2. For cases where a position
+  is at the edge and there are no feature up/down stream
+  since it would fall off the chromosome, the function
+  simply returns the nearest feature. In addition, if there
+  are multiple locations where a query falls into, the
+  function arbitrarily chooses one to serve as the nearest
+  feature, then reports 2 upstream & downstream feature.
+  That may occasionally yield features which are the same
+  upstream and dowstream, which is commonly encountered
+  when studying spliced genes or phenomena related to it.
 }
 \examples{
 # Convert a dataframe to RangedData/GRanges object

@@ -17,8 +17,8 @@
   newly calculated annotation...serves a core!}
 
   \item{side}{boundary of annotation to use to calculate
-  the nearest distance. Options are '5p','3p', or the
-  default 'either'.}
+  the nearest distance. Options are '5p','3p',
+  'either'(default), or 'midpoint'.}
 
   \item{feature.colnam}{column name from features.rd to be
   used for retrieving the nearest feature name. By default
@@ -52,13 +52,15 @@
   position of interest.
 }
 \note{
-  Try not to use this function for >50 spaces unless you
-  have tons fo memory. If parallel=TRUE, then be sure to
-  have a paralle backend registered before running the
-  function. One can use any of the following libraries
-  compatible with \code{\link{foreach}}: doMC, doSMP,
-  doSNOW, doMPI. For example: library(doSMP); w <-
-  startWorkers(2); registerDoSMP(w)
+  When side='midpoint', the distance to nearest feature is
+  calculated by (start+stop)/2. Try not to use this
+  function for >50 spaces unless you have tons fo memory.
+  If parallel=TRUE, then be sure to have a paralle backend
+  registered before running the function. One can use any
+  of the following libraries compatible with
+  \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For
+  example: library(doSMP); w <- startWorkers(2);
+  registerDoSMP(w)
 }
 \examples{
 # Convert a dataframe to RangedData/GRanges object

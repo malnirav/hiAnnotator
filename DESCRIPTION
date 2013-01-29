@@ -27,7 +27,7 @@ Depends:
     GenomicRanges,
     BSgenome
 Imports:
-	plyr   
+    plyr
 License: GPL (>= 2)
 LazyLoad: yes
 Collate:
