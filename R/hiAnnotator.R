@@ -165,7 +165,7 @@ makeRangedData <- function(x, positionsOnly=FALSE, soloStart=FALSE, chromCol=NUL
     
     if(is.null(strandCol)) {
         colIndex <- getRelevantCol(names(x),c("ort","orientation","strand"),"strand")
-        names(x)[colIndex] <- "strand"
+        strandCol <- names(x)[colIndex]
     }    
     x$strand <- x[,strandCol]
         
