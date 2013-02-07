@@ -4,7 +4,8 @@
 \usage{
   getNearestFeature(sites.rd, features.rd, colnam = NULL,
     side = "either", feature.colnam = NULL,
-    strand.colnam = NULL, parallel = FALSE)
+    strand.colnam = NULL, dists.only = FALSE,
+    parallel = FALSE)
 }
 \arguments{
   \item{sites.rd}{RangedData/GRanges object to be used as
@@ -32,6 +33,11 @@
   If it doesn't the function will assume the supplied
   annotation is in '+' orientation (5' -> 3'). The same
   applies to strand column in sites.rd.}
+
+  \item{dists.only}{flag to return distances only. If this
+  is TRUE, then 'feature.colnam' is not required and only
+  distance to the nearest feature will be returned. By
+  default this is FALSE.}
 
   \item{parallel}{use parallel backend to perform
   calculation with \code{\link{foreach}}. Defaults to

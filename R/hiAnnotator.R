@@ -286,6 +286,7 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 #' @param side boundary of annotation to use to calculate the nearest distance. Options are '5p','3p', 'either'(default), or 'midpoint'.
 #' @param feature.colnam column name from features.rd to be used for retrieving the nearest feature name. By default this is NULL assuming that features.rd has a column that includes the word 'name' somewhere in it.
 #' @param strand.colnam column name from features.rd to be used for retrieving the nearest feature's orientation. By default this is NULL assuming that features.rd has a column that includes the word 'strand' somewhere in it. If it doesn't the function will assume the supplied annotation is in '+' orientation (5' -> 3'). The same applies to strand column in sites.rd.
+#' @param dists.only flag to return distances only. If this is TRUE, then 'feature.colnam' is not required and only distance to the nearest feature will be returned. By default this is FALSE.
 #' @param parallel use parallel backend to perform calculation with \code{\link{foreach}}. Defaults to FALSE. If no parallel backend is registered, then a serial version of foreach is ran using \code{\link{registerDoSEQ()}}.
 #'
 #' @return a RangedData/GRanges object with new annotation columns appended at the end of sites.rd.
@@ -318,7 +319,7 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 #' # Parallel version of getNearestFeature
 #' nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TRUE)
 #' nearestGenes
-getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either", feature.colnam=NULL, strand.colnam=NULL, parallel=FALSE) {
+getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either", feature.colnam=NULL, strand.colnam=NULL, dists.only=FALSE, parallel=FALSE) {
     
     grangesFlag <- FALSE
     .checkArgsSetDefaults()
@@ -344,10 +345,15 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     ## use only chromosomes that are present in both sites.rd and features.rd ##
 	features.rd <- features.rd[names(features.rd) %in% ok.chrs]    
         
-    ## convert any factor columns to character to avoid downstream issues with NAs and unlisting of CompressedCharacterList object ##
+    ## convert any factor/Rle columns to character to avoid downstream issues with NAs and unlisting of CompressedCharacterList object ##
     factorCols <- sapply(colnames(features.rd),function(x) class(features.rd[[x]]))=="factor"
     if(any(factorCols)) {
         for (x in names(which(factorCols))) { features.rd[[x]] <- as.character(features.rd[[x]]) }        
+    }
+    
+    rleCols <- sapply(colnames(features.rd),function(x) class(features.rd[[x]]))=="Rle"
+    if(any(rleCols)) {
+        for (x in names(which(rleCols))) { features.rd[[x]] <- as.character(features.rd[[x]]) }        
     }
     
     ## extract required objects to streamline downstream code ##
@@ -375,6 +381,9 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
     
     if(!parallel) { registerDoSEQ() }
     
+    prefix <- ifelse(side=="either","",side)    
+    colnam <- cleanColname(colnam)
+    
     ## first get the nearest indices ##
     res <- foreach(x=iter(ok.chrs), .inorder=TRUE, .export=c("query","subject"), .packages="IRanges") %dopar% { 
 		as.matrix(nearest(query[[x]], subject[[x]], select="all")) 
@@ -390,52 +399,74 @@ getNearestFeature <- function(sites.rd, features.rd, colnam=NULL, side="either",
         tofix <- names(which(unlist(lapply(res,class))!="matrix"))
         for (i in tofix) { res[[i]] <- t(res[[i]]) }
     }
+        
+    if(!dists.only) {
+    	## for the feature of shortest indices, get the names, and strand attributes
+		featureName <- foreach(x=iter(ok.chrs), .inorder=TRUE, .export=c("vals.s","res","feature.colnam")) %dopar% {
+			vals.s[[x]][res[[x]][,"subjectHits"],feature.colnam] 
+		}     
     
-    ## for the feature of shortest indices, get the names, and strand attributes
-    featureName <- foreach(x=iter(ok.chrs), .inorder=TRUE, .export=c("vals.s","res","feature.colnam")) %dopar% {
-		vals.s[[x]][res[[x]][,"subjectHits"],feature.colnam] 
-    }     
+		ort <- foreach(x=iter(ok.chrs), .inorder=TRUE, .export=c("vals.s","res")) %dopar% { 
+			vals.s[[x]][res[[x]][,"subjectHits"],"strand"]
+		}     
+		
+    	names(featureName) <- names(ort) <- ok.chrs
+
+    	stopifnot(identical(lapply(res,nrow),lapply(featureName,length))) ## check for safety
+		stopifnot(identical(lapply(res,nrow),lapply(ort,length))) ## check for safety
     
-    ort <- foreach(x=iter(ok.chrs), .inorder=TRUE, .export=c("vals.s","res","feature.colnam")) %dopar% { 
-    	vals.s[[x]][res[[x]][,"subjectHits"],"strand"]
-    }     
-    
-    names(featureName) <- names(ort) <- ok.chrs
-    
-    stopifnot(identical(lapply(res,nrow),lapply(featureName,length))) ## check for safety
-    stopifnot(identical(lapply(res,nrow),lapply(ort,length))) ## check for safety
-    
-    ## fix cases where two equally nearest features were returned by concatenating feature names and Ort while returning one distance per query
-    res.i <- foreach(x=iter(ok.chrs), .inorder=TRUE, .export=c("ort","res","featureName")) %dopar% {
-        toprune <- as.data.frame(res[[x]])
-        toprune$featureName <- featureName[[x]]
-        toprune$ort <- ort[[x]]
-        toprune <- unique(toprune[,-2])
-        counts <- table(toprune$queryHits)
-        ismulti <- toprune$queryHits %in% as.numeric(names(counts[counts>1]))
-        if(any(ismulti)) {
-            goods <- toprune[!ismulti,]
-            toprune <- toprune[ismulti,]
-            tempStore <- with(toprune,sapply(tapply(featureName,queryHits,unique),paste,collapse=","))
-            toprune$featureName <- as.character(tempStore[as.character(toprune$queryHits)])            
-            tempStore <- with(toprune,sapply(tapply(ort,queryHits,unique),paste,collapse=","))
-            toprune$ort <- as.character(tempStore[as.character(toprune$queryHits)])            
-            tempStore <- with(toprune,sapply(tapply(lowestDist,queryHits,abs),min)) ## if a site falls exactly between two genes pick one the abs(lowest)
-            toprune$lowestDist <- as.numeric(tempStore[as.character(toprune$queryHits)])
-            toprune <- rbind(goods,unique(toprune))
-        }
-        return(arrange(toprune,queryHits))
-    }  
-    names(res.i) <- ok.chrs
-    
-    ## add columns back to query object
-    prefix <- ifelse(side=="either","",side)    
-    colnam <- cleanColname(colnam)
-    
-    sites.rd[[paste(prefix,colnam,sep="")]][good.rows] <- unsplit(lapply(res.i,"[[","featureName"), space(sites.rd)[good.rows], drop = TRUE)
-    sites.rd[[paste(prefix,colnam,"Ort",sep="")]][good.rows] <- unsplit(lapply(res.i,"[[","ort"), space(sites.rd)[good.rows], drop = TRUE)
-    sites.rd[[paste(prefix,colnam,"Dist",sep="")]][good.rows] <- unsplit(lapply(res.i,"[[","lowestDist"), space(sites.rd)[good.rows], drop = TRUE)    
-    
+		## fix cases where two equally nearest features were returned by concatenating feature names and Ort while returning one distance per query
+		res.i <- foreach(x=iter(ok.chrs), .inorder=TRUE, .export=c("ort","res","featureName")) %dopar% {
+			toprune <- as.data.frame(res[[x]])
+			toprune$featureName <- featureName[[x]]
+			toprune$ort <- ort[[x]]
+			toprune <- unique(toprune[,-2])
+			counts <- table(toprune$queryHits)
+			ismulti <- toprune$queryHits %in% as.numeric(names(counts[counts>1]))
+			if(any(ismulti)) {
+				goods <- toprune[!ismulti,]
+				toprune <- toprune[ismulti,]
+				tempStore <- with(toprune,sapply(tapply(featureName,queryHits,unique),paste,collapse=","))
+				toprune$featureName <- as.character(tempStore[as.character(toprune$queryHits)])            
+				tempStore <- with(toprune,sapply(tapply(ort,queryHits,unique),paste,collapse=","))
+				toprune$ort <- as.character(tempStore[as.character(toprune$queryHits)]) 
+
+				## if a site falls exactly between two genes pick one the abs(lowest)           
+				tempStore <- with(toprune,sapply(tapply(lowestDist,queryHits,abs),min)) 
+				toprune$lowestDist <- as.numeric(tempStore[as.character(toprune$queryHits)])
+				toprune <- rbind(goods,unique(toprune))
+			}
+			return(arrange(toprune,queryHits))
+		}  
+		names(res.i) <- ok.chrs
+
+		## add meta columns back to query object
+		sites.rd[[paste(prefix,colnam,sep="")]][good.rows] <- unsplit(lapply(res.i,"[[","featureName"), space(sites.rd)[good.rows], drop = TRUE)
+		sites.rd[[paste(prefix,colnam,"Ort",sep="")]][good.rows] <- unsplit(lapply(res.i,"[[","ort"), space(sites.rd)[good.rows], drop = TRUE)
+	} else {
+		## fix cases where two equally nearest features were returned by concatenating feature names and Ort while returning one distance per query
+		res.i <- foreach(x=iter(ok.chrs), .inorder=TRUE, .export=c("res")) %dopar% {
+			toprune <- as.data.frame(res[[x]])
+			toprune <- unique(toprune[,-2])
+			counts <- table(toprune$queryHits)
+			ismulti <- toprune$queryHits %in% as.numeric(names(counts[counts>1]))
+			if(any(ismulti)) {
+				goods <- toprune[!ismulti,]
+				toprune <- toprune[ismulti,]
+
+				## if a site falls exactly between two genes pick one the abs(lowest)
+				tempStore <- with(toprune,sapply(tapply(lowestDist,queryHits,abs),min)) 
+				toprune$lowestDist <- as.numeric(tempStore[as.character(toprune$queryHits)])
+				toprune <- rbind(goods,unique(toprune))
+			}
+			return(arrange(toprune,queryHits))
+		}  
+		names(res.i) <- ok.chrs
+	}
+	
+	## add distance column back to query object
+	sites.rd[[paste(prefix,colnam,"Dist",sep="")]][good.rows] <- unsplit(lapply(res.i,"[[","lowestDist"), space(sites.rd)[good.rows], drop = TRUE)    
+
     if(grangesFlag) {
     	sites.rd <- as(sites.rd,"GRanges")
     }
@@ -1159,11 +1190,22 @@ doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL, postProcessFu
 		},
 		
 		## get feature names column for adding feature name to sites.rd ##
+		## dont throw an error if dists.only flag is TRUE from getNearestFeature ##
 		if (exists("feature.colnam")) {
 			if(is.null(feature.colnam)) {
-				featureName <- getRelevantCol(colnames(features.rd),c("name","featureName"),"featureName",multiple.ok=TRUE)
-				feature.colnam <- colnames(features.rd)[featureName][1]
+				answer <- try(getRelevantCol(colnames(features.rd),c("name","featureName"),"featureName",multiple.ok=TRUE), silent=TRUE)
+				feature.colnam <- colnames(features.rd)[answer][1]
 			}
+			
+			if(exists("dists.only")) {
+				if(!dists.only & is.na(feature.colnam)) {
+					stop("No featureName based column found.")
+				}
+			} else {
+				if(is.na(feature.colnam)) { 
+					stop("No featureName based column found.")
+				}
+			}			
 		},
 		
 		## get strand names column for adding/getting strands of the feature to sites.rd ##
