@@ -159,32 +159,28 @@ makeRangedData <- function(x, positionsOnly=FALSE, soloStart=FALSE, chromCol=NUL
     ## set column names for space and strand if not provided ##
     if(is.null(chromCol)) {
         colIndex <- getRelevantCol(names(x),c("chr","chromosome","tname","space","chrom","contig","seqnames"),"space")
-        names(x)[colIndex] <- "space"
-    } else {
-        names(x)[names(x)==chromCol] <- "space"
+        chromCol <- names(x)[colIndex]
     }
+    x$space <- x[,chromCol]
     
     if(is.null(strandCol)) {
         colIndex <- getRelevantCol(names(x),c("ort","orientation","strand"),"strand")
         names(x)[colIndex] <- "strand"
-    } else {
-        names(x)[names(x)==strandCol] <- "strand"
     }    
+    x$strand <- x[,strandCol]
         
     if(is.null(startCol)) {
         startCol <- getRelevantCol(names(x),c("position","intsite","txstart","start","chromstart"),"start",multiple.ok=TRUE)
-        names(x)[startCol[1]] <- "start" 
-    } else {
-        names(x)[names(x)==startCol] <- "start"
+        startCol <- names(x)[startCol[1]]
     }
+    x$start <- x[,startCol]
     
     ## only do stop if soloStart=F ##
     if(!as.logical(soloStart) & is.null(stopCol)) {
         stopCol <- getRelevantCol(names(x),c("txend","end","stop","chromend"),"end",multiple.ok=TRUE)
-        names(x)[stopCol[1]] <- "end" 
-    } else {
-        names(x)[names(x)==stopCol] <- "end"
+        stopCol <- names(x)[stopCol[1]]
     }
+    x$end <- x[,stopCol]
     
     ## do some testing for NAs in space, start or end ##
     if(any(is.na(x$start))) {
