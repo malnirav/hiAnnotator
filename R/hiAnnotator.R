@@ -876,7 +876,7 @@ getFeatureCounts <- function(sites.rd, features.rd, colnam=NULL, chromSizes=NULL
                 
                 if (weighted) {
                     res <- as.data.frame(as.matrix(findOverlaps(query, features.rd, select='all', maxgap=(x/2), ...)))
-                    res$weights <- features.rd[res$subjectHits,][[weightsColname]]
+                    res$weights <- features.rd[[weightsColname]][res$subjectHits]
                     tapply(res$weights,res$queryHits,sum)            
                 } else {
                     ## dont use countOverlaps() since it returns overlapping ranges from other spaces/chrs if it was a factor
