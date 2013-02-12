@@ -8,21 +8,22 @@
 #' @name hiAnnotator
 NULL
 
-#' Sample HIV Integration Sites data
+#' Sample Retrovirus Integration Sites data
 #' 
-#' A sample dataset containing collection of unique HIV integration sites in the human genome mapped to UCSC freeze hg18.
+#' A sample dataset containing collection of unique HIV & MLV integration sites in the human genome mapped to UCSC freeze hg18 from PMID: 12805549.
 #' 
 #' \itemize{
-#'   \item id. A unique id for each row.
+#'   \item Sequence. Name of the DNA sequence which was aligned to the host genome. This is also a unique ID.
 #'   \item Position. The genomic coordinate of the integration site.
 #'   \item Chr. The chromosome of the integration site. 
 #'   \item Ort. The orientation or strand of the integration site. 
-#'   \item sampleName. Patient from which the gDNA sample was taken (artificially generated).
+#'   \item virus. Name of the virus used for the experiment and a given sequencing clone.
 #' }
 #' 
+#' @source \url{http://www.ncbi.nlm.nih.gov/pubmed/?term=12805549}
 #' @docType data
 #' @keywords datasets
-#' @format A data frame with 2408 rows and 5 variables
+#' @format A data frame with 1303 rows and 5 variables
 #' @name sites
 NULL
 
