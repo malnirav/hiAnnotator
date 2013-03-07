@@ -1426,7 +1426,7 @@ doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL, postProcessFu
       stop("Please define the colnam parameter for the new column(s) to be appended.")
     },
     
-    if (!any(names(sites.rd) %in% names(features.rd))) {
+    if (!any(unique(space(sites.rd)) %in% unique(space(features.rd)))) {
       stop("There are no spaces/chromosomes that are shared between the 
            query (sites.rd) and subject (features.rd)")
     },
