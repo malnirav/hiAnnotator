@@ -1,6 +1,6 @@
 \name{getFeatureCountsBig}
 \alias{getFeatureCountsBig}
-\title{Get counts of annotation within a defined window around each query range/position for large annotation objects spanning greater than 100 million rows. This is still in beta phase.}
+\title{Get counts of annotation within a defined window around each query range/position for large annotation objects spanning greater than 1 billion rows.}
 \usage{
   getFeatureCountsBig(sites.rd, features.rd, colnam = NULL,
     widths = c(1000, 10000, 1e+06))
@@ -31,11 +31,10 @@
 \description{
   Given a query object and window size(s), the function
   finds all the rows in subject which are <= window size/2
-  distance away. This new range is then compared against
-  the midpoints of subject to find any overlapping ranges
-  and then tallied up. Note that here counting is done
-  using midpoint of the ranges in subject instead of
-  start-stop boundaries.
+  distance away. Note that here counting is done using
+  midpoint of the ranges in query instead of start-stop
+  boundaries. The counts will differ sliglty when compared
+  to \code{\link{getFeatureCounts}}.
 }
 \seealso{
   \code{\link{makeRangedData}}, \code{\link{makeGRanges}},

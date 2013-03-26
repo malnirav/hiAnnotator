@@ -31,7 +31,7 @@
   features.rd when tallying up the counts.}
 
   \item{doInChunks}{break up sites.rd into small pieces of
-  chunkSize to perform the calculations. Default to FALSE.
+  chunkSize to perform the calculations. Default is FALSE.
   Useful if you are expecting to find great deal of overlap
   between sites.rd and features.rd.}
 
@@ -44,10 +44,6 @@
   FALSE. If no parallel backend is registered, then a
   serial version of foreach is ran using
   \code{\link{registerDoSEQ()}}.}
-
-  \item{...}{Additional parameters for
-  \code{\link{findOverlaps}}. Default parameters passed are
-  query, subject, select='all', maxgap=widths/2.}
 }
 \value{
   a RangedData/GRanges object with new annotation columns
@@ -62,11 +58,8 @@
   finds all the rows in subject which are <= window size/2
   distance away. If weights are assigned to each positions
   in the subject, then tallied counts are multiplied
-  accordingly. If annotation object is large, spanning
-  greater than 100 million rows, then
-  \code{\link{getFeatureCountsBig}} is used which drops any
-  weight column if specified or additional parameters
-  passed to \code{\link{findOverlaps}}.
+  accordingly. For large annotations, use
+  \code{\link{getFeatureCountsBig}}.
 }
 \note{
   \itemize{ \item If the input sites.rd parameter is
@@ -79,8 +72,7 @@
   backend registered before running the function. One can
   use any of the following libraries compatible with
   \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For
-  example: library(doSMP); w <- startWorkers(2);
-  registerDoSMP(w) }
+  example: library(doMC); registerDoMC(2) }
 }
 \examples{
 # Convert a dataframe to RangedData/GRanges object
@@ -100,11 +92,11 @@ geneCounts
 # Parallel version of getFeatureCounts
 geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene", parallel=T)
 geneCounts
-# For large annotations, use getFeatureCountsBig
 }
 \seealso{
   \code{\link{makeRangedData}}, \code{\link{makeGRanges}},
   \code{\link{getNearestFeature}},
-  \code{\link{getSitesInFeature}}.
+  \code{\link{getSitesInFeature}},
+  \code{\link{getFeatureCountsBig}}.
 }
 

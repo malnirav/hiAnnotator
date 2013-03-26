@@ -4,7 +4,7 @@
 \usage{
   getSitesInFeature(sites.rd, features.rd, colnam = NULL,
     asBool = FALSE, feature.colnam = NULL,
-    strand.colnam = NULL, parallel = FALSE, ...)
+    parallel = FALSE)
 }
 \arguments{
   \item{sites.rd}{RangedData/GRanges object to be used as
@@ -40,9 +40,6 @@
   FALSE. Not applicable when asBool=T. If no parallel
   backend is registered, then a serial version of foreach
   is ran using \code{\link{registerDoSEQ()}}.}
-
-  \item{...}{Additional parameters for
-  \code{\link{findOverlaps}}.}
 }
 \value{
   a RangedData/GRanges object with new annotation columns
@@ -65,8 +62,7 @@
   backend registered before running the function. One can
   use any of the following libraries compatible with
   \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For
-  example: library(doSMP); w <- startWorkers(2);
-  registerDoSMP(w) }
+  example: library(doMC); registerDoMC(2) }
 }
 \examples{
 # Convert a dataframe to RangedData/GRanges object

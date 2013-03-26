@@ -4,8 +4,7 @@
 \usage{
   getNearestFeature(sites.rd, features.rd, colnam = NULL,
     side = "either", feature.colnam = NULL,
-    strand.colnam = NULL, dists.only = FALSE,
-    parallel = FALSE)
+    dists.only = FALSE, parallel = FALSE)
 }
 \arguments{
   \item{sites.rd}{RangedData/GRanges object to be used as
@@ -25,14 +24,6 @@
   used for retrieving the nearest feature name. By default
   this is NULL assuming that features.rd has a column that
   includes the word 'name' somewhere in it.}
-
-  \item{strand.colnam}{column name from features.rd to be
-  used for retrieving the nearest feature's orientation. By
-  default this is NULL assuming that features.rd has a
-  column that includes the word 'strand' somewhere in it.
-  If it doesn't the function will assume the supplied
-  annotation is in '+' orientation (5' -> 3'). The same
-  applies to strand column in sites.rd.}
 
   \item{dists.only}{flag to return distances only. If this
   is TRUE, then 'feature.colnam' is not required and only
@@ -58,15 +49,17 @@
   position of interest.
 }
 \note{
-  When side='midpoint', the distance to nearest feature is
-  calculated by (start+stop)/2. Try not to use this
-  function for >50 spaces unless you have tons fo memory.
-  If parallel=TRUE, then be sure to have a paralle backend
-  registered before running the function. One can use any
-  of the following libraries compatible with
-  \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For
-  example: library(doSMP); w <- startWorkers(2);
-  registerDoSMP(w)
+  \itemize{ \item When side='midpoint', the distance to
+  nearest feature is calculated by (start+stop)/2. Try not
+  to use this function for >50 spaces/seqnames/chromosomes
+  unless you have tons fo memory.  \item If strand
+  information doesn't exist, then everything is defaulted
+  to '+' orientaion (5' -> 3') \item If parallel=TRUE, then
+  be sure to have a paralle backend registered before
+  running the function. One can use any of the following
+  libraries compatible with \code{\link{foreach}}: doMC,
+  doSMP, doSNOW, doMPI, doParallel. For example:
+  library(doMC); registerDoMC(2) }
 }
 \examples{
 # Convert a dataframe to RangedData/GRanges object
@@ -86,7 +79,8 @@ nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="5p")
 nearestGenes
 nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="3p")
 nearestGenes
-
+nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="midpoint")
+nearestGenes
 # Parallel version of getNearestFeature
 nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TRUE)
 nearestGenes

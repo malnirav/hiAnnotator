@@ -3,8 +3,7 @@
 \title{Get two nearest upstream and downstream annotation boundary for a position range.}
 \usage{
   get2NearestFeature(sites.rd, features.rd, colnam = NULL,
-    side = "either", feature.colnam = NULL,
-    strand.colnam = NULL)
+    side = "either", feature.colnam = NULL)
 }
 \arguments{
   \item{sites.rd}{RangedData/GRanges object to be used as
@@ -24,14 +23,6 @@
   used for retrieving the nearest feature name. By default
   this is NULL assuming that features.rd has a column that
   includes the word 'name' somewhere in it.}
-
-  \item{strand.colnam}{column name from features.rd to be
-  used for retrieving the nearest feature's orientation. By
-  default this is NULL assuming that features.rd has a
-  column that includes the word 'strand' somewhere in it.
-  If it doesn't the function will assume the supplied
-  annotation is in '+' orientation (5' -> 3'). The same
-  applies to strand column in sites.rd.}
 }
 \value{
   a RangedData/GRanges object with new annotation columns
@@ -47,17 +38,26 @@
   interest.
 }
 \note{
-  When side='midpoint', the distance to nearest feature is
-  calculated by (start+stop)/2. For cases where a position
-  is at the edge and there are no feature up/down stream
-  since it would fall off the chromosome, the function
-  simply returns the nearest feature. In addition, if there
-  are multiple locations where a query falls into, the
-  function arbitrarily chooses one to serve as the nearest
-  feature, then reports 2 upstream & downstream feature.
-  That may occasionally yield features which are the same
-  upstream and dowstream, which is commonly encountered
-  when studying spliced genes or phenomena related to it.
+  \itemize{ \item When side='midpoint', the distance to
+  nearest feature is calculated by (start+stop)/2.  \item
+  For cases where a position is at the edge and there are
+  no feature up/down stream since it would fall off the
+  chromosome, the function simply returns the nearest
+  feature.  \item If there are multiple locations where a
+  query falls into, the function arbitrarily chooses one to
+  serve as the nearest feature, then reports 2 upstream &
+  downstream feature. That may occasionally yield features
+  which are the same upstream and dowstream, which is
+  commonly encountered when studying spliced genes or
+  phenomena related to it.  \item Try not to use this
+  function for >50 spaces/seqnames/chromosomes unless you
+  have tons fo memory.  \item If strand information doesn't
+  exist, then everything is defaulted to '+' orientaion (5'
+  -> 3') \item If parallel=TRUE, then be sure to have a
+  paralle backend registered before running the function.
+  One can use any of the following libraries compatible
+  with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI,
+  doParallel. For example: library(doMC); registerDoMC(2) }
 }
 \examples{
 # Convert a dataframe to RangedData/GRanges object

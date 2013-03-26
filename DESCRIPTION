@@ -1,7 +1,7 @@
 Package: hiAnnotator
 Title: Functions for annotating RangedData or GRanges objects.
 Version: 1.0
-Date: 2012-12-11
+Date: 2013-03-26
 Author: Nirav V Malani <malnirav@gmail.com>
 Maintainer: Nirav V Malani <malnirav@gmail.com>
 Description: hiAnnotator contains set of functions which allow users to
@@ -18,16 +18,13 @@ Description: hiAnnotator contains set of functions which allow users to
     appropriate columns needed to make a RangedData or GRanges object from a
     common data frame.
 Depends:
-    IRanges,
+    GenomicRanges,
     foreach,
     iterators,
-    RMySQL,
     rtracklayer,
     dataframe,
-    GenomicRanges,
+    plyr,
     BSgenome
-Imports:
-    plyr
 License: GPL (>= 2)
 LazyLoad: yes
 Collate:
