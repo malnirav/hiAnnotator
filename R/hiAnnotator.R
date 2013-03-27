@@ -560,8 +560,25 @@ getNearestFeature <- function(sites.rd, features.rd,
                      x <- unique(x[,c("queryHits","qID","dist","featureName","strand")])
                      
                      # put singletons & curated non-singletons back together! #
-                     rbind(besties[,names(x)], x)
-                   } 
+                     besties <- rbind(besties[,names(x)], x)
+                     
+                     # Do a last check to make sure there is only 1 hit per qID #
+                     # This is useful in cases where two equally nearest distances 
+                     # but in opposite directions are returned #
+                     test <- table(besties$qID)>1
+                     if(any(test)) {
+                       culprits <- which(test)
+                       # pick one at random #
+                       x <- lapply(culprits, 
+                                   function(z) 
+                                     besties[sample(which(besties$qID %in% z),1),]
+                       )
+                       x <- do.call(rbind, x)
+                       besties <- rbind(subset(besties, !qID %in% culprits), x)
+                     }
+                     
+                     besties
+                   }
     ## change column names for swift merging by .mergeAndReturn() ##
     names(res)[grepl("featureName",names(res))] <- paste0(prefix,colnam)
     names(res)[grepl("strand",names(res))] <- paste0(prefix,colnam,"Ort")
@@ -1117,8 +1134,9 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL,
                      res.x <- unique(res.x[,c("queryHits","qID","featureName","strand")])
                      
                      # put singletons & curated non-singletons back together! #
-                     rbind(besties[,names(res.x)], res.x)
-
+                     res.x <- rbind(besties[,names(res.x)], res.x)
+                     rm(besties)
+                     
                      names(res.x)[grepl("strand",names(res.x))] <- paste0(colnam,"Ort")
                    }
                    
