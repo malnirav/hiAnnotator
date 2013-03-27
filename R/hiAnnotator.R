@@ -3,7 +3,7 @@
 #' hiAnnotator contains set of functions which allow users to annotate a RangedData or GRanges object with custom set of annotations. The basic philosophy of this package is to take two RangedData or GRanges objects (query & subject) with common set of space/seqnames (i.e. chromosomes) and return associated annotation per space and rows from the query matching space and rows from the subject (i.e. genes or cpg islands).
 # The package comes with three types of annotation functions which calculates if a position from query is: within a feature, near a feature, or count features in defined window sizes. Moreover, one can utilize parallel backend for each annotation function to utilize multiple processors. In addition, the package is equipped with a wrapper function, which finds appropriate columns needed to make a RangedData or GRanges object from a common dataframe..
 #'
-#' @import IRanges foreach iterators plyr RMySQL rtracklayer dataframe GenomicRanges BSgenome
+#' @import GenomicRanges foreach iterators rtracklayer plyr dataframe BSgenome
 #' @docType package
 #' @name hiAnnotator
 NULL
@@ -413,7 +413,7 @@ makeGRanges <- function(x, freeze=NULL, ...) {
       zlines <- try(readLines(z))
       close(z)
       if (class(zlines)=="try-error") 
-        stop("Could not get thru to UCSC server - try later!")
+        stop("Could not get thru to UCSC server - try later or drop the freeze parameter!")
       raw.data <- textConnection(zlines)
       chrom.info <- read.delim(raw.data,header=FALSE,stringsAsFactors=FALSE)[,1:2]
       chrom.info <- structure(chrom.info$V2, names=chrom.info$V1)
@@ -543,11 +543,24 @@ getNearestFeature <- function(sites.rd, features.rd,
                      
                      x$featureName <- mcols(y)[,"featureName"][x$subjectHits]
                      x$strand <- as.character(strand(y))[x$subjectHits]
-                     x <- ddply(x, .(queryHits), summarize, 
-                                qID=unique(qID), dist=unique(dist),
-                                featureName=paste(unique(featureName),collapse=", "),
-                                strand=paste(unique(strand),collapse=", "))                     
-                     x
+                     
+                     # isolate non-singletons to save time & memory! #
+                     besties <- droplevels(subset(x,freq==1))
+                     x <- droplevels(subset(x,freq>1))
+                     
+                     # use tapply instead of ddply() or by() because it's a lot faster on larger datasets #
+                     bore <- with(x, sapply(tapply(featureName,queryHits,unique), 
+                                            paste, collapse=","))
+                     x$featureName <- bore[as.character(x$queryHits)]
+                     
+                     bore <- with(x, sapply(tapply(strand,queryHits,unique), 
+                                            paste, collapse=","))
+                     x$strand <- bore[as.character(x$queryHits)]
+                     
+                     x <- unique(x[,c("queryHits","qID","dist","featureName","strand")])
+                     
+                     # put singletons & curated non-singletons back together! #
+                     rbind(besties[,names(x)], x)
                    } 
     ## change column names for swift merging by .mergeAndReturn() ##
     names(res)[grepl("featureName",names(res))] <- paste0(prefix,colnam)
@@ -706,11 +719,18 @@ get2NearestFeature <- function(sites.rd, features.rd,
     
     res.nrst <- getLowestDists(query, subject, res.nrst, side)
     res.nrst$featureName <- mcols(subject)[,"featureName"][res.nrst$subjectHits]
-    res.nrst$strand <- as.character(strand(subject))[res.nrst$subjectHits]
-    res.nrst <- ddply(res.nrst, .(queryHits), summarize, 
-                      qID=unique(qID), dist=unique(dist),
-                      featureName=paste(unique(featureName),collapse=", "),
-                      strand=paste(unique(strand),collapse=", "))                     
+    res.nrst$strand <- as.character(strand(subject))[res.nrst$subjectHits]    
+      
+    res.nrst <- with(res.nrst,
+                  by(res.nrst, queryHits, function(n) 
+                    with(n, 
+                         data.frame(queryHits=unique(queryHits), qID=unique(qID), 
+                                    dist=unique(dist), 
+                                    featureName=paste(unique(featureName),collapse=","),
+                                    strand=paste(unique(strand),collapse=","),
+                                    stringsAsFactors=FALSE)))
+    )                     
+    res.nrst <- do.call(rbind, res.nrst)
     
     if (f == "u1") { coldef <- paste(prefix,colnam,"upStream1",sep=".") }
     if (f == "u2") { coldef <- paste(prefix,colnam,"upStream2",sep=".") }
@@ -787,8 +807,8 @@ getLowestDists <- function(query=NULL, subject=NULL, res.nrst=NULL, side="either
   
   ## fix cases where two nested features were returned by choosing 
   ## the lowest absolute distances for both features.
-  res.nrst <- ddply(res.nrst, .(queryHits), transform, 
-                    lowest=abs(dist)==min(abs(dist)))
+  mins <- with(res.nrst, tapply(abs(dist), queryHits, min))
+  res.nrst$lowest <- with(res.nrst, abs(dist)==mins[as.character(queryHits)])
   res.nrst <- droplevels(subset(res.nrst, lowest))
   res.nrst$lowest <- NULL
   
@@ -1078,12 +1098,27 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL,
                      ## collapse rows where query returned two hits with the same featureNames 
                      ## due to alternative splicing or something else.    
                      res.x$featureName <- mcols(x$subject)[,"featureName"][res.x$subjectHits]
-                     res.x$strand <- as.character(strand(x$subject))[res.x$subjectHits]
+                     res.x$strand <- as.character(strand(x$subject))[res.x$subjectHits]					
+
+                     # isolate non-singletons to save time & memory! #
+                     res.x <- merge(res.x, count(res.x,"queryHits"))
+                     besties <- droplevels(subset(res.x,freq==1))
+                     res.x <- droplevels(subset(res.x,freq>1))
                      
-                     res.x <- ddply(res.x, .(queryHits), summarize, 
-                                    qID=unique(qID),
-                                    featureName=paste(unique(featureName),collapse=", "),
-                                    strand=paste(unique(strand),collapse=", "))                                          
+                     # use tapply instead of ddply() or by() because it's a lot faster on larger datasets #
+                     bore <- with(res.x, sapply(tapply(featureName,queryHits,unique), 
+                                            paste, collapse=","))
+                     res.x$featureName <- bore[as.character(res.x$queryHits)]
+                     
+                     bore <- with(res.x, sapply(tapply(strand,queryHits,unique), 
+                                            paste, collapse=","))
+                     res.x$strand <- bore[as.character(res.x$queryHits)]
+                     
+                     res.x <- unique(res.x[,c("queryHits","qID","featureName","strand")])
+                     
+                     # put singletons & curated non-singletons back together! #
+                     rbind(besties[,names(res.x)], res.x)
+
                      names(res.x)[grepl("strand",names(res.x))] <- paste0(colnam,"Ort")
                    }
                    
@@ -1098,7 +1133,7 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL,
   ## merge results to the query object and return it ##
   .mergeAndReturn()
   
-  ## for legacy code support change sites.rd not in feature.rd to FALSE ##
+  ## for legacy code support change sites.rd not in feature.rd to FALSE instead of NA ##
   if(is(sites.rd,"RangedData")) {
     sites.rd[[colnam]][is.na(sites.rd[[colnam]])] <- FALSE
   } else {
