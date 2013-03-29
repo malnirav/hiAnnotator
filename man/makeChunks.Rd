@@ -2,15 +2,15 @@
 \alias{makeChunks}
 \title{Breaks two GRanges/RangedData objects into chunks of N size.}
 \usage{
-  makeChunks(query, subject, chunkSize = NULL)
+  makeChunks(sites.rd, features.rd, chunkSize = NULL)
 }
 \arguments{
-  \item{query}{a RangedData/GRanges object.}
+  \item{sites.rd}{a RangedData/GRanges object.}
 
-  \item{subject}{a RangedData/GRanges object.}
+  \item{features.rd}{a RangedData/GRanges object.}
 
   \item{chunkSize}{number of rows to use per chunk of
-  query. Default to length(query)/detectCores() or
+  query. Default to length(sites.rd)/detectCores() or
   length(query)/getDoParWorkers() depending on parallel
   backend registered.}
 }

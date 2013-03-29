@@ -138,9 +138,9 @@ getRelevantCol <- function(col.names, col.options,
 #'
 #' Given a query and subject GRanges/RangedData objects, the function breaks query into chunks of N size where each chunk has a respective subject object filtered by seqnames/space present in the query chunk. This is a helper function used by one of the annotation function in 'See Also' section where each chunk is sent to a parallel node for processing.
 #'
-#' @param query a RangedData/GRanges object.
-#' @param subject a RangedData/GRanges object.
-#' @param chunkSize number of rows to use per chunk of query. Default to length(query)/detectCores() or length(query)/getDoParWorkers() depending on parallel backend registered.
+#' @param sites.rd a RangedData/GRanges object.
+#' @param features.rd a RangedData/GRanges object.
+#' @param chunkSize number of rows to use per chunk of query. Default to length(sites.rd)/detectCores() or length(query)/getDoParWorkers() depending on parallel backend registered.
 #'
 #' @return a list of RangedData/GRanges objects where each element is of length 2 representing query & subject chunks. 
 #'
@@ -156,22 +156,23 @@ getRelevantCol <- function(col.names, col.options,
 #' sites <- makeGRanges(sites,soloStart=TRUE)
 #' genes <- makeGRanges(genes)
 #' makeChunks(sites, genes)
-makeChunks <- function(query, subject, chunkSize=NULL) {
+makeChunks <- function(sites.rd, features.rd, chunkSize=NULL) {
   # do a quick check of things
   .checkArgsSetDefaults()
+  rm("query","subject")
   
   # make chunks
-  chunks <- breakInChunks(length(query), 
+  chunks <- breakInChunks(length(sites.rd), 
                           ifelse(!is.null(chunkSize), 
-                                 length(query)/chunkSize,
+                                 length(sites.rd)/chunkSize,
                                  ifelse(!is.null(is.null(getDoParWorkers())),
-                                        length(query)/getDoParWorkers(),
-                                        length(query)/detectCores())))
+                                        length(sites.rd)/getDoParWorkers(),
+                                        length(sites.rd)/detectCores())))
   
   mapply(function(x,y) {
-    new.query <- query[x:y,]
+    new.query <- sites.rd[x:y,]
     new.query <- keepSeqlevels(new.query, value=unique(as.character(seqnames(new.query))))
-    new.subject <- suppressWarnings(keepSeqlevels(subject, value=seqlevels(new.query)))
+    new.subject <- suppressWarnings(keepSeqlevels(features.rd, value=seqlevels(new.query)))
     if(RangedDataFlag) {
       new.query <- as(new.query,"RangedData")
       new.subject <- as(new.subject,"RangedData")
@@ -493,6 +494,7 @@ getNearestFeature <- function(sites.rd, features.rd,
   if(!dists.only) {    
     mcols(subject)$featureName <- mcols(features.rd)[,feature.colnam]
   }
+  rm(features.rd)
   
   if(side %in% c('5p','3p','midpoint')) {
     ##get only 5 prime sides of features
@@ -551,11 +553,11 @@ getNearestFeature <- function(sites.rd, features.rd,
                      # use tapply instead of ddply() or by() because it's a lot faster on larger datasets #
                      bore <- with(x, sapply(tapply(featureName,queryHits,unique), 
                                             paste, collapse=","))
-                     x$featureName <- bore[as.character(x$queryHits)]
+                     x$featureName <- as.character(bore[as.character(x$queryHits)])
                      
                      bore <- with(x, sapply(tapply(strand,queryHits,unique), 
                                             paste, collapse=","))
-                     x$strand <- bore[as.character(x$queryHits)]
+                     x$strand <- as.character(bore[as.character(x$queryHits)])
                      
                      x <- unique(x[,c("queryHits","qID","dist","featureName","strand")])
                      
@@ -651,6 +653,7 @@ get2NearestFeature <- function(sites.rd, features.rd,
   subject <- sort(subject)
   
   mcols(subject)$featureName <- mcols(features.rd)[,feature.colnam]
+  rm(features.rd)
   
   if(side %in% c('5p','3p','midpoint')) {
     ##get only 5 prime sides of features
@@ -889,13 +892,15 @@ getWindowLabel <- function(x) {
 #'
 #' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene")
 #' geneCounts
+#' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene",doInChunks=T, chunkSize=200)
+#' geneCounts
 #' # Parallel version of getFeatureCounts
 #' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene", parallel=T)
 #' geneCounts
 getFeatureCounts <- function(sites.rd, features.rd, 
                              colnam=NULL, chromSizes=NULL, 
                              widths=c(1000,10000,1000000), weightsColname=NULL, 
-                             doInChunks=FALSE, chunkSize=10000, parallel=FALSE, ...) {
+                             doInChunks=FALSE, chunkSize=10000, parallel=FALSE) {
   
   .checkArgsSetDefaults()
   
@@ -904,7 +909,9 @@ getFeatureCounts <- function(sites.rd, features.rd,
     warning("decrepit option: chromSizes parameter is no longer required and will be ignored!")
   }    
   
-  if(doInChunks & chunkSize < length(sites.rd)) { 
+  if(doInChunks & chunkSize < length(sites.rd)) {
+  	rm("query","subject")
+  	
     # no need to execute all this if chunkSize is bigger than data size!!!           
     total <- length(sites.rd)        
     starts <- seq(1,total,by=chunkSize)
@@ -930,6 +937,7 @@ getFeatureCounts <- function(sites.rd, features.rd,
     if(weighted) {
       mcols(subject)$weights <- mcols(features.rd)[,weightsColname]
     }
+    rm(features.rd)
     
     # only get labels if not supplied
     if(is.null(names(widths))) {
@@ -960,7 +968,7 @@ getFeatureCounts <- function(sites.rd, features.rd,
                          res.x$weights <- mcols(x$subject)[,"weights"][res.x$subjectHits]
                          tapply(res.x$weights, res.x$queryHits, sum)            
                        } else {                                 
-                         as.table(res.x)
+                         countQueryHits(res.x)
                        } 
                      })
                      counts <- as.data.frame(counts)
@@ -996,10 +1004,11 @@ getFeatureCountsBig <- function(sites.rd, features.rd,
                                 colnam=NULL, widths=c(1000,10000,1000000)) {
   
   .checkArgsSetDefaults()
-  query <- sites.rd
+  rm(features.rd)
+   
   ranges(query) <- mid(ranges(query))
   query <- split(query, seqnames(query))
-  subject <- split(subject,seqnames(subject))
+  subject <- split(subject,seqnames(subject)) 
   
   # only get labels if not supplied
   if(is.null(names(widths))) {
@@ -1083,6 +1092,8 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL,
   
   ## chunkize the objects for parallel processing ##
   mcols(subject)$featureName <- mcols(features.rd)[,feature.colnam]
+  rm(features.rd)
+   
   chunks <- if(parallel) { 
     makeChunks(query, subject)
   } else {
@@ -1119,11 +1130,11 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL,
                      # use tapply instead of ddply() or by() because it's a lot faster on larger datasets #
                      bore <- with(res.x, sapply(tapply(featureName,queryHits,unique), 
                                             paste, collapse=","))
-                     res.x$featureName <- bore[as.character(res.x$queryHits)]
+                     res.x$featureName <- as.character(bore[as.character(res.x$queryHits)])
                      
                      bore <- with(res.x, sapply(tapply(strand,queryHits,unique), 
                                             paste, collapse=","))
-                     res.x$strand <- bore[as.character(res.x$queryHits)]
+                     res.x$strand <- as.character(bore[as.character(res.x$queryHits)])
                      
                      res.x <- unique(res.x[,c("queryHits","qID","featureName","strand")])
                      
@@ -1183,8 +1194,6 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL,
 #' head(genes)
 #' genes.rd <- makeRangedData(genes)
 #' genes.rd
-#'
-#' library(BSgenome.Hsapiens.UCSC.hg18)
 #'
 #' doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene")
 #' doAnnotation(annotType="counts",alldata.rd,genes.rd,"NumOfGene")
@@ -1334,7 +1343,7 @@ doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL, postProcessFu
     
     ## merge back results in the same order as rows in query/sites.rd ##
     rows <- match(mcols(sites.rd)$tempID[good.rows], res$qID),
-    mcols(sites.rd)[good.rows, newCols][!is.na(rows),] <- res[rows[!is.na(rows)], newCols],
+    mcols(sites.rd)[good.rows,][!is.na(rows),newCols] <- res[rows[!is.na(rows)], newCols],
     
     ## clear up any temp columns ##
     mcols(sites.rd)$tempID <- NULL,

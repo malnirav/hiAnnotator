@@ -43,8 +43,6 @@ head(genes)
 genes.rd <- makeRangedData(genes)
 genes.rd
 
-library(BSgenome.Hsapiens.UCSC.hg18)
-
 doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene")
 doAnnotation(annotType="counts",alldata.rd,genes.rd,"NumOfGene")
 doAnnotation(annotType="nearest",alldata.rd,genes.rd,"NearestGene")

@@ -5,7 +5,7 @@
   getFeatureCounts(sites.rd, features.rd, colnam = NULL,
     chromSizes = NULL, widths = c(1000, 10000, 1e+06),
     weightsColname = NULL, doInChunks = FALSE,
-    chunkSize = 10000, parallel = FALSE, ...)
+    chunkSize = 10000, parallel = FALSE)
 }
 \arguments{
   \item{sites.rd}{RangedData/GRanges object to be used as
@@ -88,6 +88,8 @@ genes.rd
 
 
 geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene")
+geneCounts
+geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene",doInChunks=T, chunkSize=200)
 geneCounts
 # Parallel version of getFeatureCounts
 geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene", parallel=T)
