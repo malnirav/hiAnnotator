@@ -563,15 +563,7 @@ getNearestFeature <- function(sites.rd, features.rd,
                      
                      # put singletons & curated non-singletons back together! #
                      besties <- rbind(besties[,names(x)], x)
-                     besties <- arrange(besties,qID)
-                     
-                     # Do a last check to make sure there is only 1 hit per qID #
-                     # This is useful in cases where two equally nearest distances 
-                     # but in opposite directions are returned #                     
-                     test <- duplicated(besties$qID)
-                     if(any(test)) {                       
-                       besties <- besties[!test,]
-                     }
+                     besties <- arrange(besties,qID)                                          
                      
                      besties
                    }
@@ -588,10 +580,18 @@ getNearestFeature <- function(sites.rd, features.rd,
   }
   
   rm(chunks)
-  
+    
   ## change distance column name for .mergeAndReturn() ##
   names(res)[grepl("dist",names(res))] <- paste(prefix,colnam,"Dist",sep="")
-      
+  
+  # Do a last check to make sure there is only 1 hit per qID #
+  # This is useful in cases where two equally nearest distances 
+  # but in opposite directions are returned #                     
+  test <- duplicated(res$qID)
+  if(any(test)) {                       
+    res <- res[!test,]
+  }
+  
   ## merge results to the query object and return it ##
   .mergeAndReturn()  
   
