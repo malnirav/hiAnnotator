@@ -22,7 +22,6 @@ Depends:
     foreach,
     iterators,
     rtracklayer,
-    dataframe,
     plyr,
     BSgenome
 License: GPL (>= 2)
