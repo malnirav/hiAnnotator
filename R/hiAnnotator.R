@@ -1110,7 +1110,8 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL,
                    if (asBool) {
                      strand(x$subject) <- "*"
                      res.x <- data.frame(qID=mcols(x$query)$tempID, 
-                                         featureName=x$query %in% x$subject)                   
+                                         featureName=overlapsAny(x$query, x$subject,
+                                                                 ignore.strand=TRUE))                   
                    } else {                                   
                      res.x <- as.data.frame(findOverlaps(x$query, x$subject, 
                                                          select='all', 
