@@ -47,7 +47,10 @@
   It is recommended to run this function before utilizing
   any other annotation functions since it will sort the
   object by chromosome and position for copying annotations
-  back to their respective rows accurately.
+  back to their respective rows accurately. It is
+  recommended to use a \code{\link{GRanges}} object instead
+  of a \code{\link{RangedData}} object if number of
+  distinct chromosomes or targets is greater than 50.
 }
 \examples{
 # Convert a dataframe to RangedData object
