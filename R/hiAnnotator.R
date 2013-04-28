@@ -268,7 +268,7 @@ resizeRangedData <- function(rd, width=NULL,
 
 #' Make a sorted RangedData object from a dataframe. 
 #'
-#' The function converts a dataframe into a RangedData object without too much hassle of renaming column names. The function finds column names that sound like space, chromosome, start, stop, position, etc and puts them in respective slots to facilitate the conversion of a dataframe to RangedData object. If more than one column that sounds like start, stop, or position is present, the function will use the first match as the representative. It is recommended to run this function before utilizing any other annotation functions since it will sort the object by chromosome and position for copying annotations back to their respective rows accurately. It is recommended to use a \code{\link{GRanges}} object instead of a \code{\link{RangedData}} object if number of distinct chromosomes or targets is greater than 50. 
+#' The function converts a dataframe into a RangedData object without too much hassle of renaming column names. The function finds column names that sound like space, chromosome, start, stop, position, etc and puts them in respective slots to facilitate the conversion of a dataframe to a RangedData object. If more than one column that sounds like start, stop, or position is present, the function will use the first match as the representative. It is recommended to run this function before utilizing any other annotation functions since it will sort the object by chromosome and position for copying annotations back to their respective rows confidently. It is recommended to use a \code{\link{GRanges}} object instead of a \code{\link{RangedData}} object if number of distinct chromosomes or targets is greater than 50. 
 #'
 #' @param x dataframe to be converted into a RangedData object
 #' @param positionsOnly boolean flag indicating to return only position based data or everything from the dataframe. Defaults to FALSE.
@@ -277,6 +277,7 @@ resizeRangedData <- function(rd, width=NULL,
 #' @param strandCol use the defined column name for strand or orientation from the dataframe. Defaults to NULL.
 #' @param startCol use the defined column name for start coordinate from the dataframe. Defaults to NULL.
 #' @param stopCol use the defined column name for stop coordinate from the dataframe. Defaults to NULL and not required if soloStart=TRUE.
+#' @param asGRanges make a GRanges object instead. This is useful if number of target or chromosomes is greater than 50. Default is FALSE.
 #'
 #' @return a RangedData object converted from x.
 #'
@@ -299,11 +300,13 @@ resizeRangedData <- function(rd, width=NULL,
 #' makeRangedData(genes,soloStart=TRUE)
 #' makeRangedData(genes)
 makeRangedData <- function(x, positionsOnly=FALSE, soloStart=FALSE, chromCol=NULL, 
-                           strandCol=NULL, startCol=NULL, stopCol=NULL) {
+                           strandCol=NULL, startCol=NULL, stopCol=NULL, 
+                           asGRanges=FALSE) {
   ## set column names for space and strand if not provided ##
   if(is.null(chromCol)) {
     colIndex <- getRelevantCol(names(x),
-                               c("chr","chromosome","tname","space","chrom","contig","seqnames"),
+                               c("chr","chromosome","tname","space","chrom",
+                                 "contig","seqnames"),
                                "space")
     chromCol <- names(x)[colIndex]
   }
@@ -369,9 +372,18 @@ makeRangedData <- function(x, positionsOnly=FALSE, soloStart=FALSE, chromCol=NUL
   }
   
   if(as.logical(positionsOnly)) {
-    sites.rd <- as(x[,c("space","start","end","strand")],"RangedData")
+    x <- x[,c("space","start","end","strand")]    
+  } 
+  
+  metadataCols <- grep("space|start|end|strand", names(x),
+                       invert=TRUE, value=TRUE, fixed=FALSE)
+  
+  if(asGRanges) {
+    sites.rd <- GRanges(seqnames=x$space, IRanges(start=x$start, end=x$end),
+                        strand=x$strand, x[,na.omit(metadataCols)])
   } else {
-    sites.rd <- as(x,"RangedData")
+    sites.rd <- RangedData(space=x$space, IRanges(start=x$start, end=x$end),
+                        strand=x$strand, x[,na.omit(metadataCols)])
   }
   
   sites.rd    
@@ -379,11 +391,11 @@ makeRangedData <- function(x, positionsOnly=FALSE, soloStart=FALSE, chromCol=NUL
 
 #' Make a sorted GRanges object from a dataframe. 
 #'
-#' The function converts a dataframe into a GRanges object without too much hassle of renaming column names. The function finds column names that sound like seqname, chromosome, start, stop, position, etc and puts them in respective slots to facilitate the conversion of a dataframe to GRanges object. If more than one column that sounds like start, stop, or position is present, the function will use the first match as the representative. It is recommended to run this function before utilizing any other annotation functions since it will sort the object by chromosome and position for copying annotations back to their respective rows accurately. This function wraps around \code{\link{makeRangedData}}. It is recommended to use a \code{\link{GRanges}} object instead of a \code{\link{RangedData}} object if number of distinct chromosomes or targets is greater than 50. 
+#' The function converts a dataframe into a GRanges object without too much hassle of renaming column names. The function finds column names that sound like seqname, chromosome, start, stop, position, etc and puts them in respective slots to facilitate the conversion of a dataframe to a GRanges object. If more than one column that sounds like start, stop, or position is present, the function will use the first match as the representative. It is recommended to run this function before utilizing any other annotation functions since it will sort the object by chromosome and position for copying annotations back to their respective rows confidently. This function wraps around \code{\link{makeRangedData}} with asGRanges parameter enabled. It is recommended to use a \code{\link{GRanges}} object instead of a \code{\link{RangedData}} object if number of distinct chromosomes or targets is greater than 50. 
 #'
 #' @param x dataframe to be converted into a GRanges object
 #' @param freeze UCSC genome version of the data in x. Default is NULL. This parameter is generally used to populate \code{\link{seqinfo}} slot of GRanges objects.
-#' @param ... parameters for \code{\link{makeRangedData}}.
+#' @param ... parameters for \code{\link{makeRangedData}} except for 'asGRanges'.
 #'
 #' @return a GRanges object converted from x.
 #'
@@ -395,12 +407,12 @@ makeRangedData <- function(x, positionsOnly=FALSE, soloStart=FALSE, chromCol=NUL
 #' # Convert a dataframe to GRanges object
 #' data(genes)
 #'
-#' makeGRanges(genes,soloStart=TRUE)
+#' makeGRanges(genes, soloStart=TRUE)
 #' makeGRanges(genes, freeze="hg18", soloStart=TRUE)
 #' makeGRanges(genes)
 #' makeGRanges(genes, freeze="hg18")
 makeGRanges <- function(x, freeze=NULL, ...) {    
-  sites.gr <- as(makeRangedData(x, ...), "GRanges")	
+  sites.gr <- makeRangedData(x, asGRanges=TRUE, ...)
   
   if(!is.null(freeze)) {
     genomeLib <- grep(freeze,installed.genomes(),value=TRUE)
@@ -520,14 +532,14 @@ getNearestFeature <- function(sites.rd, features.rd,
     list(list("query"=query, "subject"=subject))
   }
     
-  ## first get the nearest indices, respective tempIDs, and distances ##  
+  ## first get the nearest indices, respective tempyIDs, and distances ##  
   res <- foreach(x=iter(chunks), .inorder=FALSE, .export=c("side"),
                  .packages=c("GenomicRanges","plyr")) %dopar% { 
                    res.x <- as.data.frame(nearest(x$query, x$subject, 
                                                   select="all", 
                                                   ignore.strand=TRUE))
-                   res.x$qID <- mcols(x$query)$tempID[res.x$queryHits]
-                   res.x$sID <- mcols(x$subject)$tempID[res.x$subjectHits]
+                   res.x$qID <- mcols(x$query)$tempyID[res.x$queryHits]
+                   res.x$sID <- mcols(x$subject)$tempyID[res.x$subjectHits]
                    res.x <- getLowestDists(x$query, x$subject, res.x, side)
                    counts <- count(res.x,"queryHits")
                    merge(res.x, counts)
@@ -536,12 +548,12 @@ getNearestFeature <- function(sites.rd, features.rd,
   if(!dists.only) {    
     ## for the feature of shortest indices, get the names, and strand attributes    
     ## fix cases where >1 equally nearest features were returned by concatenating 
-    ## feature names and Ort while returning one distance per query
+    ## feature names and strand while returning one distance per query
     
     res <- foreach(x=iter(res), y=iter(sapply(chunks,"[[","subject")), 
                    .inorder=FALSE, .combine=rbind) %dopar% {
                      # make sure x & y have the respective data chunks! #
-                     stopifnot(all(x$sID %in% mcols(y)$tempID))
+                     stopifnot(all(x$sID %in% mcols(y)$tempyID))
                      
                      x$featureName <- mcols(y)[,"featureName"][x$subjectHits]
                      x$strand <- as.character(strand(y))[x$subjectHits]
@@ -674,9 +686,9 @@ get2NearestFeature <- function(sites.rd, features.rd,
   ## thinking concept: d2.....d1.....intSite(-).....u1.....u2
   ## searching concept: res.left2.....res.left1.....res....intSite....res.....res.right1.....res.right2
   
-  ## first get the nearest indices, respective tempIDs ##  
+  ## first get the nearest indices, respective tempyIDs ##  
   res <- as.data.frame(nearest(query, subject, select="all", ignore.strand=TRUE))
-  res$qID <- mcols(query)$tempID[res$queryHits]
+  res$qID <- mcols(query)$tempyID[res$queryHits]
   res$qStrand <- as.character(strand(query))[res$queryHits]
   res <- getLowestDists(query, subject, res, side)
   
@@ -973,7 +985,7 @@ getFeatureCounts <- function(sites.rd, features.rd,
                      })
                      counts <- as.data.frame(counts)
                      names(counts) <- paste(colnam,names(counts),sep=".")
-                     counts$qID <- mcols(x$query)$tempID
+                     counts$qID <- mcols(x$query)$tempyID
                      counts
                    }
     
@@ -1025,7 +1037,7 @@ getFeatureCountsBig <- function(sites.rd, features.rd,
     res.i <- lapply(ok.chrs, function(x) {    
       counts <- abs(findInterval(start(query[[x]]) - widths[windowName]/2 , sort(start(subject[[x]]))) - 
         findInterval(start(query[[x]]) + widths[windowName]/2, sort(end(subject[[x]]))))
-      res.x <- data.frame(qID=query[[x]]$tempID)
+      res.x <- data.frame(qID=query[[x]]$tempyID)
       res.x[,columnName] <- counts
       res.x
     })
@@ -1109,14 +1121,14 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL,
                    
                    if (asBool) {
                      strand(x$subject) <- "*"
-                     res.x <- data.frame(qID=mcols(x$query)$tempID, 
+                     res.x <- data.frame(qID=mcols(x$query)$tempyID, 
                                          featureName=overlapsAny(x$query, x$subject,
                                                                  ignore.strand=TRUE))                   
                    } else {                                   
                      res.x <- as.data.frame(findOverlaps(x$query, x$subject, 
                                                          select='all', 
                                                          ignore.strand=TRUE))
-                     res.x$qID <- mcols(x$query)$tempID[res.x$queryHits]
+                     res.x$qID <- mcols(x$query)$tempyID[res.x$queryHits]
                      
                      ## collapse rows where query returned two hits with the same featureNames 
                      ## due to alternative splicing or something else.    
@@ -1307,17 +1319,17 @@ doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL, postProcessFu
     good.rows <- as.character(seqnames(sites.rd)) %in% ok.chrs,    
     
     ## extract required objects to streamline downstream code/steps ##
-    ## tag each row with tempID for merging with original object ##
+    ## tag each row with tempyID for merging with original object ##
     ## this is crucial since objects are divided into chunks which resets the index from 1...n ##
-    ## tempID would preserve the original order for parallel processing ##
+    ## tempyID would preserve the original order for parallel processing ##
     query <- sites.rd,
     mcols(query) <- NULL,
-    mcols(query)$tempID <- 1:length(query),
-    mcols(sites.rd)$tempID <- mcols(query)$tempID,
+    mcols(query)$tempyID <- 1:length(query),
+    mcols(sites.rd)$tempyID <- mcols(query)$tempyID,
     
     subject <- features.rd,
     mcols(subject) <- NULL,
-    mcols(subject)$tempID <- 1:length(subject)
+    mcols(subject)$tempyID <- 1:length(subject)
   )
   
   eval.parent(checks)
@@ -1343,11 +1355,11 @@ doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL, postProcessFu
     mcols(sites.rd)[newCols] <- NA,
     
     ## merge back results in the same order as rows in query/sites.rd ##
-    rows <- match(mcols(sites.rd)$tempID[good.rows], res$qID),
+    rows <- match(mcols(sites.rd)$tempyID[good.rows], res$qID),
     mcols(sites.rd)[good.rows,][!is.na(rows),newCols] <- res[rows[!is.na(rows)], newCols],
     
     ## clear up any temp columns ##
-    mcols(sites.rd)$tempID <- NULL,
+    mcols(sites.rd)$tempyID <- NULL,
     
     if(RangedDataFlag) {
       sites.rd <- as(sites.rd,"RangedData")

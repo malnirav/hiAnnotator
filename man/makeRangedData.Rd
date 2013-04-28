@@ -4,7 +4,7 @@
 \usage{
   makeRangedData(x, positionsOnly = FALSE,
     soloStart = FALSE, chromCol = NULL, strandCol = NULL,
-    startCol = NULL, stopCol = NULL)
+    startCol = NULL, stopCol = NULL, asGRanges = FALSE)
 }
 \arguments{
   \item{x}{dataframe to be converted into a RangedData
@@ -31,6 +31,10 @@
   \item{stopCol}{use the defined column name for stop
   coordinate from the dataframe. Defaults to NULL and not
   required if soloStart=TRUE.}
+
+  \item{asGRanges}{make a GRanges object instead. This is
+  useful if number of target or chromosomes is greater than
+  50. Default is FALSE.}
 }
 \value{
   a RangedData object converted from x.
@@ -41,13 +45,13 @@
   The function finds column names that sound like space,
   chromosome, start, stop, position, etc and puts them in
   respective slots to facilitate the conversion of a
-  dataframe to RangedData object. If more than one column
+  dataframe to a RangedData object. If more than one column
   that sounds like start, stop, or position is present, the
   function will use the first match as the representative.
   It is recommended to run this function before utilizing
   any other annotation functions since it will sort the
   object by chromosome and position for copying annotations
-  back to their respective rows accurately. It is
+  back to their respective rows confidently. It is
   recommended to use a \code{\link{GRanges}} object instead
   of a \code{\link{RangedData}} object if number of
   distinct chromosomes or targets is greater than 50.

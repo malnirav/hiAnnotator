@@ -11,7 +11,8 @@
   Default is NULL. This parameter is generally used to
   populate \code{\link{seqinfo}} slot of GRanges objects.}
 
-  \item{...}{parameters for \code{\link{makeRangedData}}.}
+  \item{...}{parameters for \code{\link{makeRangedData}}
+  except for 'asGRanges'.}
 }
 \value{
   a GRanges object converted from x.
@@ -22,23 +23,24 @@
   function finds column names that sound like seqname,
   chromosome, start, stop, position, etc and puts them in
   respective slots to facilitate the conversion of a
-  dataframe to GRanges object. If more than one column that
-  sounds like start, stop, or position is present, the
+  dataframe to a GRanges object. If more than one column
+  that sounds like start, stop, or position is present, the
   function will use the first match as the representative.
   It is recommended to run this function before utilizing
   any other annotation functions since it will sort the
   object by chromosome and position for copying annotations
-  back to their respective rows accurately. This function
-  wraps around \code{\link{makeRangedData}}. It is
-  recommended to use a \code{\link{GRanges}} object instead
-  of a \code{\link{RangedData}} object if number of
-  distinct chromosomes or targets is greater than 50.
+  back to their respective rows confidently. This function
+  wraps around \code{\link{makeRangedData}} with asGRanges
+  parameter enabled. It is recommended to use a
+  \code{\link{GRanges}} object instead of a
+  \code{\link{RangedData}} object if number of distinct
+  chromosomes or targets is greater than 50.
 }
 \examples{
 # Convert a dataframe to GRanges object
 data(genes)
 
-makeGRanges(genes,soloStart=TRUE)
+makeGRanges(genes, soloStart=TRUE)
 makeGRanges(genes, freeze="hg18", soloStart=TRUE)
 makeGRanges(genes)
 makeGRanges(genes, freeze="hg18")
