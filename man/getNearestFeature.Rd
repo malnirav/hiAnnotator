@@ -50,16 +50,16 @@
 }
 \note{
   \itemize{ \item When side='midpoint', the distance to
-  nearest feature is calculated by (start+stop)/2. Try not
-  to use this function for >50 spaces/seqnames/chromosomes
-  unless you have tons fo memory.  \item If strand
-  information doesn't exist, then everything is defaulted
-  to '+' orientaion (5' -> 3') \item If parallel=TRUE, then
-  be sure to have a paralle backend registered before
-  running the function. One can use any of the following
-  libraries compatible with \code{\link{foreach}}: doMC,
-  doSMP, doSNOW, doMPI, doParallel. For example:
-  library(doMC); registerDoMC(2) }
+  nearest feature is calculated by (start+stop)/2.  \item
+  Try not to use this function for >50
+  spaces/seqnames/chromosomes unless you have tons fo
+  memory.  \item If strand information doesn't exist, then
+  everything is defaulted to '+' orientaion (5' -> 3')
+  \item If parallel=TRUE, then be sure to have a paralle
+  backend registered before running the function. One can
+  use any of the following libraries compatible with
+  \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI,
+  doParallel. For example: library(doMC); registerDoMC(2) }
 }
 \examples{
 # Convert a dataframe to RangedData/GRanges object

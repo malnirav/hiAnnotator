@@ -377,20 +377,24 @@ makeRangedData <- function(x, positionsOnly=FALSE, soloStart=FALSE, chromCol=NUL
   
   metadataCols <- grep("space|start|end|strand", names(x),
                        invert=TRUE, value=TRUE, fixed=FALSE)
-  
+  metadataCols <- metadataCols[!is.na(metadataCols)]
   if(asGRanges) {
     sites.rd <- GRanges(seqnames=x$space, IRanges(start=x$start, end=x$end),
                         strand=x$strand)
-    mcols(sites.rd) <- DataFrame(x[,na.omit(metadataCols)])
+    ## Loop through incase only one metadataCol is present which returns a vector 
+    ## instead of a dataframe...DataFrame(x[,metadataCols]) may not work! 
+    for(f in metadataCols) {       
+      mcols(sites.rd)[[f]] <- x[,f]
+    }
   } else {
     sites.rd <- RangedData(space=x$space, IRanges(start=x$start, end=x$end),
                         strand=x$strand)
-    for(f in na.omit(metadataCols)) {
+    for(f in metadataCols) {
       sites.rd[[f]] <- x[,f]
     }
   }
   
-  sites.rd    
+  sites.rd
 }
 
 #' Make a sorted GRanges object from a dataframe. 
@@ -469,7 +473,8 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 #'
 #' @note
 #' \itemize{
-#'   \item When side='midpoint', the distance to nearest feature is calculated by (start+stop)/2. Try not to use this function for >50 spaces/seqnames/chromosomes unless you have tons fo memory. 
+#'   \item When side='midpoint', the distance to nearest feature is calculated by (start+stop)/2. 
+#'   \item Try not to use this function for >50 spaces/seqnames/chromosomes unless you have tons fo memory. 
 #'   \item If strand information doesn't exist, then everything is defaulted to '+' orientaion (5' -> 3')
 #'   \item If parallel=TRUE, then be sure to have a paralle backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI, doParallel. For example: library(doMC); registerDoMC(2)
 #' }
