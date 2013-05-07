@@ -380,10 +380,14 @@ makeRangedData <- function(x, positionsOnly=FALSE, soloStart=FALSE, chromCol=NUL
   
   if(asGRanges) {
     sites.rd <- GRanges(seqnames=x$space, IRanges(start=x$start, end=x$end),
-                        strand=x$strand, x[,na.omit(metadataCols)])
+                        strand=x$strand)
+    mcols(sites.rd) <- DataFrame(x[,na.omit(metadataCols)])
   } else {
     sites.rd <- RangedData(space=x$space, IRanges(start=x$start, end=x$end),
-                        strand=x$strand, x[,na.omit(metadataCols)])
+                        strand=x$strand)
+    for(f in na.omit(metadataCols)) {
+      sites.rd[[f]] <- x[,f]
+    }
   }
   
   sites.rd    
