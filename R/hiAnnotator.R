@@ -701,27 +701,21 @@ get2NearestFeature <- function(sites.rd, features.rd,
   res$qStrand <- as.character(strand(query))[res$queryHits]
   res <- getLowestDists(query, subject, res, side)
   
-  res$left1 <- with(res, subjectHits-1)
-  res$left2 <- with(res, subjectHits-2)
-  res$right1 <- with(res, subjectHits+1)
-  res$right2 <- with(res, subjectHits+2) 
-      
   ## perform upstream-downstream checks by testing distances  
-  res$u1 <- with(res, ifelse(dist<0, 
-                         subjectHits, 
-                         ifelse(qStrand=="+", left1, right1)))
-
-  res$d1 <- with(res, ifelse(dist<0, 
-                             subjectHits, 
-                             ifelse(qStrand=="+", right1, left1)))
-  
   res$u2 <- with(res, ifelse(dist<0, 
-                             ifelse(qStrand=="+", left1, right1), 
-                             ifelse(qStrand=="+", left2, right2)))
- 
+                             ifelse(qStrand=="+", subjectHits - 1, subjectHits + 1), 
+                             ifelse(qStrand=="+", subjectHits - 2, subjectHits + 2)))
+
+  res$u1 <- with(res, ifelse(dist<0, subjectHits, 
+                             ifelse(qStrand=="+", subjectHits - 1, subjectHits + 1)))
+  
+  res$d1 <- with(res, ifelse(dist<0, 
+                             ifelse(qStrand=="+", subjectHits + 1, subjectHits - 1), 
+                             subjectHits))
+  
   res$d2 <- with(res, ifelse(dist<0, 
-                             ifelse(qStrand=="+", right2, left2), 
-                             ifelse(qStrand=="+", right1, left1)))
+                             ifelse(qStrand=="+", subjectHits + 2, subjectHits - 2), 
+                             ifelse(qStrand=="+", subjectHits + 1, subjectHits - 1)))
   
   prefix <- ifelse(side=="either","Either",side)
   
@@ -781,7 +775,7 @@ get2NearestFeature <- function(sites.rd, features.rd,
   })  
   
   res <- do.call(cbind, all.res)
-    
+
   ## merge results to the query object and return it ##
   .mergeAndReturn()  
   
@@ -834,7 +828,7 @@ getLowestDists <- function(query=NULL, subject=NULL, res.nrst=NULL, side="either
   dist.lowest <- ifelse(abs(dist5p)<abs(dist3p), dist5p, dist3p) 
   
   ## fix signs to match biological upstream or downstream
-  dist.lowest2 <- ifelse(as.character(strand(subject))[res.nrst$subjectHits]=="-",
+  dist.lowest2 <- ifelse(as.character(strand(query))[res.nrst$query]=="+",
                          -dist.lowest,
                          dist.lowest) 
   
