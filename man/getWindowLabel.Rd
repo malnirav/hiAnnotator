@@ -13,7 +13,7 @@
   interval sizes.
 }
 \description{
-  Function to generate asthetically pleasing window size
+  Function to generate aesthetically pleasing window size
   label given an integer. This is one of the helper
   function used in \code{\link{getFeatureCounts}} &
   \code{\link{getFeatureCountsBig}}.

@@ -3,7 +3,8 @@
 \title{Get the lowest biological distance from the 5' or 3' boundaries of query and subject.}
 \usage{
   getLowestDists(query = NULL, subject = NULL,
-    res.nrst = NULL, side = "either")
+    res.nrst = NULL, side = "either",
+    relativeTo = "subject")
 }
 \arguments{
   \item{query}{GRanges object to be used as the query which
@@ -19,6 +20,10 @@
   \item{side}{boundary of subject/annotation to use to
   calculate the nearest distance. Options are '5p','3p', or
   the default 'either'.}
+
+  \item{relativeTo}{calculate distance relative to query or
+  subject. Default is 'subject'. See documentation of
+  \code{\link{getNearestFeature}} for more information.}
 }
 \value{
   res.nrst with lowest distances appended at the end.

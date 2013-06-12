@@ -1,6 +1,6 @@
 #' Annotating RangedData or GRanges objects with hiAnnotator.
 #'
-#' hiAnnotator contains set of functions which allow users to annotate a RangedData or GRanges object with custom set of annotations. The basic philosophy of this package is to take two RangedData or GRanges objects (query & subject) with common set of space/seqnames (i.e. chromosomes) and return associated annotation per space/seqname and rows from the query matching space/seqnames and rows from the subject (i.e. genes or cpg islands).
+#' hiAnnotator contains set of functions which allow users to annotate a RangedData or GRanges object with custom set of annotations. The basic philosophy of this package is to take two RangedData or GRanges objects (query & subject) with common set of space/seqnames (i.e. chromosomes) and return associated annotation per space/seqnames and rows from the query matching space/seqnames and rows from the subject (i.e. genes or cpg islands).
 # The package comes with three types of annotation functions which calculates if a position from query is: within a feature, near a feature, or count features in defined window sizes. Moreover, one can utilize parallel backend for each annotation function to utilize the foreach package. In addition, the package is equipped with wrapper functions, which finds appropriate columns needed to make a RangedData or GRanges object from a common dataframe..
 #'
 #' @import GenomicRanges foreach iterators rtracklayer plyr BSgenome
@@ -468,6 +468,7 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 #' @param feature.colnam column name from features.rd to be used for retrieving the nearest feature name. By default this is NULL assuming that features.rd has a column that includes the word 'name' somewhere in it.
 #' @param dists.only flag to return distances only. If this is TRUE, then 'feature.colnam' is not required and only distance to the nearest feature will be returned. By default this is FALSE.
 #' @param parallel use parallel backend to perform calculation with \code{\link{foreach}}. Defaults to FALSE. If no parallel backend is registered, then a serial version of foreach is ran using \code{\link{registerDoSEQ()}}.
+#' @param relativeTo calculate distance relative to query or subject. Default is 'subject'. This essentially means whether to use query or subject as the anchor point to get distance from!
 #'
 #' @return a RangedData/GRanges object with new annotation columns appended at the end of sites.rd.
 #'
@@ -475,8 +476,9 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 #' \itemize{
 #'   \item When side='midpoint', the distance to nearest feature is calculated by (start+stop)/2. 
 #'   \item Try not to use this function for >50 spaces/seqnames/chromosomes unless you have tons fo memory. 
-#'   \item If strand information doesn't exist, then everything is defaulted to '+' orientaion (5' -> 3')
-#'   \item If parallel=TRUE, then be sure to have a paralle backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI, doParallel. For example: library(doMC); registerDoMC(2)
+#'   \item If strand information doesn't exist, then everything is defaulted to '+' orientation (5' -> 3')
+#'   \item If parallel=TRUE, then be sure to have a parallel backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI, doParallel. For example: library(doMC); registerDoMC(2)
+#'   \item When relativeTo="subject", the biological distance is relative to subject meaning, the function reports the distance to query from subject (i.e. an integration site is upstream or downstream from a gene). When relativeTo="query", the distance is from the point of view of query or an integration site (i.e. gene is upstream or downstream from an integration site).
 #' }
 #'
 #' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, \code{\link{getSitesInFeature}}, \code{\link{get2NearestFeature}}.
@@ -508,10 +510,10 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 #' nearestGenes
 getNearestFeature <- function(sites.rd, features.rd, 
                               colnam=NULL, side="either", feature.colnam=NULL, 
-                              dists.only=FALSE, parallel=FALSE) {
+                              dists.only=FALSE, parallel=FALSE, relativeTo='subject') {
   
   .checkArgsSetDefaults()
-     
+
   if(!dists.only) {    
     mcols(subject)$featureName <- mcols(features.rd)[,feature.colnam]
   }
@@ -530,30 +532,30 @@ getNearestFeature <- function(sites.rd, features.rd,
     if (side=='midpoint')
       ranges(subject) <- IRanges(mid(ranges(subject)), width=1)
   }
-    
+
   prefix <- ifelse(side=="either","",side)    
   colnam <- cleanColname(colnam)
   
-  ## chunkize the objects for parallel processing ##
+  ## chunksize the objects for parallel processing ##
   chunks <- if(parallel) { 
     makeChunks(query, subject)
   } else {
     list(list("query"=query, "subject"=subject))
   }
-    
+
   ## first get the nearest indices, respective tempyIDs, and distances ##  
-  res <- foreach(x=iter(chunks), .inorder=FALSE, .export=c("side"),
+  res <- foreach(x=iter(chunks), .inorder=FALSE, .export=c("side","relativeTo"),
                  .packages=c("GenomicRanges","plyr")) %dopar% { 
                    res.x <- as.data.frame(nearest(x$query, x$subject, 
                                                   select="all", 
                                                   ignore.strand=TRUE))
                    res.x$qID <- mcols(x$query)$tempyID[res.x$queryHits]
                    res.x$sID <- mcols(x$subject)$tempyID[res.x$subjectHits]
-                   res.x <- getLowestDists(x$query, x$subject, res.x, side)
+                   res.x <- getLowestDists(x$query, x$subject, res.x, side, relativeTo)
                    counts <- count(res.x,"queryHits")
                    merge(res.x, counts)
                  }
-    
+
   if(!dists.only) {    
     ## for the feature of shortest indices, get the names, and strand attributes    
     ## fix cases where >1 equally nearest features were returned by concatenating 
@@ -591,8 +593,8 @@ getNearestFeature <- function(sites.rd, features.rd,
     ## change column names for swift merging by .mergeAndReturn() ##
     names(res)[grepl("featureName",names(res))] <- paste0(prefix,colnam)
     names(res)[grepl("strand",names(res))] <- paste0(prefix,colnam,"Ort")
-    
-  } else {
+
+    } else {
     ## fix cases where >1 equally nearest features were returned by choosing 1 distance
     res <- foreach(x=iter(res), .inorder=FALSE, 
                    .combine=rbind ) %dopar% {
@@ -601,7 +603,7 @@ getNearestFeature <- function(sites.rd, features.rd,
   }
   
   rm(chunks)
-    
+
   ## change distance column name for .mergeAndReturn() ##
   names(res)[grepl("dist",names(res))] <- paste(prefix,colnam,"Dist",sep="")
   
@@ -628,6 +630,7 @@ getNearestFeature <- function(sites.rd, features.rd,
 #' @param colnam column name to be added to sites.rd for the newly calculated annotation...serves a core!
 #' @param side boundary of annotation to use to calculate the nearest distance. Options are '5p','3p', 'either'(default), or 'midpoint'.
 #' @param feature.colnam column name from features.rd to be used for retrieving the nearest feature name. By default this is NULL assuming that features.rd has a column that includes the word 'name' somewhere in it.
+#' @param relativeTo calculate distance relative to query or subject. Default is 'subject'. This essentially means whether to use query or subject as the anchor point to get distance from!
 #'
 #' @return a RangedData/GRanges object with new annotation columns appended at the end of sites.rd.
 #'
@@ -635,10 +638,12 @@ getNearestFeature <- function(sites.rd, features.rd,
 #' \itemize{
 #'   \item When side='midpoint', the distance to nearest feature is calculated by (start+stop)/2. 
 #'   \item For cases where a position is at the edge and there are no feature up/down stream since it would fall off the chromosome, the function simply returns the nearest feature. 
-#'   \item If there are multiple locations where a query falls into, the function arbitrarily chooses one to serve as the nearest feature, then reports 2 upstream & downstream feature. That may occasionally yield features which are the same upstream and dowstream, which is commonly encountered when studying spliced genes or phenomena related to it. 
+#'   \item If there are multiple locations where a query falls into, the function arbitrarily chooses one to serve as the nearest feature, then reports 2 upstream & downstream feature. That may occasionally yield features which are the same upstream and downstream, which is commonly encountered when studying spliced genes or phenomena related to it. 
 #'   \item Try not to use this function for >50 spaces/seqnames/chromosomes unless you have tons fo memory. 
-#'   \item If strand information doesn't exist, then everything is defaulted to '+' orientaion (5' -> 3')
-#'   \item If parallel=TRUE, then be sure to have a paralle backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI, doParallel. For example: library(doMC); registerDoMC(2)
+#'   \item If strand information doesn't exist, then everything is defaulted to '+' orientation (5' -> 3')
+#'   \item If parallel=TRUE, then be sure to have a parallel backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI, doParallel. For example: library(doMC); registerDoMC(2)
+#'   \item When relativeTo="subject", the biological distance is relative to subject meaning, the function reports the distance to query from subject (i.e. an integration site is upstream or downstream from a gene). When relativeTo="query", the distance is from the point of view of query or an integration site (i.e. gene is upstream or downstream from an integration site).
+
 #' }
 #'
 #' @seealso \code{\link{getNearestFeature}}, \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, \code{\link{getSitesInFeature}}.
@@ -666,7 +671,7 @@ getNearestFeature <- function(sites.rd, features.rd,
 #'
 get2NearestFeature <- function(sites.rd, features.rd, 
                                colnam=NULL, side="either", 
-                               feature.colnam=NULL) {
+                               feature.colnam=NULL, relativeTo="subject") {
   
   .checkArgsSetDefaults()
    
@@ -699,7 +704,7 @@ get2NearestFeature <- function(sites.rd, features.rd,
   res <- as.data.frame(nearest(query, subject, select="all", ignore.strand=TRUE))
   res$qID <- mcols(query)$tempyID[res$queryHits]
   res$qStrand <- as.character(strand(query))[res$queryHits]
-  res <- getLowestDists(query, subject, res, side)
+  res <- getLowestDists(query, subject, res, side, relativeTo)
   
   ## perform upstream-downstream checks by testing distances  
   res$u2 <- with(res, ifelse(dist<0, 
@@ -746,7 +751,7 @@ get2NearestFeature <- function(sites.rd, features.rd,
     res.nrst$subjectHits <- res.nrst[,f]
     res.nrst[,f] <- NULL
     
-    res.nrst <- getLowestDists(query, subject, res.nrst, side)
+    res.nrst <- getLowestDists(query, subject, res.nrst, side, relativeTo)
     res.nrst$featureName <- mcols(subject)[,"featureName"][res.nrst$subjectHits]
     res.nrst$strand <- as.character(strand(subject))[res.nrst$subjectHits]    
       
@@ -790,6 +795,7 @@ get2NearestFeature <- function(sites.rd, features.rd,
 #' @param subject GRanges object to be used as the subject which holds data for 'subjectHits' attribute of res.nrst.
 #' @param res.nrst a dataframe of nearest indices as returned by \code{\link{nearest}}.
 #' @param side boundary of subject/annotation to use to calculate the nearest distance. Options are '5p','3p', or the default 'either'.
+#' @param relativeTo calculate distance relative to query or subject. Default is 'subject'. See documentation of  \code{\link{getNearestFeature}} for more information.
 #'
 #' @return res.nrst with lowest distances appended at the end.
 #'
@@ -798,7 +804,8 @@ get2NearestFeature <- function(sites.rd, features.rd,
 #' @seealso \code{\link{getNearestFeature}}, \code{\link{get2NearestFeature}}.
 #'
 #' @export
-getLowestDists <- function(query=NULL, subject=NULL, res.nrst=NULL, side="either") {
+getLowestDists <- function(query=NULL, subject=NULL, res.nrst=NULL, 
+                           side="either", relativeTo="subject") {
   if(is.null(query) | is.null(subject) | is.null(res.nrst)) {
     stop("One of following is null: query, subject, res.nrst")
   }    
@@ -812,8 +819,7 @@ getLowestDists <- function(query=NULL, subject=NULL, res.nrst=NULL, side="either
     ## get the lowest dist to either annot boundary from 3p side of the query
     dist.s <- end(query)[res.nrst$queryHits] - start(subject)[res.nrst$subjectHits]    
     dist.e <- end(query)[res.nrst$queryHits] - end(subject)[res.nrst$subjectHits]  
-    dist3p <- ifelse(abs(dist.s)<abs(dist.e), dist.s, dist.e) 
-    
+    dist3p <- ifelse(abs(dist.s)<abs(dist.e), dist.s, dist.e)     
   } else {
     #### no need to do calcs to start & end of subject since this clause assumes
     #### you have taken 5' or 3' of the subject!    
@@ -827,11 +833,17 @@ getLowestDists <- function(query=NULL, subject=NULL, res.nrst=NULL, side="either
   ## get the lowest distance from the lowest 5p or 3p of the query!
   dist.lowest <- ifelse(abs(dist5p)<abs(dist3p), dist5p, dist3p) 
   
-  ## fix signs to match biological upstream or downstream
-  dist.lowest2 <- ifelse(as.character(strand(query))[res.nrst$query]=="+",
-                         -dist.lowest,
-                         dist.lowest) 
-  
+  ## fix signs to match biological upstream or downstream relative to query or subject! ##
+  if(relativeTo=='query') {
+    dist.lowest2 <- ifelse(as.character(strand(query))[res.nrst$query]=="+",
+                           -dist.lowest,
+                           dist.lowest) 
+  } else {
+    dist.lowest2 <- ifelse(as.character(strand(subject))[res.nrst$subjectHits]=="-",
+                           -dist.lowest,
+                           dist.lowest) 
+  }
+
   res.nrst$dist <- dist.lowest2
   
   ## fix cases where two nested features were returned by choosing 
@@ -846,7 +858,7 @@ getLowestDists <- function(query=NULL, subject=NULL, res.nrst=NULL, side="either
 
 #' Generate a window size label.
 #'
-#' Function to generate asthetically pleasing window size label given an integer. This is one of the helper function used in \code{\link{getFeatureCounts}} & \code{\link{getFeatureCountsBig}}. 
+#' Function to generate aesthetically pleasing window size label given an integer. This is one of the helper function used in \code{\link{getFeatureCounts}} & \code{\link{getFeatureCountsBig}}. 
 #'
 #' @param x vector of integers to generate the labels for. 
 #'
@@ -885,7 +897,7 @@ getWindowLabel <- function(x) {
 #' \itemize{
 #'   \item If the input sites.rd parameter is GRanges object, then it is converted to RangedData and then converted back to GRanges at the end since \code{\link{findOverlaps}} function operates much faster on RangedData objects. 
 #'   \item Try not to use this function for >50 spaces unless you have tons fo memory. 
-#'   \item If parallel=TRUE, then be sure to have a paralle backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For example: library(doMC); registerDoMC(2)
+#'   \item If parallel=TRUE, then be sure to have a parallel backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For example: library(doMC); registerDoMC(2)
 #' }
 #'
 #' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}, \code{\link{getFeatureCountsBig}}.
@@ -941,11 +953,11 @@ getFeatureCounts <- function(sites.rd, features.rd,
                                    weightsColname=weightsColname, parallel=parallel),
                   "GRanges"))
     }
-    
+
     if(RangedDataFlag) {
       res <- as(res,"RangedData")
     }
-    
+
     return(res)
   } else {
     weighted <- ifelse(is.null(weightsColname),FALSE,TRUE)
@@ -1003,7 +1015,7 @@ getFeatureCounts <- function(sites.rd, features.rd,
 
 #' Get counts of annotation within a defined window around each query range/position for large annotation objects spanning greater than 1 billion rows.
 #'
-#' Given a query object and window size(s), the function finds all the rows in subject which are <= window size/2 distance away. Note that here counting is done using midpoint of the ranges in query instead of start-stop boundaries. The counts will differ sliglty when compared to \code{\link{getFeatureCounts}}.
+#' Given a query object and window size(s), the function finds all the rows in subject which are <= window size/2 distance away. Note that here counting is done using midpoint of the ranges in query instead of start-stop boundaries. The counts will differ slightly when compared to \code{\link{getFeatureCounts}}.
 #'
 #' @param sites.rd RangedData/GRanges object to be used as the query.
 #' @param features.rd RangedData/GRanges object to be used as the subject or the annotation table.
@@ -1074,7 +1086,7 @@ getFeatureCountsBig <- function(sites.rd, features.rd,
 #' \itemize{
 #'   \item If the input sites.rd parameter is GRanges object, then it is converted to RangedData and then converted back to GRanges at the end since \code{\link{findOverlaps}} function operates much faster on RangedData objects. 
 #'   \item Try not to use this function for >50 spaces unless you have tons fo memory. 
-#'   \item If parallel=TRUE, then be sure to have a paralle backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For example: library(doMC); registerDoMC(2)
+#'   \item If parallel=TRUE, then be sure to have a parallel backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For example: library(doMC); registerDoMC(2)
 #' }
 #'
 #' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, \code{\link{getNearestFeature}}.

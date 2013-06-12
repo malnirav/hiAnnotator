@@ -68,7 +68,7 @@
   \code{\link{findOverlaps}} function operates much faster
   on RangedData objects.  \item Try not to use this
   function for >50 spaces unless you have tons fo memory.
-  \item If parallel=TRUE, then be sure to have a paralle
+  \item If parallel=TRUE, then be sure to have a parallel
   backend registered before running the function. One can
   use any of the following libraries compatible with
   \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For

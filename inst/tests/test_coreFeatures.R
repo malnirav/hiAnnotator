@@ -13,9 +13,9 @@ expect_that(countQueryHits(res), is_identical_to(c(9L, 12L, 15L, 12L)))
 res <- overlapsAny(query, subject, ignore.strand=TRUE)
 expect_that(res, is_identical_to(c(TRUE, TRUE, TRUE, FALSE)))
 
-#### test nearest type annotations ####
+#### test nearest type annotations relative to query ####
 res <- as.data.frame(nearest(query, subject, select="all", ignore.strand=TRUE))
-res <- getLowestDists(query, subject, res, "either")
+res <- getLowestDists(query, subject, res, "either", "query")
 rownames(res) <- NULL
 
 ## for getNearestFeature() ##
@@ -60,7 +60,7 @@ subject3p <- flank(subject, width=-1, start=FALSE)
 ranges(subject) <- IRanges(mid(ranges(subject)), width=1)
 
 res <- as.data.frame(nearest(query, subject5p, select="all", ignore.strand=TRUE))
-res <- getLowestDists(query, subject5p, res, "5p")
+res <- getLowestDists(query, subject5p, res, "5p", "query")
 expect_that(res,
             is_identical_to(structure(list(queryHits = 1:4, subjectHits = 1:4, 
                                            dist = c(0L, 0L, -3L, -1L)), 
@@ -68,7 +68,7 @@ expect_that(res,
                                       row.names = c(NA, -4L), class = "data.frame")))
 
 res <- as.data.frame(nearest(query, subject3p, select="all", ignore.strand=TRUE))
-res <- getLowestDists(query, subject3p, res, "3p")
+res <- getLowestDists(query, subject3p, res, "3p", "query")
 expect_that(res,
             is_identical_to(structure(list(queryHits = 1:4, 
                                            subjectHits = c(1L, 1L, 2L, 5L), 
@@ -77,10 +77,19 @@ expect_that(res,
                                       row.names = c(NA, 4L), class = "data.frame")))
 
 res <- as.data.frame(nearest(query, subject, select="all", ignore.strand=TRUE))
-res <- getLowestDists(query, subject, res, "midpoint")
+res <- getLowestDists(query, subject, res, "midpoint", "query")
 expect_that(res,
             is_identical_to(structure(list(queryHits = 1:4, 
                                            subjectHits = c(1L, 1L, 3L, 5L), 
                                            dist = c(-3L, -1L, 0L, 2L)), 
+                                      .Names = c("queryHits", "subjectHits", "dist"), 
+                                      row.names = c(NA, 4L), class = "data.frame")))
+
+## test relative to subject ##
+res <- getLowestDists(query, subject, res, "midpoint", "subject")
+expect_that(res,
+            is_identical_to(structure(list(queryHits = 1:4, 
+                                           subjectHits = c(1L, 1L, 3L, 5L), 
+                                           dist = c(-3L, 1L, 0L, 2L)), 
                                       .Names = c("queryHits", "subjectHits", "dist"), 
                                       row.names = c(NA, 4L), class = "data.frame")))

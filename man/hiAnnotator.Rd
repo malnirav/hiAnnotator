@@ -10,7 +10,7 @@
   is to take two RangedData or GRanges objects (query &
   subject) with common set of space/seqnames (i.e.
   chromosomes) and return associated annotation per
-  space/seqname and rows from the query matching
+  space/seqnames and rows from the query matching
   space/seqnames and rows from the subject (i.e. genes or
   cpg islands).
 }

@@ -4,7 +4,8 @@
 \usage{
   getNearestFeature(sites.rd, features.rd, colnam = NULL,
     side = "either", feature.colnam = NULL,
-    dists.only = FALSE, parallel = FALSE)
+    dists.only = FALSE, parallel = FALSE,
+    relativeTo = "subject")
 }
 \arguments{
   \item{sites.rd}{RangedData/GRanges object to be used as
@@ -35,6 +36,11 @@
   FALSE. If no parallel backend is registered, then a
   serial version of foreach is ran using
   \code{\link{registerDoSEQ()}}.}
+
+  \item{relativeTo}{calculate distance relative to query or
+  subject. Default is 'subject'. This essentially means
+  whether to use query or subject as the anchor point to
+  get distance from!}
 }
 \value{
   a RangedData/GRanges object with new annotation columns
@@ -54,12 +60,19 @@
   Try not to use this function for >50
   spaces/seqnames/chromosomes unless you have tons fo
   memory.  \item If strand information doesn't exist, then
-  everything is defaulted to '+' orientaion (5' -> 3')
-  \item If parallel=TRUE, then be sure to have a paralle
+  everything is defaulted to '+' orientation (5' -> 3')
+  \item If parallel=TRUE, then be sure to have a parallel
   backend registered before running the function. One can
   use any of the following libraries compatible with
   \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI,
-  doParallel. For example: library(doMC); registerDoMC(2) }
+  doParallel. For example: library(doMC); registerDoMC(2)
+  \item When relativeTo="subject", the biological distance
+  is relative to subject meaning, the function reports the
+  distance to query from subject (i.e. an integration site
+  is upstream or downstream from a gene). When
+  relativeTo="query", the distance is from the point of
+  view of query or an integration site (i.e. gene is
+  upstream or downstream from an integration site). }
 }
 \examples{
 # Convert a dataframe to RangedData/GRanges object

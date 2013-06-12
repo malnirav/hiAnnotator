@@ -33,7 +33,7 @@
   finds all the rows in subject which are <= window size/2
   distance away. Note that here counting is done using
   midpoint of the ranges in query instead of start-stop
-  boundaries. The counts will differ sliglty when compared
+  boundaries. The counts will differ slightly when compared
   to \code{\link{getFeatureCounts}}.
 }
 \seealso{
