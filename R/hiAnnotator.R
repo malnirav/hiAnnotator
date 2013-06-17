@@ -734,13 +734,19 @@ get2NearestFeature <- function(sites.rd, features.rd,
     res.nrst <- res[,c("queryHits","subjectHits","qID",f)]
     
     # make sure we haven't jumped a chromosome by shifting nearest indices above #
-    # if we did, then record it as NA at later a stage #   
+    # if we did, then record it as NA at later a stage #    
+    
+    # fix cases where chosen subjectHits are off the length of subject object #
+    fixed <- with(res.nrst, ifelse(get(f) < 1 | get(f) > length(subject), 
+                                   subjectHits, get(f)))
+    
+    # do the chromosome test & tag rows which were off the subject length #
     res.nrst$qChr <- as.character(seqnames(query))[res.nrst$queryHits]
-    res.nrst$sChr <- as.character(seqnames(subject))[res.nrst[,f]]
+    res.nrst$sChr <- as.character(seqnames(subject))[fixed]
+    rows <- res.nrst$qChr!=res.nrst$sChr | res.nrst[,f] < 1 | res.nrst[,f] > length(subject)
     
-    rows <- res.nrst$qChr!=res.nrst$sChr
-    res.nrst$subjectHits <- res.nrst[,f]
-    
+    # overwrite subjectHits indices with that of interested motif for later steps #
+    res.nrst$subjectHits <- res.nrst[,f]    
     res.nrst[,f] <- NULL
     res.nrst$qChr <- NULL
     res.nrst$sChr <- NULL

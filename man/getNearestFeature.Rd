@@ -67,7 +67,7 @@
   \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI,
   doParallel. For example: library(doMC); registerDoMC(2)
   \item When relativeTo="subject", the biological distance
-  is relative to subject meaning, the function reports the
+  is relative to subject, meaning, the function reports the
   distance to query from subject (i.e. an integration site
   is upstream or downstream from a gene). When
   relativeTo="query", the distance is from the point of

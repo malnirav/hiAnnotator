@@ -26,9 +26,8 @@
   includes the word 'name' somewhere in it.}
 
   \item{relativeTo}{calculate distance relative to query or
-  subject. Default is 'subject'. This essentially means
-  whether to use query or subject as the anchor point to
-  get distance from!}
+  subject. Default is 'subject'. See documentation of
+  \code{\link{getNearestFeature}} for more information.}
 }
 \value{
   a RangedData/GRanges object with new annotation columns
@@ -48,29 +47,22 @@
   nearest feature is calculated by (start+stop)/2.  \item
   For cases where a position is at the edge and there are
   no feature up/down stream since it would fall off the
-  chromosome, the function simply returns the nearest
-  feature.  \item If there are multiple locations where a
-  query falls into, the function arbitrarily chooses one to
-  serve as the nearest feature, then reports 2 upstream &
-  downstream feature. That may occasionally yield features
-  which are the same upstream and downstream, which is
-  commonly encountered when studying spliced genes or
-  phenomena related to it.  \item Try not to use this
-  function for >50 spaces/seqnames/chromosomes unless you
-  have tons fo memory.  \item If strand information doesn't
-  exist, then everything is defaulted to '+' orientation
-  (5' -> 3') \item If parallel=TRUE, then be sure to have a
-  parallel backend registered before running the function.
-  One can use any of the following libraries compatible
-  with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI,
-  doParallel. For example: library(doMC); registerDoMC(2)
-  \item When relativeTo="subject", the biological distance
-  is relative to subject meaning, the function reports the
-  distance to query from subject (i.e. an integration site
-  is upstream or downstream from a gene). When
-  relativeTo="query", the distance is from the point of
-  view of query or an integration site (i.e. gene is
-  upstream or downstream from an integration site). }
+  chromosome, the function simply returns 'NA'.  \item If
+  there are multiple locations where a query falls into,
+  the function arbitrarily chooses one to serve as the
+  nearest feature, then reports 2 upstream & downstream
+  feature. That may occasionally yield features which are
+  the same upstream and downstream, which is commonly
+  encountered when studying spliced genes or phenomena
+  related to it.  \item Try not to use this function for
+  >50 spaces/seqnames/chromosomes unless you have tons fo
+  memory.  \item If strand information doesn't exist, then
+  everything is defaults to '+' orientation (5' -> 3')
+  \item If parallel=TRUE, then be sure to have a parallel
+  backend registered before running the function. One can
+  use any of the following libraries compatible with
+  \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI,
+  doParallel. For example: library(doMC); registerDoMC(2) }
 }
 \examples{
 # Convert a dataframe to RangedData/GRanges object
