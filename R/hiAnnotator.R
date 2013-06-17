@@ -478,7 +478,7 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 #'   \item Try not to use this function for >50 spaces/seqnames/chromosomes unless you have tons fo memory. 
 #'   \item If strand information doesn't exist, then everything is defaulted to '+' orientation (5' -> 3')
 #'   \item If parallel=TRUE, then be sure to have a parallel backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI, doParallel. For example: library(doMC); registerDoMC(2)
-#'   \item When relativeTo="subject", the biological distance is relative to subject meaning, the function reports the distance to query from subject (i.e. an integration site is upstream or downstream from a gene). When relativeTo="query", the distance is from the point of view of query or an integration site (i.e. gene is upstream or downstream from an integration site).
+#'   \item When relativeTo="subject", the biological distance is relative to subject, meaning, the function reports the distance to query from subject (i.e. an integration site is upstream or downstream from a gene). When relativeTo="query", the distance is from the point of view of query or an integration site (i.e. gene is upstream or downstream from an integration site).
 #' }
 #'
 #' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, \code{\link{getSitesInFeature}}, \code{\link{get2NearestFeature}}.
@@ -630,20 +630,18 @@ getNearestFeature <- function(sites.rd, features.rd,
 #' @param colnam column name to be added to sites.rd for the newly calculated annotation...serves a core!
 #' @param side boundary of annotation to use to calculate the nearest distance. Options are '5p','3p', 'either'(default), or 'midpoint'.
 #' @param feature.colnam column name from features.rd to be used for retrieving the nearest feature name. By default this is NULL assuming that features.rd has a column that includes the word 'name' somewhere in it.
-#' @param relativeTo calculate distance relative to query or subject. Default is 'subject'. This essentially means whether to use query or subject as the anchor point to get distance from!
+#' @param relativeTo calculate distance relative to query or subject. Default is 'subject'. See documentation of  \code{\link{getNearestFeature}} for more information.
 #'
 #' @return a RangedData/GRanges object with new annotation columns appended at the end of sites.rd.
 #'
 #' @note
 #' \itemize{
 #'   \item When side='midpoint', the distance to nearest feature is calculated by (start+stop)/2. 
-#'   \item For cases where a position is at the edge and there are no feature up/down stream since it would fall off the chromosome, the function simply returns the nearest feature. 
+#'   \item For cases where a position is at the edge and there are no feature up/down stream since it would fall off the chromosome, the function simply returns 'NA'. 
 #'   \item If there are multiple locations where a query falls into, the function arbitrarily chooses one to serve as the nearest feature, then reports 2 upstream & downstream feature. That may occasionally yield features which are the same upstream and downstream, which is commonly encountered when studying spliced genes or phenomena related to it. 
 #'   \item Try not to use this function for >50 spaces/seqnames/chromosomes unless you have tons fo memory. 
-#'   \item If strand information doesn't exist, then everything is defaulted to '+' orientation (5' -> 3')
+#'   \item If strand information doesn't exist, then everything is defaults to '+' orientation (5' -> 3')
 #'   \item If parallel=TRUE, then be sure to have a parallel backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI, doParallel. For example: library(doMC); registerDoMC(2)
-#'   \item When relativeTo="subject", the biological distance is relative to subject meaning, the function reports the distance to query from subject (i.e. an integration site is upstream or downstream from a gene). When relativeTo="query", the distance is from the point of view of query or an integration site (i.e. gene is upstream or downstream from an integration site).
-
 #' }
 #'
 #' @seealso \code{\link{getNearestFeature}}, \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, \code{\link{getSitesInFeature}}.
@@ -734,22 +732,21 @@ get2NearestFeature <- function(sites.rd, features.rd,
   all.res <- lapply(c("u1","u2","d1","d2"), function(f) {
     message(f)
     res.nrst <- res[,c("queryHits","subjectHits","qID",f)]
-    res.nrst[,f] <- with(res.nrst, ifelse(get(f) > length(subject) | get(f) < 1,
-                                          subjectHits, get(f)))
     
     # make sure we haven't jumped a chromosome by shifting nearest indices above #
-    # if we did, then revert back to the nearest index #
+    # if we did, then record it as NA at later a stage #   
     res.nrst$qChr <- as.character(seqnames(query))[res.nrst$queryHits]
-    res.nrst$sChr <- as.character(seqnames(subject))[res.nrst$subjectHits]
+    res.nrst$sChr <- as.character(seqnames(subject))[res.nrst[,f]]
+    
     rows <- res.nrst$qChr!=res.nrst$sChr
-    if(any(rows)) {
-      res.nrst[rows,f] <- res.nrst[rows,"subjectHits"]
-    }
+    res.nrst$subjectHits <- res.nrst[,f]
+    
+    res.nrst[,f] <- NULL
     res.nrst$qChr <- NULL
     res.nrst$sChr <- NULL
     
-    res.nrst$subjectHits <- res.nrst[,f]
-    res.nrst[,f] <- NULL
+    res.nrst.bad <- droplevels(res.nrst[rows,])
+    res.nrst <- droplevels(res.nrst[!rows,])
     
     res.nrst <- getLowestDists(query, subject, res.nrst, side, relativeTo)
     res.nrst$featureName <- mcols(subject)[,"featureName"][res.nrst$subjectHits]
@@ -766,6 +763,13 @@ get2NearestFeature <- function(sites.rd, features.rd,
     )                     
     res.nrst <- do.call(rbind, res.nrst)
     
+    # add back rows which fell off the edge of chromosome #
+    if(any(rows)) {
+      res.nrst.bad[,c("dist", "featureName", "strand")] <- NA
+      res.nrst <- rbind(res.nrst, res.nrst.bad[,names(res.nrst)])
+      res.nrst <- arrange(res.nrst, qID)
+    }
+    
     if (f == "u1") { coldef <- paste(prefix,colnam,"upStream1",sep=".") }
     if (f == "u2") { coldef <- paste(prefix,colnam,"upStream2",sep=".") }
     if (f == "d1") { coldef <- paste(prefix,colnam,"downStream1",sep=".") }
@@ -777,7 +781,7 @@ get2NearestFeature <- function(sites.rd, features.rd,
     names(res.nrst)[grepl("dist",names(res.nrst))] <- paste(coldef,"Dist",sep=".")
     
     res.nrst
-  })  
+  })
   
   res <- do.call(cbind, all.res)
 
