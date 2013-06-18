@@ -747,11 +747,15 @@ get2NearestFeature <- function(sites.rd, features.rd,
     
     # overwrite subjectHits indices with that of interested motif for later steps #
     res.nrst$subjectHits <- res.nrst[,f]    
+    
+    # remove unnecessary columns #
     res.nrst[,f] <- NULL
     res.nrst$qChr <- NULL
     res.nrst$sChr <- NULL
     
-    res.nrst.bad <- droplevels(res.nrst[rows,])
+    # extract cases which fell off the chromosome but drop any queryHits which found
+    # multiple nearest hits and only one of them happened to be off the chromosome! 
+    res.nrst.bad <- droplevels(res.nrst[rows & !res.nrst$queryHits %in% res.nrst$queryHits[!rows],])
     res.nrst <- droplevels(res.nrst[!rows,])
     
     res.nrst <- getLowestDists(query, subject, res.nrst, side, relativeTo)
@@ -772,7 +776,7 @@ get2NearestFeature <- function(sites.rd, features.rd,
     # add back rows which fell off the edge of chromosome #
     if(any(rows)) {
       res.nrst.bad[,c("dist", "featureName", "strand")] <- NA
-      res.nrst <- rbind(res.nrst, res.nrst.bad[,names(res.nrst)])
+      res.nrst <- rbind(res.nrst, unique(res.nrst.bad[,names(res.nrst)]))
       res.nrst <- arrange(res.nrst, qID)
     }
     
