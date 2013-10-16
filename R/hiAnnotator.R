@@ -1379,9 +1379,13 @@ doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL, postProcessFu
     
     res <- DataFrame(res),
     
-    ## setup new columns to be added using NA ## 
+    ## setup new columns to be added using NA and add the proper class ## 
     newCols <- grep(colnam,names(res),value=T),
     mcols(sites.rd)[newCols] <- NA,
+    for(newCol in newCols) {
+      mcols(sites.rd)[[newCol]] <- as(mcols(sites.rd)[[newCol]], 
+                                      class(res[[newCol]]))
+    },
     
     ## merge back results in the same order as rows in query/sites.rd ##
     rows <- match(mcols(sites.rd)$tempyID[good.rows], res$qID),
