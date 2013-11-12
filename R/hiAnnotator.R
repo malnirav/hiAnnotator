@@ -674,9 +674,8 @@ get2NearestFeature <- function(sites.rd, features.rd,
   .checkArgsSetDefaults()
    
   ## make sure features.rd/subject is sorted ##
-  subject <- sort(subject)
-  
   mcols(subject)$featureName <- mcols(features.rd)[,feature.colnam]
+  subject <- sort(subject)
   rm(features.rd)
   
   if(side %in% c('5p','3p','midpoint')) {
