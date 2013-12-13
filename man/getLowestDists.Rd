@@ -2,9 +2,8 @@
 \alias{getLowestDists}
 \title{Get the lowest biological distance from the 5' or 3' boundaries of query and subject.}
 \usage{
-  getLowestDists(query = NULL, subject = NULL,
-    res.nrst = NULL, side = "either",
-    relativeTo = "subject")
+getLowestDists(query = NULL, subject = NULL, res.nrst = NULL,
+  side = "either", relativeTo = "subject")
 }
 \arguments{
   \item{query}{GRanges object to be used as the query which
@@ -26,23 +25,23 @@
   \code{\link{getNearestFeature}} for more information.}
 }
 \value{
-  res.nrst with lowest distances appended at the end.
+res.nrst with lowest distances appended at the end.
 }
 \description{
-  Given a query and subject with indicies from
-  \code{\link{nearest}}, calculate the shortest biological
-  distance to either boundaries of the query and subject.
-  This is a helper function utilized in
-  \code{\link{getNearestFeature}},
-  \code{\link{get2NearestFeature}}
+Given a query and subject with indicies from
+\code{\link{nearest}}, calculate the shortest biological
+distance to either boundaries of the query and subject.
+This is a helper function utilized in
+\code{\link{getNearestFeature}},
+\code{\link{get2NearestFeature}}
 }
 \note{
-  for cases where a query has multiple nearest neighbors or
-  overlaps with >1 subjects, the function will choose the
-  subject with the lowest absolute distance.
+for cases where a query has multiple nearest neighbors or
+overlaps with >1 subjects, the function will choose the
+subject with the lowest absolute distance.
 }
 \seealso{
-  \code{\link{getNearestFeature}},
-  \code{\link{get2NearestFeature}}.
+\code{\link{getNearestFeature}},
+\code{\link{get2NearestFeature}}.
 }
 

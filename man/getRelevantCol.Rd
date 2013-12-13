@@ -2,8 +2,7 @@
 \alias{getRelevantCol}
 \title{Find the column index of interest given the potential choices.}
 \usage{
-  getRelevantCol(col.names, col.options, col.type = NULL,
-    multiple.ok = FALSE)
+getRelevantCol(col.names, col.options, col.type = NULL, multiple.ok = FALSE)
 }
 \arguments{
   \item{col.names}{column names from a dataframe or a
@@ -20,16 +19,16 @@
   return indices, else spit an error out. Default is TRUE.}
 }
 \value{
-  the index of usable column(s) or an error if no
-  applicable column is found.
+the index of usable column(s) or an error if no applicable
+column is found.
 }
 \description{
-  The function finds relevant column(s) of interest from a
-  vector of column names derived from a dataframe or a
-  RangedData object. If no usable column is found, the
-  function spits out a relevant error or returns the index
-  of the usable column(s). This is an assistant function
-  called by functions listed in the see also section.
+The function finds relevant column(s) of interest from a
+vector of column names derived from a dataframe or a
+RangedData object. If no usable column is found, the
+function spits out a relevant error or returns the index of
+the usable column(s). This is an assistant function called
+by functions listed in the see also section.
 }
 \examples{
 data(sites)
@@ -38,8 +37,8 @@ getRelevantCol(names(sites),c("chr","chromosome","tname","space","chrom","contig
 getRelevantCol(names(sites),c("ort","orientation","strand"),"strand")
 }
 \seealso{
-  \code{\link{makeRangedData}}, \code{\link{makeGRanges}},
-  \code{\link{getNearestFeature}},
-  \code{\link{getSitesInFeature}}.
+\code{\link{makeRangedData}}, \code{\link{makeGRanges}},
+\code{\link{getNearestFeature}},
+\code{\link{getSitesInFeature}}.
 }
 

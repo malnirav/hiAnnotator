@@ -2,10 +2,9 @@
 \alias{getNearestFeature}
 \title{Get nearest annotation boundary for a position range.}
 \usage{
-  getNearestFeature(sites.rd, features.rd, colnam = NULL,
-    side = "either", feature.colnam = NULL,
-    dists.only = FALSE, parallel = FALSE,
-    relativeTo = "subject")
+getNearestFeature(sites.rd, features.rd, colnam = NULL, side = "either",
+  feature.colnam = NULL, dists.only = FALSE, parallel = FALSE,
+  relativeTo = "subject")
 }
 \arguments{
   \item{sites.rd}{RangedData/GRanges object to be used as
@@ -43,36 +42,36 @@
   get distance from!}
 }
 \value{
-  a RangedData/GRanges object with new annotation columns
-  appended at the end of sites.rd.
+a RangedData/GRanges object with new annotation columns
+appended at the end of sites.rd.
 }
 \description{
-  Given a query object, the function retrieves the nearest
-  feature and its properties from a subject and then
-  appends them as new columns within the query object. When
-  used in genomic context, the function can be used to
-  retrieve a nearest gene 5' or 3' end relative to genomic
-  position of interest.
+Given a query object, the function retrieves the nearest
+feature and its properties from a subject and then appends
+them as new columns within the query object. When used in
+genomic context, the function can be used to retrieve a
+nearest gene 5' or 3' end relative to genomic position of
+interest.
 }
 \note{
-  \itemize{ \item When side='midpoint', the distance to
-  nearest feature is calculated by (start+stop)/2.  \item
-  Try not to use this function for >50
-  spaces/seqnames/chromosomes unless you have tons fo
-  memory.  \item If strand information doesn't exist, then
-  everything is defaulted to '+' orientation (5' -> 3')
-  \item If parallel=TRUE, then be sure to have a parallel
-  backend registered before running the function. One can
-  use any of the following libraries compatible with
-  \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI,
-  doParallel. For example: library(doMC); registerDoMC(2)
-  \item When relativeTo="subject", the biological distance
-  is relative to subject, meaning, the function reports the
-  distance to query from subject (i.e. an integration site
-  is upstream or downstream from a gene). When
-  relativeTo="query", the distance is from the point of
-  view of query or an integration site (i.e. gene is
-  upstream or downstream from an integration site). }
+\itemize{ \item When side='midpoint', the distance to
+nearest feature is calculated by (start+stop)/2.  \item Try
+not to use this function for >50
+spaces/seqnames/chromosomes unless you have tons fo memory.
+\item If strand information doesn't exist, then everything
+is defaulted to '+' orientation (5' -> 3') \item If
+parallel=TRUE, then be sure to have a parallel backend
+registered before running the function. One can use any of
+the following libraries compatible with
+\code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI,
+doParallel. For example: library(doMC); registerDoMC(2)
+\item When relativeTo="subject", the biological distance is
+relative to subject, meaning, the function reports the
+distance to query from subject (i.e. an integration site is
+upstream or downstream from a gene). When
+relativeTo="query", the distance is from the point of view
+of query or an integration site (i.e. gene is upstream or
+downstream from an integration site). }
 }
 \examples{
 # Convert a dataframe to RangedData/GRanges object
@@ -99,9 +98,9 @@ nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TR
 nearestGenes
 }
 \seealso{
-  \code{\link{makeRangedData}}, \code{\link{makeGRanges}},
-  \code{\link{getFeatureCounts}},
-  \code{\link{getSitesInFeature}},
-  \code{\link{get2NearestFeature}}.
+\code{\link{makeRangedData}}, \code{\link{makeGRanges}},
+\code{\link{getFeatureCounts}},
+\code{\link{getSitesInFeature}},
+\code{\link{get2NearestFeature}}.
 }
 

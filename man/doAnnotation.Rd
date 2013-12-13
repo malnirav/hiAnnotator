@@ -2,8 +2,8 @@
 \alias{doAnnotation}
 \title{Annotate a RangedData/GRanges object using one of annotation functions.}
 \usage{
-  doAnnotation(annotType = NULL, ...,
-    postProcessFun = NULL, postProcessFunArgs = list())
+doAnnotation(annotType = NULL, ..., postProcessFun = NULL,
+  postProcessFunArgs = list())
 }
 \arguments{
   \item{annotType}{one of following: within, nearest,
@@ -19,17 +19,17 @@
   postProcessFun as a list.}
 }
 \value{
-  a RangedData/GRanges object with new annotation columns
-  appended at the end of sites.rd.
+a RangedData/GRanges object with new annotation columns
+appended at the end of sites.rd.
 }
 \description{
-  This is a wrapper function which calls one of following
-  functions depending on annotType parameter:
-  \code{\link{getFeatureCounts}},
-  \code{\link{getFeatureCountsBig}},
-  \code{\link{getNearestFeature}},
-  \code{\link{get2NearestFeature}},
-  code{\link{getSitesInFeature}}
+This is a wrapper function which calls one of following
+functions depending on annotType parameter:
+\code{\link{getFeatureCounts}},
+\code{\link{getFeatureCountsBig}},
+\code{\link{getNearestFeature}},
+\code{\link{get2NearestFeature}},
+code{\link{getSitesInFeature}}
 }
 \examples{
 # Convert a dataframe to RangedData/GRanges object
@@ -51,11 +51,11 @@ geneCheck <- function(x,wanted) { x$isWantedGene <- x$InGene \%in\% wanted; retu
 doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene", postProcessFun=geneCheck, postProcessFunArgs=list("wanted"=c("FOXJ3","SEPT9","RPTOR")) )
 }
 \seealso{
-  \code{\link{makeRangedData}}, \code{\link{makeGRanges}},
-  \code{\link{getFeatureCounts}},
-  \code{\link{getFeatureCountsBig}},
-  \code{\link{getNearestFeature}},
-  \code{\link{get2NearestFeature}},
-  code{\link{getSitesInFeature}}.
+\code{\link{makeRangedData}}, \code{\link{makeGRanges}},
+\code{\link{getFeatureCounts}},
+\code{\link{getFeatureCountsBig}},
+\code{\link{getNearestFeature}},
+\code{\link{get2NearestFeature}},
+code{\link{getSitesInFeature}}.
 }
 

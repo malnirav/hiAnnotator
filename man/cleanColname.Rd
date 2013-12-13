@@ -2,7 +2,7 @@
 \alias{cleanColname}
 \title{Clean the supplied string from punctuations and spaces.}
 \usage{
-  cleanColname(x, description = NULL)
+cleanColname(x, description = NULL)
 }
 \arguments{
   \item{x}{string or a vector to be cleaned.}
@@ -12,11 +12,11 @@
   the cleaning message. This triggers a message.}
 }
 \value{
-  cleaned string or a vector.
+cleaned string or a vector.
 }
 \description{
-  Function to clean the supplied string from punctuations
-  and spaces so it can be used as column headings.
+Function to clean the supplied string from punctuations and
+spaces so it can be used as column headings.
 }
 \examples{
 cleanColname("HIV-test")
@@ -24,9 +24,9 @@ cleanColname("HIV*test")
 cleanColname("HIV-test","myAlias")
 }
 \seealso{
-  \code{\link{getFeatureCounts}},
-  \code{\link{makeRangedData}}, \code{\link{makeGRanges}},
-  \code{\link{getNearestFeature}},
-  \code{\link{getSitesInFeature}}.
+\code{\link{getFeatureCounts}},
+\code{\link{makeRangedData}}, \code{\link{makeGRanges}},
+\code{\link{getNearestFeature}},
+\code{\link{getSitesInFeature}}.
 }
 

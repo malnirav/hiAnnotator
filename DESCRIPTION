@@ -1,7 +1,7 @@
 Package: hiAnnotator
 Title: Functions for annotating RangedData or GRanges objects.
-Version: 1.0
-Date: 2013-03-26
+Version: 1.0.1
+Date: 2013-12-13
 Author: Nirav V Malani <malnirav@gmail.com>
 Maintainer: Nirav V Malani <malnirav@gmail.com>
 Description: hiAnnotator contains set of functions which allow users to
@@ -26,5 +26,3 @@ Depends:
     BSgenome
 License: GPL (>= 2)
 LazyLoad: yes
-Collate:
-    'hiAnnotator.R'

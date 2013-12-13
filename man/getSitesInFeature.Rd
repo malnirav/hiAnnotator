@@ -2,9 +2,8 @@
 \alias{getSitesInFeature}
 \title{Find overlapping positions/ranges that match between the query and subject.}
 \usage{
-  getSitesInFeature(sites.rd, features.rd, colnam = NULL,
-    asBool = FALSE, feature.colnam = NULL,
-    parallel = FALSE)
+getSitesInFeature(sites.rd, features.rd, colnam = NULL, asBool = FALSE,
+  feature.colnam = NULL, parallel = FALSE)
 }
 \arguments{
   \item{sites.rd}{RangedData/GRanges object to be used as
@@ -42,27 +41,27 @@
   is ran using \code{\link{registerDoSEQ()}}.}
 }
 \value{
-  a RangedData/GRanges object with new annotation columns
-  appended at the end of sites.rd.
+a RangedData/GRanges object with new annotation columns
+appended at the end of sites.rd.
 }
 \description{
-  When used in genomic context, the function annotates
-  genomic positions of interest with information like if
-  they were in a gene or cpg island or whatever annotation
-  that was supplied in the subject.
+When used in genomic context, the function annotates
+genomic positions of interest with information like if they
+were in a gene or cpg island or whatever annotation that
+was supplied in the subject.
 }
 \note{
-  \itemize{ \item If the input sites.rd parameter is
-  GRanges object, then it is converted to RangedData and
-  then converted back to GRanges at the end since
-  \code{\link{findOverlaps}} function operates much faster
-  on RangedData objects.  \item Try not to use this
-  function for >50 spaces unless you have tons fo memory.
-  \item If parallel=TRUE, then be sure to have a parallel
-  backend registered before running the function. One can
-  use any of the following libraries compatible with
-  \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For
-  example: library(doMC); registerDoMC(2) }
+\itemize{ \item If the input sites.rd parameter is GRanges
+object, then it is converted to RangedData and then
+converted back to GRanges at the end since
+\code{\link{findOverlaps}} function operates much faster on
+RangedData objects.  \item Try not to use this function for
+>50 spaces unless you have tons fo memory.  \item If
+parallel=TRUE, then be sure to have a parallel backend
+registered before running the function. One can use any of
+the following libraries compatible with
+\code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For
+example: library(doMC); registerDoMC(2) }
 }
 \examples{
 # Convert a dataframe to RangedData/GRanges object
@@ -85,8 +84,8 @@ InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,parallel=T
 InGenes
 }
 \seealso{
-  \code{\link{makeRangedData}}, \code{\link{makeGRanges}},
-  \code{\link{getFeatureCounts}},
-  \code{\link{getNearestFeature}}.
+\code{\link{makeRangedData}}, \code{\link{makeGRanges}},
+\code{\link{getFeatureCounts}},
+\code{\link{getNearestFeature}}.
 }
 

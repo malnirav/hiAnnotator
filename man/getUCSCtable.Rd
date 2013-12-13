@@ -2,8 +2,7 @@
 \alias{getUCSCtable}
 \title{Obtain a UCSC annotation table given the table & track name.}
 \usage{
-  getUCSCtable(tableName, trackName, bsession = NULL,
-    freeze = "hg18", ...)
+getUCSCtable(tableName, trackName, bsession = NULL, freeze = "hg18", ...)
 }
 \arguments{
   \item{tableName}{Name of the annotation table as it
@@ -25,11 +24,11 @@
   \code{\link{ucscTableQuery}}.}
 }
 \value{
-  a dataframe containing the annotation data.
+a dataframe containing the annotation data.
 }
 \description{
-  Obtain a UCSC annotation table given the table & track
-  name.
+Obtain a UCSC annotation table given the table & track
+name.
 }
 \examples{
 refflat <- getUCSCtable("refFlat","RefSeq Genes") ## same as session <- makeUCSCsession();
@@ -37,8 +36,8 @@ refflat <- getUCSCtable("refFlat", "RefSeq Genes", bsession=session, freeze="hg1
 head(refflat)
 }
 \seealso{
-  \code{\link{makeUCSCsession}},
-  \code{\link{getNearestFeature}},
-  \code{\link{getSitesInFeature}}.
+\code{\link{makeUCSCsession}},
+\code{\link{getNearestFeature}},
+\code{\link{getSitesInFeature}}.
 }
 
