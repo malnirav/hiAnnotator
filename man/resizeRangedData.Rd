@@ -11,7 +11,7 @@ resizeRangedData(rd, width = NULL, boundary = "center", spaceSizes = NULL,
   \item{width}{the width of the resized ranges.}
 
   \item{boundary}{same as fix parameter in
-  \code{\link{resize}}. One of "start", "end", and
+  \code{\link[IRanges]{resize}}. One of "start", "end", and
   "center". Default is "center".}
 
   \item{spaceSizes}{named vector of chromosome/space sizes
@@ -41,7 +41,7 @@ data(sites)
 alldata.rd <- makeRangedData(sites,soloStart=TRUE)
 library(BSgenome.Hsapiens.UCSC.hg18)
 resizeRangedData(alldata.rd,width=10000,spaceSizes=seqlengths(Hsapiens))
-resizeRangedData(alldata.rd,width=10000,limitLess=T)
+resizeRangedData(alldata.rd,width=10000,limitLess=TRUE)
 }
 \seealso{
 \code{\link{getFeatureCountsBig}},

@@ -31,9 +31,8 @@ Obtain a UCSC annotation table given the table & track
 name.
 }
 \examples{
-refflat <- getUCSCtable("refFlat","RefSeq Genes") ## same as session <- makeUCSCsession();
-refflat <- getUCSCtable("refFlat", "RefSeq Genes", bsession=session, freeze="hg18")
-head(refflat)
+#refflat <- getUCSCtable("refFlat","RefSeq Genes") ## same as session <- makeUCSCsession();
+#refflat <- getUCSCtable("refFlat", "RefSeq Genes", bsession=session, freeze="hg18")
 }
 \seealso{
 \code{\link{makeUCSCsession}},

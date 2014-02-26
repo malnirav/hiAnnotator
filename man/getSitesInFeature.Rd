@@ -26,19 +26,11 @@ getSitesInFeature(sites.rd, features.rd, colnam = NULL, asBool = FALSE,
   the word 'name' somewhere in it. Not required if
   asBool=TRUE.}
 
-  \item{strand.colnam}{column name from features.rd to be
-  used for retrieving the feature orientation. By default
-  this is NULL assuming that features.rd has a column that
-  includes the word 'strand' somewhere in it. If it doesn't
-  the function will assume the supplied annotation has no
-  orientation information '*'. Not required if
-  asBool=TRUE.}
-
   \item{parallel}{use parallel backend to perform
-  calculation with \code{\link{foreach}}. Defaults to
-  FALSE. Not applicable when asBool=T. If no parallel
+  calculation with \code{\link[foreach]{foreach}}. Defaults
+  to FALSE. Not applicable when asBool=T. If no parallel
   backend is registered, then a serial version of foreach
-  is ran using \code{\link{registerDoSEQ()}}.}
+  is ran using \code{\link[foreach]{registerDoSEQ}}.}
 }
 \value{
 a RangedData/GRanges object with new annotation columns
@@ -54,14 +46,14 @@ was supplied in the subject.
 \itemize{ \item If the input sites.rd parameter is GRanges
 object, then it is converted to RangedData and then
 converted back to GRanges at the end since
-\code{\link{findOverlaps}} function operates much faster on
-RangedData objects.  \item Try not to use this function for
->50 spaces unless you have tons fo memory.  \item If
-parallel=TRUE, then be sure to have a parallel backend
-registered before running the function. One can use any of
-the following libraries compatible with
-\code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For
-example: library(doMC); registerDoMC(2) }
+\code{\link[IRanges]{findOverlaps}} function operates much
+faster on RangedData objects.  \item Try not to use this
+function for >50 spaces unless you have tons fo memory.
+\item If parallel=TRUE, then be sure to have a parallel
+backend registered before running the function. One can use
+any of the following libraries compatible with
+\code{\link[foreach]{foreach}}: doMC, doSMP, doSNOW, doMPI.
+For example: library(doMC); registerDoMC(2) }
 }
 \examples{
 # Convert a dataframe to RangedData/GRanges object
@@ -79,9 +71,9 @@ InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene")
 InGenes
 InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE)
 InGenes
-# Parallel version of getSitesInFeature
-InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,parallel=TRUE)
-InGenes
+## Parallel version of getSitesInFeature
+#InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,parallel=TRUE)
+#InGenes
 }
 \seealso{
 \code{\link{makeRangedData}}, \code{\link{makeGRanges}},

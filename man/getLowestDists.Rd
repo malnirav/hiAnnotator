@@ -14,7 +14,7 @@ getLowestDists(query = NULL, subject = NULL, res.nrst = NULL,
   res.nrst.}
 
   \item{res.nrst}{a dataframe of nearest indices as
-  returned by \code{\link{nearest}}.}
+  returned by \code{\link[IRanges]{nearest}}.}
 
   \item{side}{boundary of subject/annotation to use to
   calculate the nearest distance. Options are '5p','3p', or
@@ -29,9 +29,9 @@ res.nrst with lowest distances appended at the end.
 }
 \description{
 Given a query and subject with indicies from
-\code{\link{nearest}}, calculate the shortest biological
-distance to either boundaries of the query and subject.
-This is a helper function utilized in
+\code{\link[IRanges]{nearest}}, calculate the shortest
+biological distance to either boundaries of the query and
+subject. This is a helper function utilized in
 \code{\link{getNearestFeature}},
 \code{\link{get2NearestFeature}}
 }

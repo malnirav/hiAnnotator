@@ -17,10 +17,10 @@ Initiate UCSC genome browser session given the freeze
 argument.
 }
 \examples{
-session <- makeUCSCsession()
-genome(session)
-session <- makeUCSCsession("mm8")
-genome(session)
+#session <- makeUCSCsession()
+#genome(session)
+#session <- makeUCSCsession("mm8")
+#genome(session)
 }
 \seealso{
 \code{\link{getUCSCtable}}, \code{\link{makeRangedData}},

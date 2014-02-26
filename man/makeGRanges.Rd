@@ -32,9 +32,9 @@ chromosome and position for copying annotations back to
 their respective rows confidently. This function wraps
 around \code{\link{makeRangedData}} with asGRanges
 parameter enabled. It is recommended to use a
-\code{\link{GRanges}} object instead of a
-\code{\link{RangedData}} object if number of distinct
-chromosomes or targets is greater than 50.
+\code{\link[GenomicRanges]{GRanges}} object instead of a
+\code{\link[IRanges]{RangedData}} object if number of
+distinct chromosomes or targets is greater than 50.
 }
 \examples{
 # Convert a dataframe to GRanges object

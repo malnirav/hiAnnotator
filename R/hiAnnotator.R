@@ -51,10 +51,10 @@ NULL
 #' @export
 #'
 #' @examples
-#' session <- makeUCSCsession()
-#' genome(session)
-#' session <- makeUCSCsession("mm8")
-#' genome(session)
+#' #session <- makeUCSCsession()
+#' #genome(session)
+#' #session <- makeUCSCsession("mm8")
+#' #genome(session)
 makeUCSCsession <- function(freeze="hg18") {
   bsession <- browserSession()
   genome(bsession) <- freeze
@@ -76,9 +76,9 @@ makeUCSCsession <- function(freeze="hg18") {
 #' @export
 #'
 #' @examples
-#' refflat <- getUCSCtable("refFlat","RefSeq Genes") ## same as session <- makeUCSCsession(); 
-#' refflat <- getUCSCtable("refFlat", "RefSeq Genes", bsession=session, freeze="hg18")
-#' head(refflat)
+#' #refflat <- getUCSCtable("refFlat","RefSeq Genes") ## same as session <- makeUCSCsession(); 
+#' #refflat <- getUCSCtable("refFlat", "RefSeq Genes", bsession=session, freeze="hg18")
+#'
 getUCSCtable <- function(tableName, trackName, 
                          bsession=NULL, freeze="hg18", ...) {
   if(is.null(bsession)) { 
@@ -146,7 +146,7 @@ getRelevantCol <- function(col.names, col.options,
 #'
 #' @seealso \code{\link{makeGRanges}}, \code{\link{doAnnotation}},
 #' \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}, 
-#' \code{\link{getSitesFeatureCounts}}.
+#' \code{\link{getFeatureCounts}}.
 #'
 #' @export
 #'
@@ -212,7 +212,7 @@ cleanColname <- function(x, description=NULL) {
 #'
 #' @param rd a RangedData object
 #' @param width the width of the resized ranges.
-#' @param boundary same as fix parameter in \code{\link{resize}}. One of "start", "end", and "center". Default is "center".
+#' @param boundary same as fix parameter in \code{\link[IRanges]{resize}}. One of "start", "end", and "center". Default is "center".
 #' @param spaceSizes named vector of chromosome/space sizes to be used for fixing ranges off the limits.
 #' @param spaceMin lowest value to be allowed as the start position. Default is 1.
 #' @param limitLess whether to limit the resized ranges by spaceSizes and spaceMin. Default is FALSE. In genomic context, this means starts can be <=0 and ends can be > chromosome size depending on the width. 
@@ -229,7 +229,7 @@ cleanColname <- function(x, description=NULL) {
 #' alldata.rd <- makeRangedData(sites,soloStart=TRUE)
 #' library(BSgenome.Hsapiens.UCSC.hg18)
 #' resizeRangedData(alldata.rd,width=10000,spaceSizes=seqlengths(Hsapiens))
-#' resizeRangedData(alldata.rd,width=10000,limitLess=T)
+#' resizeRangedData(alldata.rd,width=10000,limitLess=TRUE)
 resizeRangedData <- function(rd, width=NULL, 
                              boundary="center", spaceSizes=NULL, 
                              spaceMin=1, limitLess=FALSE) {
@@ -268,7 +268,7 @@ resizeRangedData <- function(rd, width=NULL,
 
 #' Make a sorted RangedData object from a dataframe. 
 #'
-#' The function converts a dataframe into a RangedData object without too much hassle of renaming column names. The function finds column names that sound like space, chromosome, start, stop, position, etc and puts them in respective slots to facilitate the conversion of a dataframe to a RangedData object. If more than one column that sounds like start, stop, or position is present, the function will use the first match as the representative. It is recommended to run this function before utilizing any other annotation functions since it will sort the object by chromosome and position for copying annotations back to their respective rows confidently. It is recommended to use a \code{\link{GRanges}} object instead of a \code{\link{RangedData}} object if number of distinct chromosomes or targets is greater than 50. 
+#' The function converts a dataframe into a RangedData object without too much hassle of renaming column names. The function finds column names that sound like space, chromosome, start, stop, position, etc and puts them in respective slots to facilitate the conversion of a dataframe to a RangedData object. If more than one column that sounds like start, stop, or position is present, the function will use the first match as the representative. It is recommended to run this function before utilizing any other annotation functions since it will sort the object by chromosome and position for copying annotations back to their respective rows confidently. It is recommended to use a \code{\link[GenomicRanges]{GRanges}} object instead of a \code{\link[IRanges]{RangedData}} object if number of distinct chromosomes or targets is greater than 50. 
 #'
 #' @param x dataframe to be converted into a RangedData object
 #' @param positionsOnly boolean flag indicating to return only position based data or everything from the dataframe. Defaults to FALSE.
@@ -292,7 +292,7 @@ resizeRangedData <- function(rd, width=NULL,
 #'
 #' makeRangedData(sites,soloStart=TRUE)
 #' makeRangedData(sites,soloStart=TRUE,positionsOnly=TRUE)
-#' makeRangedData(sites)
+#' # makeRangedData(sites) # should yield an error!
 #'
 #' data(genes)
 #' head(genes)
@@ -399,7 +399,7 @@ makeRangedData <- function(x, positionsOnly=FALSE, soloStart=FALSE, chromCol=NUL
 
 #' Make a sorted GRanges object from a dataframe. 
 #'
-#' The function converts a dataframe into a GRanges object without too much hassle of renaming column names. The function finds column names that sound like seqname, chromosome, start, stop, position, etc and puts them in respective slots to facilitate the conversion of a dataframe to a GRanges object. If more than one column that sounds like start, stop, or position is present, the function will use the first match as the representative. It is recommended to run this function before utilizing any other annotation functions since it will sort the object by chromosome and position for copying annotations back to their respective rows confidently. This function wraps around \code{\link{makeRangedData}} with asGRanges parameter enabled. It is recommended to use a \code{\link{GRanges}} object instead of a \code{\link{RangedData}} object if number of distinct chromosomes or targets is greater than 50. 
+#' The function converts a dataframe into a GRanges object without too much hassle of renaming column names. The function finds column names that sound like seqname, chromosome, start, stop, position, etc and puts them in respective slots to facilitate the conversion of a dataframe to a GRanges object. If more than one column that sounds like start, stop, or position is present, the function will use the first match as the representative. It is recommended to run this function before utilizing any other annotation functions since it will sort the object by chromosome and position for copying annotations back to their respective rows confidently. This function wraps around \code{\link{makeRangedData}} with asGRanges parameter enabled. It is recommended to use a \code{\link[GenomicRanges]{GRanges}} object instead of a \code{\link[IRanges]{RangedData}} object if number of distinct chromosomes or targets is greater than 50. 
 #'
 #' @param x dataframe to be converted into a GRanges object
 #' @param freeze UCSC genome version of the data in x. Default is NULL. This parameter is generally used to populate \code{\link{seqinfo}} slot of GRanges objects.
@@ -467,7 +467,7 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 #' @param side boundary of annotation to use to calculate the nearest distance. Options are '5p','3p', 'either'(default), or 'midpoint'.
 #' @param feature.colnam column name from features.rd to be used for retrieving the nearest feature name. By default this is NULL assuming that features.rd has a column that includes the word 'name' somewhere in it.
 #' @param dists.only flag to return distances only. If this is TRUE, then 'feature.colnam' is not required and only distance to the nearest feature will be returned. By default this is FALSE.
-#' @param parallel use parallel backend to perform calculation with \code{\link{foreach}}. Defaults to FALSE. If no parallel backend is registered, then a serial version of foreach is ran using \code{\link{registerDoSEQ()}}.
+#' @param parallel use parallel backend to perform calculation with \code{\link[foreach]{foreach}}. Defaults to FALSE. If no parallel backend is registered, then a serial version of foreach is ran using \code{\link[foreach]{registerDoSEQ}}.
 #' @param relativeTo calculate distance relative to query or subject. Default is 'subject'. This essentially means whether to use query or subject as the anchor point to get distance from!
 #'
 #' @return a RangedData/GRanges object with new annotation columns appended at the end of sites.rd.
@@ -477,7 +477,7 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 #'   \item When side='midpoint', the distance to nearest feature is calculated by (start+stop)/2. 
 #'   \item Try not to use this function for >50 spaces/seqnames/chromosomes unless you have tons fo memory. 
 #'   \item If strand information doesn't exist, then everything is defaulted to '+' orientation (5' -> 3')
-#'   \item If parallel=TRUE, then be sure to have a parallel backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI, doParallel. For example: library(doMC); registerDoMC(2)
+#'   \item If parallel=TRUE, then be sure to have a parallel backend registered before running the function. One can use any of the following libraries compatible with \code{\link[foreach]{foreach}}: doMC, doSMP, doSNOW, doMPI, doParallel. For example: library(doMC); registerDoMC(2)
 #'   \item When relativeTo="subject", the biological distance is relative to subject, meaning, the function reports the distance to query from subject (i.e. an integration site is upstream or downstream from a gene). When relativeTo="query", the distance is from the point of view of query or an integration site (i.e. gene is upstream or downstream from an integration site).
 #' }
 #'
@@ -505,9 +505,9 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 #' nearestGenes
 #' nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="midpoint")
 #' nearestGenes
-#' # Parallel version of getNearestFeature
-#' nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TRUE)
-#' nearestGenes
+#' ## Parallel version of getNearestFeature
+#' # nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TRUE)
+#' # nearestGenes
 getNearestFeature <- function(sites.rd, features.rd, 
                               colnam=NULL, side="either", feature.colnam=NULL, 
                               dists.only=FALSE, parallel=FALSE, relativeTo='subject') {
@@ -641,7 +641,7 @@ getNearestFeature <- function(sites.rd, features.rd,
 #'   \item If there are multiple locations where a query falls into, the function arbitrarily chooses one to serve as the nearest feature, then reports 2 upstream & downstream feature. That may occasionally yield features which are the same upstream and downstream, which is commonly encountered when studying spliced genes or phenomena related to it. 
 #'   \item Try not to use this function for >50 spaces/seqnames/chromosomes unless you have tons fo memory. 
 #'   \item If strand information doesn't exist, then everything is defaults to '+' orientation (5' -> 3')
-#'   \item If parallel=TRUE, then be sure to have a parallel backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI, doParallel. For example: library(doMC); registerDoMC(2)
+#'   \item If parallel=TRUE, then be sure to have a parallel backend registered before running the function. One can use any of the following libraries compatible with \code{\link[foreach]{foreach}}: doMC, doSMP, doSNOW, doMPI, doParallel. For example: library(doMC); registerDoMC(2)
 #' }
 #'
 #' @seealso \code{\link{getNearestFeature}}, \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, \code{\link{getSitesInFeature}}.
@@ -802,11 +802,11 @@ get2NearestFeature <- function(sites.rd, features.rd,
 
 #' Get the lowest biological distance from the 5' or 3' boundaries of query and subject.
 #'
-#' Given a query and subject with indicies from \code{\link{nearest}}, calculate the shortest biological distance to either boundaries of the query and subject. This is a helper function utilized in \code{\link{getNearestFeature}}, \code{\link{get2NearestFeature}}
+#' Given a query and subject with indicies from \code{\link[IRanges]{nearest}}, calculate the shortest biological distance to either boundaries of the query and subject. This is a helper function utilized in \code{\link{getNearestFeature}}, \code{\link{get2NearestFeature}}
 #'
 #' @param query GRanges object to be used as the query which holds data for 'queryHits' attribute of res.nrst.
 #' @param subject GRanges object to be used as the subject which holds data for 'subjectHits' attribute of res.nrst.
-#' @param res.nrst a dataframe of nearest indices as returned by \code{\link{nearest}}.
+#' @param res.nrst a dataframe of nearest indices as returned by \code{\link[IRanges]{nearest}}.
 #' @param side boundary of subject/annotation to use to calculate the nearest distance. Options are '5p','3p', or the default 'either'.
 #' @param relativeTo calculate distance relative to query or subject. Default is 'subject'. See documentation of  \code{\link{getNearestFeature}} for more information.
 #'
@@ -902,15 +902,15 @@ getWindowLabel <- function(x) {
 #' @param weightsColname if defined, weigh each row from features.rd when tallying up the counts.
 #' @param doInChunks break up sites.rd into small pieces of chunkSize to perform the calculations. Default is FALSE. Useful if you are expecting to find great deal of overlap between sites.rd and features.rd.
 #' @param chunkSize number of rows to use per chunk of sites.rd. Default to 10000. Only used if doInChunks=TRUE.
-#' @param parallel use parallel backend to perform calculation with \code{\link{foreach}}. Defaults to FALSE. If no parallel backend is registered, then a serial version of foreach is ran using \code{\link{registerDoSEQ()}}.
+#' @param parallel use parallel backend to perform calculation with \code{\link[foreach]{foreach}}. Defaults to FALSE. If no parallel backend is registered, then a serial version of foreach is ran using \code{\link[foreach]{registerDoSEQ}}.
 #'
 #' @return a RangedData/GRanges object with new annotation columns appended at the end of sites.rd. There will be a column for each width defined in widths parameter. If widths was a named vector i.e. c("100bp"=100,"1K"=1000), then the colname parameter will be pasted together with width name else default name will be generated by the function.
 #'
 #' @note 
 #' \itemize{
-#'   \item If the input sites.rd parameter is GRanges object, then it is converted to RangedData and then converted back to GRanges at the end since \code{\link{findOverlaps}} function operates much faster on RangedData objects. 
+#'   \item If the input sites.rd parameter is GRanges object, then it is converted to RangedData and then converted back to GRanges at the end since \code{\link[IRanges]{findOverlaps}} function operates much faster on RangedData objects. 
 #'   \item Try not to use this function for >50 spaces unless you have tons fo memory. 
-#'   \item If parallel=TRUE, then be sure to have a parallel backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For example: library(doMC); registerDoMC(2)
+#'   \item If parallel=TRUE, then be sure to have a parallel backend registered before running the function. One can use any of the following libraries compatible with \code{\link[foreach]{foreach}}: doMC, doSMP, doSNOW, doMPI. For example: library(doMC); registerDoMC(2)
 #' }
 #'
 #' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}, \code{\link{getFeatureCountsBig}}.
@@ -932,11 +932,11 @@ getWindowLabel <- function(x) {
 #'
 #' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene")
 #' geneCounts
-#' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene",doInChunks=T, chunkSize=200)
+#' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene",doInChunks=TRUE, chunkSize=200)
 #' geneCounts
-#' # Parallel version of getFeatureCounts
-#' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene", parallel=T)
-#' geneCounts
+#' ## Parallel version of getFeatureCounts
+#' # geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene", parallel=TRUE)
+#' # geneCounts
 getFeatureCounts <- function(sites.rd, features.rd, 
                              colnam=NULL, chromSizes=NULL, 
                              widths=c(1000,10000,1000000), weightsColname=NULL, 
@@ -1090,16 +1090,15 @@ getFeatureCountsBig <- function(sites.rd, features.rd,
 #' @param colnam column name to be added to sites.rd for the newly calculated annotation...serves a core!
 #' @param asBool Flag indicating whether to return results as TRUE/FALSE or the property of an overlapping feature..namely feature name and orientation if available. Defaults to FALSE.
 #' @param feature.colnam column name from features.rd to be used for retrieving the feature name. By default this is NULL assuming that features.rd has a column that includes the word 'name' somewhere in it. Not required if asBool=TRUE.
-#' @param strand.colnam column name from features.rd to be used for retrieving the feature orientation. By default this is NULL assuming that features.rd has a column that includes the word 'strand' somewhere in it. If it doesn't the function will assume the supplied annotation has no orientation information '*'. Not required if asBool=TRUE.
-#' @param parallel use parallel backend to perform calculation with \code{\link{foreach}}. Defaults to FALSE. Not applicable when asBool=T. If no parallel backend is registered, then a serial version of foreach is ran using \code{\link{registerDoSEQ()}}.
+#' @param parallel use parallel backend to perform calculation with \code{\link[foreach]{foreach}}. Defaults to FALSE. Not applicable when asBool=T. If no parallel backend is registered, then a serial version of foreach is ran using \code{\link[foreach]{registerDoSEQ}}.
 #'
 #' @return a RangedData/GRanges object with new annotation columns appended at the end of sites.rd.
 #'
 #' @note 
 #' \itemize{
-#'   \item If the input sites.rd parameter is GRanges object, then it is converted to RangedData and then converted back to GRanges at the end since \code{\link{findOverlaps}} function operates much faster on RangedData objects. 
+#'   \item If the input sites.rd parameter is GRanges object, then it is converted to RangedData and then converted back to GRanges at the end since \code{\link[IRanges]{findOverlaps}} function operates much faster on RangedData objects. 
 #'   \item Try not to use this function for >50 spaces unless you have tons fo memory. 
-#'   \item If parallel=TRUE, then be sure to have a parallel backend registered before running the function. One can use any of the following libraries compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For example: library(doMC); registerDoMC(2)
+#'   \item If parallel=TRUE, then be sure to have a parallel backend registered before running the function. One can use any of the following libraries compatible with \code{\link[foreach]{foreach}}: doMC, doSMP, doSNOW, doMPI. For example: library(doMC); registerDoMC(2)
 #' }
 #'
 #' @seealso \code{\link{makeRangedData}}, \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, \code{\link{getNearestFeature}}.
@@ -1122,9 +1121,9 @@ getFeatureCountsBig <- function(sites.rd, features.rd,
 #' InGenes
 #' InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE)
 #' InGenes
-#' # Parallel version of getSitesInFeature
-#' InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,parallel=TRUE)
-#' InGenes
+#' ## Parallel version of getSitesInFeature
+#' #InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,parallel=TRUE)
+#' #InGenes
 getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, 
                               asBool=FALSE, feature.colnam=NULL, parallel=FALSE) {    
   
@@ -1290,7 +1289,7 @@ doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL, postProcessFu
     stopifnot(length(sites.rd)>0),
     stopifnot(length(features.rd)>0),
     
-    if(exists("parallel")) { 
+    if("parallel" %in% names(formals())) { 
       if(!parallel) { 
         registerDoSEQ() 
       }
@@ -1379,7 +1378,7 @@ doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL, postProcessFu
     res <- DataFrame(res),
     
     ## setup new columns to be added using NA and add the proper class ## 
-    newCols <- grep(colnam,names(res),value=T),
+    newCols <- grep(colnam,names(res),value=TRUE),
     mcols(sites.rd)[newCols] <- NA,
     for(newCol in newCols) {
       mcols(sites.rd)[[newCol]] <- as(mcols(sites.rd)[[newCol]], 

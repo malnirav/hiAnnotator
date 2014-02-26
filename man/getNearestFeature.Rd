@@ -31,10 +31,10 @@ getNearestFeature(sites.rd, features.rd, colnam = NULL, side = "either",
   default this is FALSE.}
 
   \item{parallel}{use parallel backend to perform
-  calculation with \code{\link{foreach}}. Defaults to
-  FALSE. If no parallel backend is registered, then a
+  calculation with \code{\link[foreach]{foreach}}. Defaults
+  to FALSE. If no parallel backend is registered, then a
   serial version of foreach is ran using
-  \code{\link{registerDoSEQ()}}.}
+  \code{\link[foreach]{registerDoSEQ}}.}
 
   \item{relativeTo}{calculate distance relative to query or
   subject. Default is 'subject'. This essentially means
@@ -63,7 +63,7 @@ is defaulted to '+' orientation (5' -> 3') \item If
 parallel=TRUE, then be sure to have a parallel backend
 registered before running the function. One can use any of
 the following libraries compatible with
-\code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI,
+\code{\link[foreach]{foreach}}: doMC, doSMP, doSNOW, doMPI,
 doParallel. For example: library(doMC); registerDoMC(2)
 \item When relativeTo="subject", the biological distance is
 relative to subject, meaning, the function reports the
@@ -93,9 +93,9 @@ nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="3p")
 nearestGenes
 nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="midpoint")
 nearestGenes
-# Parallel version of getNearestFeature
-nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TRUE)
-nearestGenes
+## Parallel version of getNearestFeature
+# nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TRUE)
+# nearestGenes
 }
 \seealso{
 \code{\link{makeRangedData}}, \code{\link{makeGRanges}},

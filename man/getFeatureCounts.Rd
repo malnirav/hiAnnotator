@@ -39,10 +39,10 @@ getFeatureCounts(sites.rd, features.rd, colnam = NULL, chromSizes = NULL,
   doInChunks=TRUE.}
 
   \item{parallel}{use parallel backend to perform
-  calculation with \code{\link{foreach}}. Defaults to
-  FALSE. If no parallel backend is registered, then a
+  calculation with \code{\link[foreach]{foreach}}. Defaults
+  to FALSE. If no parallel backend is registered, then a
   serial version of foreach is ran using
-  \code{\link{registerDoSEQ()}}.}
+  \code{\link[foreach]{registerDoSEQ}}.}
 }
 \value{
 a RangedData/GRanges object with new annotation columns
@@ -64,14 +64,14 @@ For large annotations, use
 \itemize{ \item If the input sites.rd parameter is GRanges
 object, then it is converted to RangedData and then
 converted back to GRanges at the end since
-\code{\link{findOverlaps}} function operates much faster on
-RangedData objects.  \item Try not to use this function for
->50 spaces unless you have tons fo memory.  \item If
-parallel=TRUE, then be sure to have a parallel backend
-registered before running the function. One can use any of
-the following libraries compatible with
-\code{\link{foreach}}: doMC, doSMP, doSNOW, doMPI. For
-example: library(doMC); registerDoMC(2) }
+\code{\link[IRanges]{findOverlaps}} function operates much
+faster on RangedData objects.  \item Try not to use this
+function for >50 spaces unless you have tons fo memory.
+\item If parallel=TRUE, then be sure to have a parallel
+backend registered before running the function. One can use
+any of the following libraries compatible with
+\code{\link[foreach]{foreach}}: doMC, doSMP, doSNOW, doMPI.
+For example: library(doMC); registerDoMC(2) }
 }
 \examples{
 # Convert a dataframe to RangedData/GRanges object
@@ -88,11 +88,11 @@ genes.rd
 
 geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene")
 geneCounts
-geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene",doInChunks=T, chunkSize=200)
+geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene",doInChunks=TRUE, chunkSize=200)
 geneCounts
-# Parallel version of getFeatureCounts
-geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene", parallel=T)
-geneCounts
+## Parallel version of getFeatureCounts
+# geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene", parallel=TRUE)
+# geneCounts
 }
 \seealso{
 \code{\link{makeRangedData}}, \code{\link{makeGRanges}},

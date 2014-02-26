@@ -52,9 +52,9 @@ is recommended to run this function before utilizing any
 other annotation functions since it will sort the object by
 chromosome and position for copying annotations back to
 their respective rows confidently. It is recommended to use
-a \code{\link{GRanges}} object instead of a
-\code{\link{RangedData}} object if number of distinct
-chromosomes or targets is greater than 50.
+a \code{\link[GenomicRanges]{GRanges}} object instead of a
+\code{\link[IRanges]{RangedData}} object if number of
+distinct chromosomes or targets is greater than 50.
 }
 \examples{
 # Convert a dataframe to RangedData object
@@ -63,7 +63,7 @@ head(sites)
 
 makeRangedData(sites,soloStart=TRUE)
 makeRangedData(sites,soloStart=TRUE,positionsOnly=TRUE)
-makeRangedData(sites)
+# makeRangedData(sites) # should yield an error!
 
 data(genes)
 head(genes)

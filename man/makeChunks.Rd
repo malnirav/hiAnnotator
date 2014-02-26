@@ -38,6 +38,6 @@ makeChunks(sites, genes)
 \code{\link{makeGRanges}}, \code{\link{doAnnotation}},
 \code{\link{getNearestFeature}},
 \code{\link{getSitesInFeature}},
-\code{\link{getSitesFeatureCounts}}.
+\code{\link{getFeatureCounts}}.
 }
 

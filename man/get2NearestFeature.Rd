@@ -59,9 +59,9 @@ information doesn't exist, then everything is defaults to
 '+' orientation (5' -> 3') \item If parallel=TRUE, then be
 sure to have a parallel backend registered before running
 the function. One can use any of the following libraries
-compatible with \code{\link{foreach}}: doMC, doSMP, doSNOW,
-doMPI, doParallel. For example: library(doMC);
-registerDoMC(2) }
+compatible with \code{\link[foreach]{foreach}}: doMC,
+doSMP, doSNOW, doMPI, doParallel. For example:
+library(doMC); registerDoMC(2) }
 }
 \examples{
 # Convert a dataframe to RangedData/GRanges object
