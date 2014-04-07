@@ -292,7 +292,7 @@ resizeRangedData <- function(rd, width=NULL,
 #'
 #' makeRangedData(sites,soloStart=TRUE)
 #' makeRangedData(sites,soloStart=TRUE,positionsOnly=TRUE)
-#' # makeRangedData(sites) # should yield an error!
+#' # makeRangedData(sites) # should yield an error
 #'
 #' data(genes)
 #' head(genes)
