@@ -64,16 +64,13 @@ doSMP, doSNOW, doMPI, doParallel. For example:
 library(doMC); registerDoMC(2) }
 }
 \examples{
+\dontrun{
 # Convert a dataframe to RangedData/GRanges object
 data(sites)
-head(sites)
-alldata.rd <- makeRangedData(sites,soloStart=TRUE)
-alldata.rd
+alldata.rd <- makeGRanges(sites,soloStart=TRUE)
 
 data(genes)
-head(genes)
-genes.rd <- makeRangedData(genes)
-genes.rd
+genes.rd <- makeGRanges(genes)
 
 nearestGenes <- get2NearestFeature(alldata.rd,genes.rd,"NearestGene")
 nearestGenes
@@ -81,6 +78,7 @@ nearestGenes <- get2NearestFeature(alldata.rd,genes.rd,"NearestGene",side="5p")
 nearestGenes
 nearestGenes <- get2NearestFeature(alldata.rd,genes.rd,"NearestGene",side="3p")
 nearestGenes
+}
 }
 \seealso{
 \code{\link{getNearestFeature}},

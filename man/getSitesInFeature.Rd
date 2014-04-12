@@ -58,22 +58,20 @@ For example: library(doMC); registerDoMC(2) }
 \examples{
 # Convert a dataframe to RangedData/GRanges object
 data(sites)
-head(sites)
-alldata.rd <- makeRangedData(sites,soloStart=TRUE)
-alldata.rd
+alldata.rd <- makeGRanges(sites,soloStart=TRUE)
 
 data(genes)
-head(genes)
-genes.rd <- makeRangedData(genes)
-genes.rd
+genes.rd <- makeGRanges(genes)
 
 InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene")
 InGenes
+\dontrun{
 InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE)
 InGenes
 ## Parallel version of getSitesInFeature
-#InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,parallel=TRUE)
-#InGenes
+InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,parallel=TRUE)
+InGenes
+}
 }
 \seealso{
 \code{\link{makeRangedData}}, \code{\link{makeGRanges}},

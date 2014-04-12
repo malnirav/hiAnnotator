@@ -76,23 +76,19 @@ For example: library(doMC); registerDoMC(2) }
 \examples{
 # Convert a dataframe to RangedData/GRanges object
 data(sites)
-head(sites)
-alldata.rd <- makeRangedData(sites,soloStart=TRUE)
-alldata.rd
+alldata.rd <- makeGRanges(sites,soloStart=TRUE)
 
 data(genes)
-head(genes)
-genes.rd <- makeRangedData(genes)
-genes.rd
-
+genes.rd <- makeGRanges(genes)
 
 geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene")
-geneCounts
+\dontrun{
 geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene",doInChunks=TRUE, chunkSize=200)
 geneCounts
 ## Parallel version of getFeatureCounts
 # geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene", parallel=TRUE)
 # geneCounts
+}
 }
 \seealso{
 \code{\link{makeRangedData}}, \code{\link{makeGRanges}},

@@ -41,9 +41,9 @@ distinct chromosomes or targets is greater than 50.
 data(genes)
 
 makeGRanges(genes, soloStart=TRUE)
-makeGRanges(genes, freeze="hg18", soloStart=TRUE)
 makeGRanges(genes)
-makeGRanges(genes, freeze="hg18")
+#makeGRanges(genes, freeze="hg18", soloStart=TRUE)
+#makeGRanges(genes, freeze="hg18")
 }
 \seealso{
 \code{\link{makeRangedData}},

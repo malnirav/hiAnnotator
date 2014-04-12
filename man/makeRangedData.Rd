@@ -61,15 +61,15 @@ distinct chromosomes or targets is greater than 50.
 data(sites)
 head(sites)
 
-makeRangedData(sites,soloStart=TRUE)
+makeGRanges(sites,soloStart=TRUE)
 makeRangedData(sites,soloStart=TRUE,positionsOnly=TRUE)
-# makeRangedData(sites) # should yield an error!
+# makeRangedData(sites) # should yield an error
 
-data(genes)
-head(genes)
+#data(genes)
+#head(genes)
 
-makeRangedData(genes,soloStart=TRUE)
-makeRangedData(genes)
+#makeRangedData(genes,soloStart=TRUE)
+#makeGRanges(genes)
 }
 \seealso{
 \code{\link{makeGRanges}}, \code{\link{getNearestFeature}},

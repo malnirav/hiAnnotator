@@ -34,21 +34,19 @@ code{\link{getSitesInFeature}}
 \examples{
 # Convert a dataframe to RangedData/GRanges object
 data(sites)
-head(sites)
-alldata.rd <- makeRangedData(sites,soloStart=TRUE)
-alldata.rd
+alldata.rd <- makeGRanges(sites,soloStart=TRUE)
 
 data(genes)
-head(genes)
-genes.rd <- makeRangedData(genes)
-genes.rd
+genes.rd <- makeGRanges(genes)
 
-doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene")
+doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene",asBool=TRUE)
+\dontrun{
 doAnnotation(annotType="counts",alldata.rd,genes.rd,"NumOfGene")
 doAnnotation(annotType="nearest",alldata.rd,genes.rd,"NearestGene")
 doAnnotation(annotType="countsBig",alldata.rd,genes.rd,"ChipSeqCounts")
 geneCheck <- function(x,wanted) { x$isWantedGene <- x$InGene \%in\% wanted; return(x) }
 doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene", postProcessFun=geneCheck, postProcessFunArgs=list("wanted"=c("FOXJ3","SEPT9","RPTOR")) )
+}
 }
 \seealso{
 \code{\link{makeRangedData}}, \code{\link{makeGRanges}},

@@ -76,26 +76,23 @@ downstream from an integration site). }
 \examples{
 # Convert a dataframe to RangedData/GRanges object
 data(sites)
-head(sites)
-alldata.rd <- makeRangedData(sites,soloStart=TRUE)
-alldata.rd
+alldata.rd <- makeGRanges(sites,soloStart=TRUE)
 
 data(genes)
-head(genes)
-genes.rd <- makeRangedData(genes)
-genes.rd
+genes.rd <- makeGRanges(genes)
 
 nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene")
 nearestGenes
 nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="5p")
 nearestGenes
+\dontrun{
 nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="3p")
 nearestGenes
 nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="midpoint")
-nearestGenes
 ## Parallel version of getNearestFeature
-# nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TRUE)
-# nearestGenes
+nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TRUE)
+nearestGenes
+}
 }
 \seealso{
 \code{\link{makeRangedData}}, \code{\link{makeGRanges}},

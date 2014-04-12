@@ -226,9 +226,9 @@ cleanColname <- function(x, description=NULL) {
 #' @examples
 #' # Convert a dataframe to RangedData object
 #' data(sites)
-#' alldata.rd <- makeRangedData(sites,soloStart=TRUE)
-#' library(BSgenome.Hsapiens.UCSC.hg18)
-#' resizeRangedData(alldata.rd,width=10000,spaceSizes=seqlengths(Hsapiens))
+#' alldata.rd <- makeGRanges(sites,soloStart=TRUE)
+#' seqLengths <- structure(c(247249719L, 242951149L, 199501827L, 191273063L, 180857866L,170899992L, 158821424L, 146274826L, 140273252L, 135374737L, 134452384L, 132349534L, 114142980L, 106368585L, 100338915L, 88827254L, 78774742L, 76117153L, 63811651L, 62435964L, 46944323L, 49691432L, 154913754L, 57772954L, 16571L), .Names = c("chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "chrX", "chrY", "chrM"))
+#' resizeRangedData(alldata.rd,width=10000,spaceSizes=seqLengths)
 #' resizeRangedData(alldata.rd,width=10000,limitLess=TRUE)
 resizeRangedData <- function(rd, width=NULL, 
                              boundary="center", spaceSizes=NULL, 
@@ -290,15 +290,15 @@ resizeRangedData <- function(rd, width=NULL,
 #' data(sites)
 #' head(sites)
 #'
-#' makeRangedData(sites,soloStart=TRUE)
+#' makeGRanges(sites,soloStart=TRUE)
 #' makeRangedData(sites,soloStart=TRUE,positionsOnly=TRUE)
 #' # makeRangedData(sites) # should yield an error
 #'
-#' data(genes)
-#' head(genes)
+#' #data(genes)
+#' #head(genes)
 #'
-#' makeRangedData(genes,soloStart=TRUE)
-#' makeRangedData(genes)
+#' #makeRangedData(genes,soloStart=TRUE)
+#' #makeGRanges(genes)
 makeRangedData <- function(x, positionsOnly=FALSE, soloStart=FALSE, chromCol=NULL, 
                            strandCol=NULL, startCol=NULL, stopCol=NULL, 
                            asGRanges=FALSE) {
@@ -416,9 +416,9 @@ makeRangedData <- function(x, positionsOnly=FALSE, soloStart=FALSE, chromCol=NUL
 #' data(genes)
 #'
 #' makeGRanges(genes, soloStart=TRUE)
-#' makeGRanges(genes, freeze="hg18", soloStart=TRUE)
 #' makeGRanges(genes)
-#' makeGRanges(genes, freeze="hg18")
+#' #makeGRanges(genes, freeze="hg18", soloStart=TRUE)
+#' #makeGRanges(genes, freeze="hg18")
 makeGRanges <- function(x, freeze=NULL, ...) {    
   sites.gr <- makeRangedData(x, asGRanges=TRUE, ...)
   
@@ -488,26 +488,23 @@ makeGRanges <- function(x, freeze=NULL, ...) {
 #' @examples
 #' # Convert a dataframe to RangedData/GRanges object
 #' data(sites)
-#' head(sites)
-#' alldata.rd <- makeRangedData(sites,soloStart=TRUE)
-#' alldata.rd
+#' alldata.rd <- makeGRanges(sites,soloStart=TRUE)
 #'
 #' data(genes)
-#' head(genes)
-#' genes.rd <- makeRangedData(genes)
-#' genes.rd
+#' genes.rd <- makeGRanges(genes)
 #'
 #' nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene")
 #' nearestGenes
 #' nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="5p")
 #' nearestGenes
+#' \dontrun{
 #' nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="3p")
 #' nearestGenes
 #' nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="midpoint")
-#' nearestGenes
 #' ## Parallel version of getNearestFeature
-#' # nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TRUE)
-#' # nearestGenes
+#' nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TRUE)
+#' nearestGenes
+#' }
 getNearestFeature <- function(sites.rd, features.rd, 
                               colnam=NULL, side="either", feature.colnam=NULL, 
                               dists.only=FALSE, parallel=FALSE, relativeTo='subject') {
@@ -649,16 +646,13 @@ getNearestFeature <- function(sites.rd, features.rd,
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Convert a dataframe to RangedData/GRanges object
 #' data(sites)
-#' head(sites)
-#' alldata.rd <- makeRangedData(sites,soloStart=TRUE)
-#' alldata.rd
+#' alldata.rd <- makeGRanges(sites,soloStart=TRUE)
 #'
 #' data(genes)
-#' head(genes)
-#' genes.rd <- makeRangedData(genes)
-#' genes.rd
+#' genes.rd <- makeGRanges(genes)
 #'
 #' nearestGenes <- get2NearestFeature(alldata.rd,genes.rd,"NearestGene")
 #' nearestGenes
@@ -666,7 +660,7 @@ getNearestFeature <- function(sites.rd, features.rd,
 #' nearestGenes
 #' nearestGenes <- get2NearestFeature(alldata.rd,genes.rd,"NearestGene",side="3p")
 #' nearestGenes
-#'
+#' }
 get2NearestFeature <- function(sites.rd, features.rd, 
                                colnam=NULL, side="either", 
                                feature.colnam=NULL, relativeTo="subject") {
@@ -920,23 +914,19 @@ getWindowLabel <- function(x) {
 #' @examples
 #' # Convert a dataframe to RangedData/GRanges object
 #' data(sites)
-#' head(sites)
-#' alldata.rd <- makeRangedData(sites,soloStart=TRUE)
-#' alldata.rd
+#' alldata.rd <- makeGRanges(sites,soloStart=TRUE)
 #'
 #' data(genes)
-#' head(genes)
-#' genes.rd <- makeRangedData(genes)
-#' genes.rd
-#'
+#' genes.rd <- makeGRanges(genes)
 #'
 #' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene")
-#' geneCounts
+#' \dontrun{
 #' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene",doInChunks=TRUE, chunkSize=200)
 #' geneCounts
 #' ## Parallel version of getFeatureCounts
 #' # geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene", parallel=TRUE)
 #' # geneCounts
+#' }
 getFeatureCounts <- function(sites.rd, features.rd, 
                              colnam=NULL, chromSizes=NULL, 
                              widths=c(1000,10000,1000000), weightsColname=NULL, 
@@ -1108,22 +1098,20 @@ getFeatureCountsBig <- function(sites.rd, features.rd,
 #' @examples
 #' # Convert a dataframe to RangedData/GRanges object
 #' data(sites)
-#' head(sites)
-#' alldata.rd <- makeRangedData(sites,soloStart=TRUE)
-#' alldata.rd
+#' alldata.rd <- makeGRanges(sites,soloStart=TRUE)
 #'
 #' data(genes)
-#' head(genes)
-#' genes.rd <- makeRangedData(genes)
-#' genes.rd
+#' genes.rd <- makeGRanges(genes)
 #'
 #' InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene")
 #' InGenes
+#' \dontrun{
 #' InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE)
 #' InGenes
 #' ## Parallel version of getSitesInFeature
-#' #InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,parallel=TRUE)
-#' #InGenes
+#' InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,parallel=TRUE)
+#' InGenes
+#' }
 getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, 
                               asBool=FALSE, feature.colnam=NULL, parallel=FALSE) {    
   
@@ -1226,22 +1214,21 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL,
 #' @examples
 #' # Convert a dataframe to RangedData/GRanges object
 #' data(sites)
-#' head(sites)
-#' alldata.rd <- makeRangedData(sites,soloStart=TRUE)
-#' alldata.rd
+#' alldata.rd <- makeGRanges(sites,soloStart=TRUE)
 #'
 #' data(genes)
-#' head(genes)
-#' genes.rd <- makeRangedData(genes)
-#' genes.rd
+#' genes.rd <- makeGRanges(genes)
 #'
-#' doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene")
+#' doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene",asBool=TRUE)
+#' \dontrun{
 #' doAnnotation(annotType="counts",alldata.rd,genes.rd,"NumOfGene")
 #' doAnnotation(annotType="nearest",alldata.rd,genes.rd,"NearestGene")
 #' doAnnotation(annotType="countsBig",alldata.rd,genes.rd,"ChipSeqCounts")
 #' geneCheck <- function(x,wanted) { x$isWantedGene <- x$InGene %in% wanted; return(x) }
 #' doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene", postProcessFun=geneCheck, postProcessFunArgs=list("wanted"=c("FOXJ3","SEPT9","RPTOR")) )
-doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL, postProcessFunArgs=list()) {    
+#' }
+doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL, 
+                         postProcessFunArgs=list()) {    
   if(is.null(annotType)) {
     stop("Please define the annotType parameter to identify which type of annotation to perform: within, nearest, counts")
   }

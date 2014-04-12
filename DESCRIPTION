@@ -23,6 +23,7 @@ Depends:
     iterators,
     rtracklayer,
     plyr,
-    BSgenome
+    BSgenome,
+    R (>= 2.10)
 License: GPL (>= 2)
 LazyLoad: yes
