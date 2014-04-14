@@ -1,4 +1,5 @@
 %\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Using hiAnnotator}
 
 ## Introduction
 `hiAnnotator` contains set of functions which allow users to annotate a RangedData or GRanges object with custom set of annotations. The basic philosophy of this package is to take two RangedData or GRanges objects (query & subject) with common set of space/seqnames (i.e. chromosomes) and return associated annotation per space/seqname and rows from the query matching space/seqnames and rows from the subject (i.e. genes or cpg islands).
@@ -71,7 +72,7 @@ head(nearestGenes)
 
 ### get two nearest upstream and downstream genes relative the query
 nearestTwoGenes <- get2NearestFeature(alldata.rd,genes.rd,"NearestGene")
-head(nearestGenes)
+head(nearestTwoGenes)
 ```
 
 #### getFeatureCounts: find out how many features are in a neighborhood
@@ -80,7 +81,7 @@ Given a query object and window size(s), the function finds all the rows in subj
 ```{r}
 geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene")
 head(geneCounts)
-geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene", parallel=T)
+geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene", parallel=TRUE)
 head(geneCounts)
 ```
 
@@ -88,7 +89,7 @@ If dealing with really large set of input objects, the function can break up the
 
 ```{r, eval=FALSE, echo=TRUE}
 geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene", 
-                               doInChunks=T, chunkSize=100)
+                               doInChunks=TRUE, chunkSize=100)
 head(geneCounts)
 
 geneCounts <- getFeatureCountsBig(alldata.rd, genes.rd, "NumOfGene")
@@ -135,21 +136,21 @@ doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene",
 ## Example 1: library(doSMP)
 w <- startWorkers(2)
 registerDoSMP(w)
-getNearestFeature(..., parallel=T)        
+getNearestFeature(..., parallel=TRUE)        
 
 ## Example 2: library(doMC)
 registerDoMC(2)
-getNearestFeature(..., parallel=T)        
+getNearestFeature(..., parallel=TRUE)        
 
 ## Example 3: library(doSNOW)
 cl <- makeCluster(2, type = "SOCK")
 registerDoSNOW(cl)
-getNearestFeature(..., parallel=T)  
+getNearestFeature(..., parallel=TRUE)  
 
 ## Example 4: library(doParallel)
 cl <- makeCluster(2)
 registerDoParallel(cl)
-getNearestFeature(..., parallel=T)   
+getNearestFeature(..., parallel=TRUE)   
 ```
 
 3) Few backends launch worker processes in the background, so be sure to close them. Read the documentation of respective `do*` package to get more information. Few examples are shown below.
