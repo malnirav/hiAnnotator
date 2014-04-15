@@ -1377,14 +1377,12 @@ doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL,
     ## extract required objects to streamline downstream code/steps ##
     ## tag each row with tempyID for merging with original object ##
     ## this is crucial since objects are divided into chunks which resets the index from 1...n ##
-    ## tempyID would preserve the original order for parallel processing ##
-    query <- NULL,
+    ## tempyID would preserve the original order for parallel processing ##    
     query <- sites.rd,
     mcols(query) <- NULL,
     mcols(query)$tempyID <- 1:length(query),
     mcols(sites.rd)$tempyID <- mcols(query)$tempyID,
     
-    subject <- NULL,
     subject <- features.rd,
     mcols(subject) <- NULL,
     mcols(subject)$tempyID <- 1:length(subject)
