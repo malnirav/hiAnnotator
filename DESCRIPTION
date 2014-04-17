@@ -1,6 +1,6 @@
 Package: hiAnnotator
 Title: Functions for annotating RangedData or GRanges objects.
-Version: 1.0.0
+Version: 0.99.1
 Date: 2014-04-17
 Author: Nirav V Malani <malnirav@gmail.com>
 Maintainer: Nirav V Malani <malnirav@gmail.com>
@@ -25,8 +25,7 @@ Imports:
     iterators,
     rtracklayer,
     plyr,
-    BSgenome,
-    RMySQL
+    BSgenome
 License: GPL (>= 2)
 VignetteBuilder: knitr
 Suggests:

@@ -159,6 +159,7 @@ getRelevantCol <- function(col.names, col.options,
 #' makeChunks(sites, genes)
 makeChunks <- function(sites.rd, features.rd, chunkSize=NULL) {
   # do a quick check of things
+  RangedDataFlag <- NULL
   .checkArgsSetDefaults()
   rm("query","subject")
   
@@ -514,7 +515,9 @@ getNearestFeature <- function(sites.rd, features.rd,
                               colnam=NULL, side="either", feature.colnam=NULL, 
                               dists.only=FALSE, parallel=FALSE, 
                               relativeTo='subject') {
-  
+  ## this is to avoid "no visible binding for global variable" during checks ##
+  query <- qID <- RangedDataFlag <- ok.chrs <- y <- freq <- NULL
+  ## set global vars ##
   .checkArgsSetDefaults()
 
   if(!dists.only) {    
@@ -674,7 +677,9 @@ getNearestFeature <- function(sites.rd, features.rd,
 get2NearestFeature <- function(sites.rd, features.rd, 
                                colnam=NULL, side="either", 
                                feature.colnam=NULL, relativeTo="subject") {
-  
+  ## this is to avoid "no visible binding for global variable" during checks ##
+  query <- qID <- RangedDataFlag <- ok.chrs <- y <- freq <- NULL
+  ## set global vars ##
   .checkArgsSetDefaults()
    
   ## make sure features.rd/subject is sorted ##
@@ -885,7 +890,7 @@ getLowestDists <- function(query=NULL, subject=NULL, res.nrst=NULL,
   ## the lowest absolute distances for both features.
   mins <- with(res.nrst, tapply(abs(dist), queryHits, min))
   res.nrst$lowest <- with(res.nrst, abs(dist)==mins[as.character(queryHits)])
-  res.nrst <- droplevels(subset(res.nrst, lowest))
+  res.nrst <- droplevels(res.nrst[res.nrst$lowest,])
   res.nrst$lowest <- NULL
   
   res.nrst
@@ -960,7 +965,9 @@ getFeatureCounts <- function(sites.rd, features.rd,
                              widths=c(1000,10000,1000000), weightsColname=NULL, 
                              doInChunks=FALSE, chunkSize=10000, 
                              parallel=FALSE) {
-  
+  ## this is to avoid "no visible binding for global variable" during checks ##
+  query <- qID <- RangedDataFlag <- ok.chrs <- y <- freq <- NULL
+  ## set global vars ##
   .checkArgsSetDefaults()
   
   if(!is.null(chromSizes)) {
@@ -1062,7 +1069,9 @@ getFeatureCounts <- function(sites.rd, features.rd,
 #' @export
 getFeatureCountsBig <- function(sites.rd, features.rd, 
                                 colnam=NULL, widths=c(1000,10000,1000000)) {
-  
+  ## this is to avoid "no visible binding for global variable" during checks ##
+  query <- qID <- RangedDataFlag <- ok.chrs <- y <- freq <- NULL
+  ## set global vars ##
   .checkArgsSetDefaults()
   rm(features.rd)
    
@@ -1147,7 +1156,9 @@ getFeatureCountsBig <- function(sites.rd, features.rd,
 getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, 
                               asBool=FALSE, feature.colnam=NULL, 
                               parallel=FALSE) {    
-  
+  ## this is to avoid "no visible binding for global variable" during checks ##
+  query <- qID <- RangedDataFlag <- ok.chrs <- y <- freq <- NULL
+  ## set global vars ##
   .checkArgsSetDefaults()
   
   ## chunkize the objects for parallel processing ##

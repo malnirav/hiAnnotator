@@ -13,11 +13,9 @@ Below are few simple steps to get you started.
 ## Quick *hiAnnotator* tutorial.
 
 ### Step 1: Loading the tools
-First load this package and the parallel backend of choice. See loading parallel backend section at the bottom of the page for more choices.
+First load this package and/or parallel backend of choice. See loading parallel backend section at the bottom of the page for more choices.
 ```{r}
 library(hiAnnotator)
-library(doMC)
-registerDoMC(2) ## do parallel processing using two cores 
 ```
 
 ### Step 2: Loading & formatting the data
@@ -54,8 +52,9 @@ Given a query object, the function retrieves the nearest feature and its propert
 
 ```{r}
 nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene")
-nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TRUE) ## using the parallel backend
 head(nearestGenes)
+
+# nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TRUE)
 
 ## get nearest 5' genes
 nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="5p") 
@@ -80,8 +79,7 @@ Given a query object and window size(s), the function finds all the rows in subj
 ```{r}
 geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene")
 head(geneCounts)
-geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene", parallel=TRUE)
-head(geneCounts)
+# geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene", parallel=TRUE)
 ```
 
 If dealing with really large set of input objects, the function can break up the data using the `chunkSize` parameter. This is handy when trying to annotated ChipSeq data on an average laptop/machine. There is also `getFeatureCountsBig()` function which uses an alternative method to get the counts using `findInterval`.
@@ -107,8 +105,7 @@ head(InGenes)
 InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene", asBool=TRUE)
 head(InGenes)
 
-InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene", asBool=TRUE, parallel=TRUE)
-head(InGenes)
+# InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene", asBool=TRUE, parallel=TRUE)
 ```
 
 #### doAnnotation
