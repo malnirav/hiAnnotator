@@ -16,9 +16,8 @@ Below are few simple steps to get you started.
 First load this package and the parallel backend of choice. See loading parallel backend section at the bottom of the page for more choices.
 ```{r}
 library(hiAnnotator)
-library(doParallel)
-cl <- makeCluster(2)
-registerDoParallel(cl)
+library(doMC)
+registerDoMC(2) ## do parallel processing using two cores 
 ```
 
 ### Step 2: Loading & formatting the data
@@ -121,7 +120,8 @@ doAnnotation(annotType="counts", alldata.rd, genes.rd, "NumOfGene")
 doAnnotation(annotType="countsBig",alldata.rd,genes.rd,"ChipSeqCounts")    
 doAnnotation(annotType="nearest", alldata.rd, genes.rd, "NearestGene")    
 doAnnotation(annotType="twoNearest", alldata.rd, genes.rd, "TwoNearestGenes")
-geneCheck <- function(x,wanted) { x$isWantedGene <- x$InGene %in% wanted; return(x) }
+geneCheck <- function(x, wanted) { x$isWantedGene <- x$InGene %in% wanted; 
+                                   return(x) }
 doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene", 
              postProcessFun=geneCheck, 
              postProcessFunArgs=list("wanted"=c("FOXJ3","SEPT9","RPTOR")) )
