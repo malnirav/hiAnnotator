@@ -19,12 +19,14 @@ Description: hiAnnotator contains set of functions which allow users to
     common data frame.
 Depends:
     GenomicRanges,
+    R (>= 2.10)
+Imports:
     foreach,
     iterators,
     rtracklayer,
     plyr,
     BSgenome,
-    R (>= 2.10)
+    RMySQL
 License: GPL (>= 2)
 VignetteBuilder: knitr
 Suggests:

@@ -3,9 +3,10 @@
 #' hiAnnotator contains set of functions which allow users to annotate a RangedData or GRanges object with custom set of annotations. The basic philosophy of this package is to take two RangedData or GRanges objects (query & subject) with common set of space/seqnames (i.e. chromosomes) and return associated annotation per space/seqnames and rows from the query matching space/seqnames and rows from the subject (i.e. genes or cpg islands).
 # The package comes with three types of annotation functions which calculates if a position from query is: within a feature, near a feature, or count features in defined window sizes. Moreover, one can utilize parallel backend for each annotation function to utilize the foreach package. In addition, the package is equipped with wrapper functions, which finds appropriate columns needed to make a RangedData or GRanges object from a common dataframe..
 #'
-#' @import GenomicRanges foreach iterators rtracklayer plyr BSgenome
+#' @import foreach iterators rtracklayer plyr BSgenome
 #' @docType package
 #' @name hiAnnotator
+#' @author Nirav V Malani
 NULL
 
 #' Sample Retrovirus Integration Sites data
