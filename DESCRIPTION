@@ -30,7 +30,6 @@ License: GPL (>= 2)
 VignetteBuilder: knitr
 Suggests:
     knitr,
-    doParallel,
-    doMC
+    doParallel
 biocViews: Software, Annotation
 LazyLoad: yes
