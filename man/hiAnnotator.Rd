@@ -13,4 +13,7 @@ return associated annotation per space/seqnames and rows
 from the query matching space/seqnames and rows from the
 subject (i.e. genes or cpg islands).
 }
+\author{
+Nirav V Malani
+}
 

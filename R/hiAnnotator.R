@@ -1033,7 +1033,14 @@ getFeatureCounts <- function(sites.rd, features.rd,
                          res.x <- as.data.frame(res.x)
                          bore <- mcols(x$subject)[,"weights"][res.x$subjectHits]
                          res.x$weights <- bore
-                         tapply(res.x$weights, res.x$queryHits, sum)            
+                         bore <- mcols(x$query)[,"tempyID"][res.x$queryHits]
+                         res.x$tempyID <- bore
+                         res.x$counts <- with(res.x, ave(weights,tempyID,FUN=sum))
+                         res.x <- unique(res.x[,c("tempyID","counts")])
+                         nohits <- setdiff(mcols(x$query)$tempyID,res.x$tempyID)
+                         res.x <- rbind(res.x, 
+                                        data.frame(tempyID=nohits,counts=0))
+                         res.x[order(res.x$tempyID),"counts"]
                        } else {                                 
                          countQueryHits(res.x)
                        } 
