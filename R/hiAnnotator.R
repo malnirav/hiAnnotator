@@ -3,7 +3,7 @@
 #' hiAnnotator contains set of functions which allow users to annotate a RangedData or GRanges object with custom set of annotations. The basic philosophy of this package is to take two RangedData or GRanges objects (query & subject) with common set of space/seqnames (i.e. chromosomes) and return associated annotation per space/seqnames and rows from the query matching space/seqnames and rows from the subject (i.e. genes or cpg islands).
 # The package comes with three types of annotation functions which calculates if a position from query is: within a feature, near a feature, or count features in defined window sizes. Moreover, one can utilize parallel backend for each annotation function to utilize the foreach package. In addition, the package is equipped with wrapper functions, which finds appropriate columns needed to make a RangedData or GRanges object from a common dataframe..
 #'
-#' @import foreach iterators rtracklayer plyr BSgenome
+#' @import GenomicRanges foreach iterators rtracklayer plyr BSgenome
 #' @docType package
 #' @name hiAnnotator
 #' @author Nirav V Malani
@@ -447,17 +447,9 @@ makeGRanges <- function(x, freeze=NULL, ...) {
       close(raw.data)
     }
     
-    # append to sites.gr as Seqinfo slot & reorder things while at it!
-    chrom.info <- chrom.info[names(chrom.info) %in% levels(seqnames(sites.gr))]
-    chrom.info <- chrom.info[order(suppressWarnings(
-      as.numeric(gsub("chr","",names(chrom.info))))
-    )]
-    seqinfo(sites.gr,
-            new2old=order(suppressWarnings(
-              as.numeric(gsub("chr","",levels(seqnames(sites.gr))))
-            ))) <- 
-      Seqinfo(names(chrom.info), chrom.info, 
-              rep(FALSE,length(chrom.info)), freeze)
+    # amend seqinfo slot of sites.gr #    
+    seqlevels(sites.gr) <- sortSeqlevels(seqlevels(sites.gr))
+    seqlengths(sites.gr) <- chrom.info[seqlevels(sites.gr)]    
   }
   
   sites.gr
