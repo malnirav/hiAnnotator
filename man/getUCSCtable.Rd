@@ -8,7 +8,7 @@ getUCSCtable(tableName, trackName, bsession = NULL, freeze = "hg18", ...)
   \item{tableName}{Name of the annotation table as it
   appears on UCSC browser.}
 
-  \item{trackName}{Name of the track annotation table
+  \item{trackName}{Name of the track annotation table as it
   appears in on UCSC browser.}
 
   \item{bsession}{UCSC session object returned by
@@ -31,8 +31,12 @@ Obtain a UCSC annotation table given the table & track
 name.
 }
 \examples{
-#refflat <- getUCSCtable("refFlat","RefSeq Genes") ## same as session <- makeUCSCsession();
-#refflat <- getUCSCtable("refFlat", "RefSeq Genes", bsession=session, freeze="hg18")
+\dontrun{
+refflat <- getUCSCtable("refFlat","RefSeq Genes")
+## same as above ##
+refflat <- getUCSCtable("refFlat","RefSeq Genes",
+bsession=session,freeze="hg18")
+}
 }
 \seealso{
 \code{\link{makeUCSCsession}},

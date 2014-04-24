@@ -22,8 +22,7 @@ used in \code{\link{getFeatureCounts}} &
 getWindowLabel(c(0,1e7,1e3,1e6,2e9))
 }
 \seealso{
-\code{\link{getFeatureCounts}},
-\code{\link{makeRangedData}}, \code{\link{makeGRanges}},
+\code{\link{getFeatureCounts}}, \code{\link{makeGRanges}},
 \code{\link{getNearestFeature}},
 \code{\link{getSitesInFeature}}.
 }

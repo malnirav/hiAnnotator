@@ -2,7 +2,9 @@
 \alias{makeGRanges}
 \title{Make a sorted GRanges object from a dataframe.}
 \usage{
-makeGRanges(x, freeze = NULL, ...)
+makeGRanges(x, freeze = NULL, positionsOnly = FALSE, soloStart = FALSE,
+  chromCol = NULL, strandCol = NULL, startCol = NULL, stopCol = NULL,
+  keepFactors = FALSE)
 }
 \arguments{
   \item{x}{dataframe to be converted into a GRanges object}
@@ -11,8 +13,30 @@ makeGRanges(x, freeze = NULL, ...)
   Default is NULL. This parameter is generally used to
   populate \code{\link{seqinfo}} slot of GRanges objects.}
 
-  \item{...}{parameters for \code{\link{makeRangedData}}
-  except for 'asGRanges'.}
+  \item{positionsOnly}{boolean flag indicating to return
+  only position based data or everything from the
+  dataframe. Defaults to FALSE.}
+
+  \item{soloStart}{flag denoting whether only one position
+  based column is available. In other words, only starts
+  are present and no stops. Default=FALSE.}
+
+  \item{chromCol}{use the defined column name for
+  seqname/chromosome based data from the dataframe.
+  Defaults to NULL.}
+
+  \item{strandCol}{use the defined column name for strand
+  or orientation from the dataframe. Defaults to NULL.}
+
+  \item{startCol}{use the defined column name for start
+  coordinate from the dataframe. Defaults to NULL.}
+
+  \item{stopCol}{use the defined column name for stop
+  coordinate from the dataframe. Defaults to NULL and not
+  required if soloStart=TRUE.}
+
+  \item{keepFactors}{keep vectors/columns stored as
+  factors? Defaults to FALSE}
 }
 \value{
 a GRanges object converted from x.
@@ -29,12 +53,7 @@ function will use the first match as the representative. It
 is recommended to run this function before utilizing any
 other annotation functions since it will sort the object by
 chromosome and position for copying annotations back to
-their respective rows confidently. This function wraps
-around \code{\link{makeRangedData}} with asGRanges
-parameter enabled. It is recommended to use a
-\code{\link[GenomicRanges]{GRanges}} object instead of a
-\code{\link[IRanges]{RangedData}} object if number of
-distinct chromosomes or targets is greater than 50.
+their respective rows confidently.
 }
 \examples{
 # Convert a dataframe to GRanges object
@@ -46,7 +65,6 @@ makeGRanges(genes)
 #makeGRanges(genes, freeze="hg18")
 }
 \seealso{
-\code{\link{makeRangedData}},
 \code{\link{getNearestFeature}},
 \code{\link{getFeatureCounts}},
 \code{\link{getSitesInFeature}}.

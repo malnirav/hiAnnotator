@@ -1,6 +1,7 @@
 \name{getLowestDists}
 \alias{getLowestDists}
-\title{Get the lowest biological distance from the 5' or 3' boundaries of query and subject.}
+\title{Get the lowest biological distance from the 5' or 3' boundaries of query
+and subject.}
 \usage{
 getLowestDists(query = NULL, subject = NULL, res.nrst = NULL,
   side = "either", relativeTo = "subject")
@@ -39,6 +40,15 @@ subject. This is a helper function utilized in
 for cases where a query has multiple nearest neighbors or
 overlaps with >1 subjects, the function will choose the
 subject with the lowest absolute distance.
+}
+\examples{
+query <- GRanges("A", IRanges(c(1, 5, 12, 20), width=1),
+strand=c("-","+","-","+"))
+subject <- GRanges("A", IRanges(c(1,5,10,15,21), width=8:4),
+strand=c("+", "+", "-", "-","-"))
+res <- as.data.frame(nearest(query, subject, select="all",
+ignore.strand=TRUE))
+res <- getLowestDists(query, subject, res, "either", "query")
 }
 \seealso{
 \code{\link{getNearestFeature}},

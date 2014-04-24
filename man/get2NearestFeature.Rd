@@ -1,22 +1,22 @@
 \name{get2NearestFeature}
 \alias{get2NearestFeature}
-\title{Get two nearest upstream and downstream annotation boundary for a position range.}
+\title{Get two nearest upstream and downstream annotation boundary for a
+position range.}
 \usage{
 get2NearestFeature(sites.rd, features.rd, colnam = NULL, side = "either",
   feature.colnam = NULL, relativeTo = "subject")
 }
 \arguments{
-  \item{sites.rd}{RangedData/GRanges object to be used as
-  the query.}
+  \item{sites.rd}{GRanges object to be used as the query.}
 
-  \item{features.rd}{RangedData/GRanges object to be used
-  as the subject or the annotation table.}
+  \item{features.rd}{GRanges object to be used as the
+  subject or the annotation table.}
 
   \item{colnam}{column name to be added to sites.rd for the
   newly calculated annotation...serves a core!}
 
   \item{side}{boundary of annotation to use to calculate
-  the nearest distance. Options are '5p','3p',
+  the nearest distance.  Options are '5p','3p',
   'either'(default), or 'midpoint'.}
 
   \item{feature.colnam}{column name from features.rd to be
@@ -29,8 +29,8 @@ get2NearestFeature(sites.rd, features.rd, colnam = NULL, side = "either",
   \code{\link{getNearestFeature}} for more information.}
 }
 \value{
-a RangedData/GRanges object with new annotation columns
-appended at the end of sites.rd.
+a GRanges object with new annotation columns appended at
+the end of sites.rd.
 }
 \description{
 Given a query object, the function retrieves the two
@@ -52,9 +52,7 @@ function arbitrarily chooses one to serve as the nearest
 feature, then reports 2 upstream & downstream feature. That
 may occasionally yield features which are the same upstream
 and downstream, which is commonly encountered when studying
-spliced genes or phenomena related to it.  \item Try not to
-use this function for >50 spaces/seqnames/chromosomes
-unless you have tons fo memory.  \item If strand
+spliced genes or phenomena related to it.  \item If strand
 information doesn't exist, then everything is defaults to
 '+' orientation (5' -> 3') \item If parallel=TRUE, then be
 sure to have a parallel backend registered before running
@@ -64,8 +62,7 @@ doSMP, doSNOW, doMPI, doParallel. For example:
 library(doMC); registerDoMC(2) }
 }
 \examples{
-\dontrun{
-# Convert a dataframe to RangedData/GRanges object
+# Convert a dataframe to GRanges object
 data(sites)
 alldata.rd <- makeGRanges(sites,soloStart=TRUE)
 
@@ -74,15 +71,17 @@ genes.rd <- makeGRanges(genes)
 
 nearestGenes <- get2NearestFeature(alldata.rd,genes.rd,"NearestGene")
 nearestGenes
-nearestGenes <- get2NearestFeature(alldata.rd,genes.rd,"NearestGene",side="5p")
+\dontrun{
+nearestGenes <- get2NearestFeature(alldata.rd,genes.rd,"NearestGene",
+side="5p")
 nearestGenes
-nearestGenes <- get2NearestFeature(alldata.rd,genes.rd,"NearestGene",side="3p")
+nearestGenes <- get2NearestFeature(alldata.rd,genes.rd,"NearestGene",
+side="3p")
 nearestGenes
 }
 }
 \seealso{
-\code{\link{getNearestFeature}},
-\code{\link{makeRangedData}}, \code{\link{makeGRanges}},
+\code{\link{getNearestFeature}}, \code{\link{makeGRanges}},
 \code{\link{getFeatureCounts}},
 \code{\link{getSitesInFeature}}.
 }

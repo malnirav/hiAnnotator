@@ -31,7 +31,7 @@ genes.rd <- makeGRanges(genes)
 
 The package also comes with wrapper functions to download annotation tracks off of UCSC genome browser using `rtracklayer` package.
 
-```{r}
+```{r, eval=FALSE}
 refflat <- getUCSCtable("refFlat","RefSeq Genes") 
 genes <- makeGRanges(refflat)
 ```

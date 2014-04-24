@@ -6,11 +6,10 @@ getSitesInFeature(sites.rd, features.rd, colnam = NULL, asBool = FALSE,
   feature.colnam = NULL, parallel = FALSE)
 }
 \arguments{
-  \item{sites.rd}{RangedData/GRanges object to be used as
-  the query.}
+  \item{sites.rd}{GRanges object to be used as the query.}
 
-  \item{features.rd}{RangedData/GRanges object to be used
-  as the subject or the annotation table.}
+  \item{features.rd}{GRanges object to be used as the
+  subject or the annotation table.}
 
   \item{colnam}{column name to be added to sites.rd for the
   newly calculated annotation...serves a core!}
@@ -33,8 +32,8 @@ getSitesInFeature(sites.rd, features.rd, colnam = NULL, asBool = FALSE,
   is ran using \code{\link[foreach]{registerDoSEQ}}.}
 }
 \value{
-a RangedData/GRanges object with new annotation columns
-appended at the end of sites.rd.
+a GRanges object with new annotation columns appended at
+the end of sites.rd.
 }
 \description{
 When used in genomic context, the function annotates
@@ -43,20 +42,14 @@ were in a gene or cpg island or whatever annotation that
 was supplied in the subject.
 }
 \note{
-\itemize{ \item If the input sites.rd parameter is GRanges
-object, then it is converted to RangedData and then
-converted back to GRanges at the end since
-\code{\link[IRanges]{findOverlaps}} function operates much
-faster on RangedData objects.  \item Try not to use this
-function for >50 spaces unless you have tons fo memory.
-\item If parallel=TRUE, then be sure to have a parallel
-backend registered before running the function. One can use
-any of the following libraries compatible with
+\itemize{ \item If parallel=TRUE, then be sure to have a
+parallel backend registered before running the function.
+One can use any of the following libraries compatible with
 \code{\link[foreach]{foreach}}: doMC, doSMP, doSNOW, doMPI.
 For example: library(doMC); registerDoMC(2) }
 }
 \examples{
-# Convert a dataframe to RangedData/GRanges object
+# Convert a dataframe to GRanges object
 data(sites)
 alldata.rd <- makeGRanges(sites,soloStart=TRUE)
 
@@ -69,13 +62,13 @@ InGenes
 InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE)
 InGenes
 ## Parallel version of getSitesInFeature
-InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,parallel=TRUE)
+InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,
+parallel=TRUE)
 InGenes
 }
 }
 \seealso{
-\code{\link{makeRangedData}}, \code{\link{makeGRanges}},
-\code{\link{getFeatureCounts}},
+\code{\link{makeGRanges}}, \code{\link{getFeatureCounts}},
 \code{\link{getNearestFeature}}.
 }
 

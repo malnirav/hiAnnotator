@@ -24,8 +24,7 @@ cleanColname("HIV*test")
 cleanColname("HIV-test","myAlias")
 }
 \seealso{
-\code{\link{getFeatureCounts}},
-\code{\link{makeRangedData}}, \code{\link{makeGRanges}},
+\code{\link{getFeatureCounts}}, \code{\link{makeGRanges}},
 \code{\link{getNearestFeature}},
 \code{\link{getSitesInFeature}}.
 }

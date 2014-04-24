@@ -1,5 +1,5 @@
+test_that("all core function tests", {
 #### Basic tests ####
-
 query <- GRanges("A", IRanges(c(1, 5, 12, 20), width=1), 
                  strand=c("-","+","-","+"))
 subject <- GRanges("A", IRanges(c(1,5,10,15,21), width=8:4),
@@ -93,3 +93,4 @@ expect_that(res,
                                            dist = c(-3L, 1L, 0L, 2L)), 
                                       .Names = c("queryHits", "subjectHits", "dist"), 
                                       row.names = c(NA, 4L), class = "data.frame")))
+})
