@@ -1,0 +1,14 @@
+hiAnnotator News
+
+CHANGES IN 0.99.3:
+
+NEW FEATURES:
+  * makeGRanges() inherits total functionality of makeRangedData() and an option
+    to turn off factor to character conversion.
+
+DEPRECATED AND DEFUNCT:
+	* Functions resizeRangedData() & makeRangedData() has been removed in favor
+    of using only GenomicRanges-derived objects.
+
+BUG FIXES:
+  * Improved seqinfo slot population method in makeGRanges()

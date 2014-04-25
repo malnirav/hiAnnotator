@@ -1,0 +1,74 @@
+\name{getSitesInFeature}
+\alias{getSitesInFeature}
+\title{Find overlapping positions/ranges that match between the query and subject.}
+\usage{
+getSitesInFeature(sites.rd, features.rd, colnam = NULL, asBool = FALSE,
+  feature.colnam = NULL, parallel = FALSE)
+}
+\arguments{
+  \item{sites.rd}{GRanges object to be used as the query.}
+
+  \item{features.rd}{GRanges object to be used as the
+  subject or the annotation table.}
+
+  \item{colnam}{column name to be added to sites.rd for the
+  newly calculated annotation...serves a core!}
+
+  \item{asBool}{Flag indicating whether to return results
+  as TRUE/FALSE or the property of an overlapping
+  feature..namely feature name and orientation if
+  available. Defaults to FALSE.}
+
+  \item{feature.colnam}{column name from features.rd to be
+  used for retrieving the feature name. By default this is
+  NULL assuming that features.rd has a column that includes
+  the word 'name' somewhere in it. Not required if
+  asBool=TRUE.}
+
+  \item{parallel}{use parallel backend to perform
+  calculation with \code{\link[foreach]{foreach}}. Defaults
+  to FALSE. Not applicable when asBool=T. If no parallel
+  backend is registered, then a serial version of foreach
+  is ran using \code{\link[foreach]{registerDoSEQ}}.}
+}
+\value{
+a GRanges object with new annotation columns appended at
+the end of sites.rd.
+}
+\description{
+When used in genomic context, the function annotates
+genomic positions of interest with information like if they
+were in a gene or cpg island or whatever annotation that
+was supplied in the subject.
+}
+\note{
+\itemize{ \item If parallel=TRUE, then be sure to have a
+parallel backend registered before running the function.
+One can use any of the following libraries compatible with
+\code{\link[foreach]{foreach}}: doMC, doSMP, doSNOW, doMPI.
+For example: library(doMC); registerDoMC(2) }
+}
+\examples{
+# Convert a dataframe to GRanges object
+data(sites)
+alldata.rd <- makeGRanges(sites,soloStart=TRUE)
+
+data(genes)
+genes.rd <- makeGRanges(genes)
+
+InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene")
+InGenes
+\dontrun{
+InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE)
+InGenes
+## Parallel version of getSitesInFeature
+InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,
+parallel=TRUE)
+InGenes
+}
+}
+\seealso{
+\code{\link{makeGRanges}}, \code{\link{getFeatureCounts}},
+\code{\link{getNearestFeature}}.
+}
+
