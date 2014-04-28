@@ -2,9 +2,9 @@
 %\VignetteIndexEntry{Using hiAnnotator}
 
 ## Introduction
-`hiAnnotator` contains set of functions which allow users to annotate a RangedData or GRanges object with custom set of annotations. The basic philosophy of this package is to take two RangedData or GRanges objects (query & subject) with common set of space/seqnames (i.e. chromosomes) and return associated annotation per space/seqname and rows from the query matching space/seqnames and rows from the subject (i.e. genes or cpg islands).
+`hiAnnotator` contains set of functions which allow users to annotate a GRanges object with custom set of annotations. The basic philosophy of this package is to take two GRanges objects (query & subject) with common set of space/seqnames (i.e. chromosomes) and return associated annotation per space/seqname and rows from the query matching space/seqnames and rows from the subject (i.e. genes or cpg islands).
 
-This package comes with three types of annotation functions which calculates if a position from query is: within a feature, near a feature, or count features in defined window sizes. Moreover, each function is equipped with parallel backend to utilize the `foreach` package. The package is also equipped with wrapper functions, which finds appropriate columns needed to make a RangedData or GRanges object from a common data frame.
+This package comes with three types of annotation functions which calculates if a position from query is: within a feature, near a feature, or count features in defined window sizes. Moreover, each function is equipped with parallel backend to utilize the `foreach` package. The package is also equipped with wrapper functions, which finds appropriate columns needed to make a GRanges object from a common data frame.
 
 The work horse functions performing most of the calculations are from `GenomicRanges` package which comes from the Bioconductor repository. Most of the functions in the `hiAnnotator` package are wrapper around following functions: `nearest()`, and `findOverlaps()`.
 
@@ -13,20 +13,22 @@ Below are few simple steps to get you started.
 ## Quick *hiAnnotator* tutorial.
 
 ### Step 1: Loading the tools
-First load this package and/or parallel backend of choice. See loading parallel backend section at the bottom of the page for more choices.
+First load this package and the parallel backend of choice. See loading parallel backend section at the bottom of the page for more choices.
 ```{r}
 library(hiAnnotator)
 ```
 
 ### Step 2: Loading & formatting the data
-The package comes with example dataframes: `sites` and `genes`. In the rest of this tutorial we will use sites as query and genes as subject. Using the `makeRangedData()` function supplied with the package, one can easily go from a dataframe to a RangedData object without too much hassle.
+The package comes with example dataframes: `sites` and `genes`. In the rest of this tutorial we will use sites as query and genes as subject. Using the `makeGRanges()` function supplied with the package, one can easily go from a dataframe to a GRanges  object without too much hassle.
 
 ```{r}
 data(sites)
-alldata.rd <- makeGRanges(sites,soloStart=TRUE) ## sites object doesn't have a start & stop column to denote genomic range, hence soloStart parameter must be TRUE or a nasty error will be thrown!
+## sites object doesn't have a start & stop column to denote genomic range, hence soloStart parameter must be TRUE or a nasty error will be thrown!
+alldata.rd <- makeGRanges(sites,soloStart=TRUE) 
 
 data(genes)
-genes.rd <- makeGRanges(genes)
+## adding freeze populates SeqInfo slot of GRanges object.
+genes.rd <- makeGRanges(genes, freeze="hg18") 
 ```
 
 The package also comes with wrapper functions to download annotation tracks off of UCSC genome browser using `rtracklayer` package.
@@ -34,14 +36,6 @@ The package also comes with wrapper functions to download annotation tracks off 
 ```{r, eval=FALSE}
 refflat <- getUCSCtable("refFlat","RefSeq Genes") 
 genes <- makeGRanges(refflat)
-```
-
-One can also use `makeRangedData()` to convert a dataframe to a RangedData object. All annotation function in `hiAnnotator` package support GRanges & RangedData objects. It is recommended to use a `GRanges` object instead of a `RangedData` object if number of distinct chromosomes or targets is greater than 50. 
-
-```{r}
-data(genes)
-makeGRanges(genes)
-makeGRanges(genes, freeze="hg18") ## adding freeze populates SeqInfo slot of GRanges object.
 ```
 
 ### Step 3: Annotating the data
