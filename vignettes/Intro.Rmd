@@ -118,6 +118,25 @@ doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene",
              postProcessFunArgs=list("wanted"=c("FOXJ3","SEPT9","RPTOR")) )
 ```
 
+### Plotting Results
+`hiAnnotator` comes with a handy plotting function `plotdisFeature` which summarizes and plots the distribution of newly annotated data. Function can be used to easily visualize things like distribution of integration sites around gene TSS, density of genes within various window sizes, etc.
+
+```{r, eval=TRUE, echo=TRUE}
+res <- doAnnotation(annotType="within", alldata.rd, genes.rd, "InGene", asBool=TRUE)
+plotdisFeature(res, "virus", "InGene")
+
+res <- doAnnotation(annotType="nearest", alldata.rd, genes.rd, "NearestGene", side='5p')
+plotdisFeature(res, "virus", "X5pNearestGeneDist")
+
+data(sites.ctrl)
+sites$type <- "expr"
+sites <- rbind(sites,sites.ctrl)
+alldata.rd <- makeGRanges(sites, soloStart=TRUE)
+res <- doAnnotation(annotType="within", alldata.rd, genes.rd, "InGene", asBool=TRUE)
+plotdisFeature(res, "virus", "InGene")
+plotdisFeature(res, "virus", "InGene", typeRatio=TRUE)
+```
+
 ## Ways to load parallel backends
 1) Load one of the following libraries depending on machine/OS: `doMC`, `doSMP`, `doSNOW`, `doMPI`     
 

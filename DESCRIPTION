@@ -1,7 +1,7 @@
 Package: hiAnnotator
 Title: Functions for annotating GRanges objects.
-Version: 0.99.3
-Date: 2014-04-23
+Version: 0.99.4
+Date: 2014-04-29
 Author: Nirav V Malani <malnirav@gmail.com>
 Maintainer: Nirav V Malani <malnirav@gmail.com>
 Description: hiAnnotator contains set of functions which allow users to
@@ -25,7 +25,9 @@ Imports:
     iterators,
     rtracklayer,
     plyr,
-    BSgenome
+    BSgenome,
+    ggplot2,
+    scales
 License: GPL (>= 2)
 VignetteBuilder: knitr
 Suggests:
