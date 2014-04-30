@@ -1,0 +1,78 @@
+\name{plotdisFeature}
+\alias{plotdisFeature}
+\title{Plot distance distribution to a feature boundary.}
+\usage{
+plotdisFeature(dat = NULL, grouping = NULL, annotCol = NULL,
+  breaks = NULL, discreteBins = TRUE, stacked = FALSE,
+  typeRatio = FALSE, printPlotData = FALSE)
+}
+\arguments{
+  \item{dat}{a dataframe/GRanges with required columns to
+  make the plot.}
+
+  \item{grouping}{name of the column grouping the data or
+  denoting the samples}
+
+  \item{annotCol}{name of the column holding the distance
+  to feature data. This can also be boolean data in which
+  case plot will be in/out of feature.}
+
+  \item{breaks}{intervals by which to break up the distance
+  data. Default is seq(-1e5,1e5,5e3). Not required if
+  `annotCol` is of type boolean.}
+
+  \item{discreteBins}{whether to plot continuous variable
+  supplied in annotCol as a discrete axis. This conserves
+  plotting area, thus default is TRUE.}
+
+  \item{stacked}{make a stacked plot? Default is FALSE.}
+
+  \item{typeRatio}{whether to plot data as ratio of
+  experimental to controls. Default is FALSE. Enabling this
+  requires a column in 'dat' called "type" with two values
+  "expr" for experimental and "ctrl" for control. This
+  column subdivides data within each group. Enabling this
+  transforms the data into plotting distribution of ratios
+  of experimental/controls around feature of interest.}
+
+  \item{printPlotData}{return summarized plot data? Default
+  is FALSE.}
+}
+\value{
+ggplot2 plot and/or table of summarized plot data.
+}
+\description{
+Given a dataframe of samples and distance based annotation,
+the function calculates the distribution of data in or
+around the given annotation. From genomic point of view,
+the function can be used to identify distribution of data
+around genomic features like gene TSS, CpG island, etc.
+}
+\examples{
+# Convert a dataframe to GRanges object
+data(sites)
+data(sites.ctrl)
+sites$type <- "expr"
+sites <- rbind(sites,sites.ctrl)
+alldata.rd <- makeGRanges(sites,soloStart=TRUE)
+
+data(genes)
+genes.rd <- makeGRanges(genes)
+
+res <- doAnnotation(annotType="within", alldata.rd, genes.rd, "InGene",
+asBool=TRUE)
+plotdisFeature(res, "virus", "InGene")
+plotdisFeature(res, "virus", "InGene", typeRatio=TRUE)
+\dontrun{
+res <- doAnnotation(annotType="nearest", res, genes.rd, "NearestGene",
+side='5p')
+plotdisFeature(res, "virus", "X5pNearestGeneDist")
+plotdisFeature(res, "virus", "X5pNearestGeneDist", typeRatio=TRUE)
+}
+}
+\seealso{
+\code{\link{makeGRanges}}, \code{\link{getNearestFeature}},
+\code{\link{getSitesInFeature}},
+\code{\link{getFeatureCounts}}
+}
+
