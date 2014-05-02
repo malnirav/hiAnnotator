@@ -53,6 +53,9 @@
 plotdisFeature <- function(dat=NULL, grouping=NULL, annotCol=NULL,
                            breaks=NULL, discreteBins=TRUE, stacked=FALSE,
                            typeRatio=FALSE, printPlotData=FALSE) {
+    ## this is to avoid "no visible binding for global variable" in R CMD check
+    Distance <- type <- Percent <- Ratio <- DistToFeature <- NULL
+    
     if(is.null(dat)) {
         stop("No data supplied")
     } else {

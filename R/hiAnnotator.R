@@ -46,8 +46,8 @@ NULL
 #' 
 #' Controls for a sample dataset containing collection of unique HIV & MLV 
 #' integration sites in the human genome mapped to UCSC freeze hg18 from 
-#' PMID: 12805549. Each row represents three controls per integration site in 
-#' sites object. 
+#' PMID: 12805549. Each row represents three controls per integration site 
+#' in sites object. 
 #' 
 #' \itemize{
 #'   \item Sequence. Name of the DNA sequence which was aligned to the host 
