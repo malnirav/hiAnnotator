@@ -400,7 +400,7 @@ makeGRanges <- function(x, freeze=NULL, positionsOnly=FALSE, soloStart=FALSE,
         x <- x[,c("seqnames","start","end","strand")]    
     } 
     
-    metadataCols <- grep("seqnames|start|end|strand", names(x),
+    metadataCols <- grep("seqnames|start|end|strand|width", names(x),
                          invert=TRUE, value=TRUE, fixed=FALSE)
     metadataCols <- metadataCols[!is.na(metadataCols)]
     
