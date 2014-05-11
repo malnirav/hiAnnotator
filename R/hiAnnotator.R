@@ -387,14 +387,10 @@ makeGRanges <- function(x, freeze=NULL, positionsOnly=FALSE, soloStart=FALSE,
     if(length(startCol)>0 & length(stopCol)>0) {       
         if(any(is.na(x$end))) {
             stop("NAs found in column containing end positions")
-        }
-        x$mid <- with(x,(start+end)/2)
-        x <- arrange(x,seqnames,mid)
-        x$mid <- NULL
+        }        
     } else {  
-        x <- arrange(x,seqnames,start)
         x$end <- x$start
-    }
+    }    
     
     if(as.logical(positionsOnly)) {
         x <- x[,c("seqnames","start","end","strand")]    
@@ -411,6 +407,8 @@ makeGRanges <- function(x, freeze=NULL, positionsOnly=FALSE, soloStart=FALSE,
     for(f in metadataCols) {       
         mcols(sites.gr)[[f]] <- x[,f]
     }
+    
+    sites.gr <- sort(sites.gr, ignore.strand=TRUE)
     
     if(!is.null(freeze)) {
         genomeLib <- grep(freeze,installed.genomes(),value=TRUE)

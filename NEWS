@@ -1,5 +1,8 @@
 hiAnnotator News
 
+CHANGES IN 0.99.6:
+  * Using GRanges::sort in makeGRanges().
+
 CHANGES IN 0.99.5:
   * Documentation changes.
 
