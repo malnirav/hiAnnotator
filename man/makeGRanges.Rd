@@ -11,8 +11,8 @@ makeGRanges(x, freeze = NULL, positionsOnly = FALSE, soloStart = FALSE,
 \item{x}{dataframe to be converted into a GRanges object}
 
 \item{freeze}{UCSC genome version of the data in x. Default is NULL.
-This parameter is generally used to populate \code{\link{seqinfo}} slot of
-GRanges objects.}
+This parameter is generally used to populate \code{\link{GenomicRanges::seqinfo}}
+slot of GRanges objects.}
 
 \item{positionsOnly}{boolean flag indicating to return only position based
 data or everything from the dataframe. Defaults to FALSE.}

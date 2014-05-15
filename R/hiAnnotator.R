@@ -288,8 +288,8 @@ cleanColname <- function(x, description=NULL) {
 #'
 #' @param x dataframe to be converted into a GRanges object
 #' @param freeze UCSC genome version of the data in x. Default is NULL. 
-#' This parameter is generally used to populate \code{\link{seqinfo}} slot of 
-#' GRanges objects.
+#' This parameter is generally used to populate \code{\link{GenomicRanges::seqinfo}} 
+#' slot of GRanges objects.
 #' @param positionsOnly boolean flag indicating to return only position based 
 #' data or everything from the dataframe. Defaults to FALSE.
 #' @param soloStart flag denoting whether only one position based column 
