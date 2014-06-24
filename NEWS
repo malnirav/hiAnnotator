@@ -1,5 +1,8 @@
 hiAnnotator News
 
+CHANGES IN 0.99.8:
+  * plotdisFeature() obtains a geom parameter.
+
 CHANGES IN 0.99.7:
   * Documentation fixes
 

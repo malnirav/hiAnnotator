@@ -13,7 +13,10 @@
 #' seq(-1e5,1e5,5e3). Not required if `annotCol` is of type boolean.
 #' @param discreteBins whether to plot continuous variable supplied in annotCol
 #' as a discrete axis. This conserves plotting area, thus default is TRUE.
-#' @param stacked make a stacked plot? Default is FALSE.
+#' @param geom plot distribution using bars or lines? Default is 'bar'. One can
+#' use 'line' as well when there are many groups.
+#' @param stacked make a stacked plot? Only applies when geom is 'bar'. 
+#' Default is FALSE.
 #' @param typeRatio whether to plot data as ratio of experimental to controls.
 #' Default is FALSE. Enabling this requires a column in 'dat' called "type" with
 #' two values "expr" for experimental and "ctrl" for control. This column
@@ -51,8 +54,9 @@
 #' plotdisFeature(res, "virus", "X5pNearestGeneDist", typeRatio=TRUE)
 #' }
 plotdisFeature <- function(dat=NULL, grouping=NULL, annotCol=NULL,
-                           breaks=NULL, discreteBins=TRUE, stacked=FALSE,
-                           typeRatio=FALSE, printPlotData=FALSE) {
+                           breaks=NULL, discreteBins=TRUE, geom='bar',
+                           stacked=FALSE, typeRatio=FALSE, 
+                           printPlotData=FALSE) {
     ## this is to avoid "no visible binding for global variable" in R CMD check
     Distance <- type <- Percent <- Ratio <- DistToFeature <- NULL
     
@@ -155,9 +159,15 @@ plotdisFeature <- function(dat=NULL, grouping=NULL, annotCol=NULL,
                     scale_x_continuous(annotCol, expand=c(0,0))
             }
         }
-        p <- p + geom_bar(stat="identity", aes(fill=grouping),
-                          position=ifelse(stacked,"stack","dodge")) + 
-            scale_y_continuous("Ratio Expr/Ctrls", expand=c(0,0)) +
+        
+        if(geom=='bar') {
+            p <- p + geom_bar(stat="identity", aes(fill=grouping),
+                              position=ifelse(stacked,"stack","dodge"))
+        } else {
+            p <- p + geom_line(aes(colour=grouping, group=grouping))
+        }
+        
+        p <- p + scale_y_continuous("Ratio Expr/Ctrls", expand=c(0,0)) +
             geom_hline(y=1)
     } else {
         if(isBool) {
@@ -172,9 +182,16 @@ plotdisFeature <- function(dat=NULL, grouping=NULL, annotCol=NULL,
                     scale_x_continuous(annotCol, expand=c(0,0))
             }
         }    
-        p <- p + geom_bar(stat="identity", aes(fill=grouping),
-                          position=ifelse(stacked,"stack","dodge")) + 
-            scale_y_continuous("Percent of Sites", label=percent, expand=c(0,0))
+        
+        if(geom=='bar') {
+            p <- p + geom_bar(stat="identity", aes(fill=grouping),
+                              position=ifelse(stacked,"stack","dodge"))
+        } else {
+            p <- p + geom_line(aes(colour=grouping, group=grouping))
+        }
+        
+        p <- p + scale_y_continuous("Percent of Sites", 
+                                    label=percent, expand=c(0,0))
         
         if(all(dat$type!="")) {
             p <- p + facet_wrap(~type, ncol=1)
@@ -200,9 +217,17 @@ plotdisFeature <- function(dat=NULL, grouping=NULL, annotCol=NULL,
     
     if(n >= 8 & n <= length(allCols)) {
         dat.colors <- as.character(allCols[1:n])
-        p <- p + scale_fill_manual(name=grouping, values=dat.colors)
+        if(geom=='bar') {
+            p <- p + scale_fill_manual(name=grouping, values=dat.colors)
+        } else {
+            p <- p + scale_colour_manual(name=grouping, values=dat.colors)
+        }        
     } else {
-        p <- p + scale_fill_discrete(name=grouping)
+        if(geom=='bar') {
+            p <- p + scale_fill_discrete(name=grouping)
+        } else {
+            p <- p + scale_colour_discrete(name=grouping)
+        }        
     }
        
     if(printPlotData) {
