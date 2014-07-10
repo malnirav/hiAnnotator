@@ -395,8 +395,8 @@ makeGRanges <- function(x, freeze=NULL, positionsOnly=FALSE, soloStart=FALSE,
         x <- x[,c("seqnames","start","end","strand")]    
     } 
     
-    metadataCols <- grep("seqnames|start|end|strand|width", names(x),
-                         invert=TRUE, value=TRUE, fixed=FALSE)
+    metadataCols <- setdiff(names(x), 
+                            c("seqnames", "start", "end", "strand", "width"))
     metadataCols <- metadataCols[!is.na(metadataCols)]
     
     sites.gr <- GRanges(seqnames=x$seqnames, IRanges(start=x$start, end=x$end),
@@ -410,7 +410,7 @@ makeGRanges <- function(x, freeze=NULL, positionsOnly=FALSE, soloStart=FALSE,
     sites.gr <- sort(sites.gr, ignore.strand=TRUE)
     
     if(!is.null(freeze)) {
-        genomeLib <- grep(freeze,installed.genomes(),value=TRUE)
+        genomeLib <- grep(freeze, installed.genomes(), value=TRUE)
         if(length(genomeLib)!=0) {		
             bsGenomeObject <- strsplit(genomeLib,"\\.")[[1]][2]
             chrom.info <- seqlengths(do.call(`:::`,
