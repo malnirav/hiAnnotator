@@ -407,8 +407,6 @@ makeGRanges <- function(x, freeze=NULL, positionsOnly=FALSE, soloStart=FALSE,
         mcols(sites.gr)[[f]] <- x[,f]
     }
     
-    sites.gr <- sort(sites.gr, ignore.strand=TRUE)
-    
     if(!is.null(freeze)) {
         genomeLib <- grep(freeze, installed.genomes(), value=TRUE)
         if(length(genomeLib)!=0) {		
@@ -436,6 +434,7 @@ makeGRanges <- function(x, freeze=NULL, positionsOnly=FALSE, soloStart=FALSE,
         seqlengths(sites.gr) <- chrom.info[seqlevels(sites.gr)]    
     }
     
+    sites.gr <- sort(sites.gr, ignore.strand=TRUE)
     sites.gr
 }
 
