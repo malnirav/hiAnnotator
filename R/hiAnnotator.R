@@ -1411,7 +1411,7 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL,
 #' This is a wrapper function which calls one of following functions depending 
 #' on annotType parameter: \code{\link{getFeatureCounts}}, 
 #' \code{\link{getFeatureCountsBig}}, \code{\link{getNearestFeature}}, 
-#' \code{\link{get2NearestFeature}}, code{\link{getSitesInFeature}} 
+#' \code{\link{get2NearestFeature}}, \code{\link{getSitesInFeature}} 
 #'
 #' @param annotType one of following: within, nearest, twoNearest, counts, 
 #' countsBig.
@@ -1426,7 +1426,7 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL,
 #'
 #' @seealso  \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}}, 
 #' \code{\link{getFeatureCountsBig}}, \code{\link{getNearestFeature}}, 
-#' \code{\link{get2NearestFeature}}, code{\link{getSitesInFeature}}.
+#' \code{\link{get2NearestFeature}}, \code{\link{getSitesInFeature}}.
 #'
 #' @export
 #'

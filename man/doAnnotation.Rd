@@ -26,7 +26,7 @@ of sites.rd.
 This is a wrapper function which calls one of following functions depending
 on annotType parameter: \code{\link{getFeatureCounts}},
 \code{\link{getFeatureCountsBig}}, \code{\link{getNearestFeature}},
-\code{\link{get2NearestFeature}}, code{\link{getSitesInFeature}}
+\code{\link{get2NearestFeature}}, \code{\link{getSitesInFeature}}
 }
 \examples{
 # Convert a dataframe to GRanges object
@@ -51,6 +51,6 @@ postProcessFunArgs=list("wanted"=c("FOXJ3","SEPT9","RPTOR")) )
 \seealso{
 \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}},
 \code{\link{getFeatureCountsBig}}, \code{\link{getNearestFeature}},
-\code{\link{get2NearestFeature}}, code{\link{getSitesInFeature}}.
+\code{\link{get2NearestFeature}}, \code{\link{getSitesInFeature}}.
 }
 
