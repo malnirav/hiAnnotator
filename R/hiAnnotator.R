@@ -1260,18 +1260,22 @@ getFeatureCountsBig <- function(sites.rd, features.rd,
 #' @param features.rd GRanges object to be used as the subject or the 
 #' annotation table.
 #' @param colnam column name to be added to sites.rd for the newly calculated 
-#' annotation...serves a core!
+#' annotation...serves a core! If allSubjectCols=TRUE, then this is used as a
+#' prefix to all metadata column.
 #' @param asBool Flag indicating whether to return results as TRUE/FALSE or the
 #' property of an overlapping feature..namely feature name and orientation if
 #' available. Defaults to FALSE.
 #' @param feature.colnam column name from features.rd to be used for retrieving 
 #' the feature name. By default this is NULL assuming that features.rd has a 
 #' column that includes the word 'name' somewhere in it. 
-#' Not required if asBool=TRUE.
+#' Not required if asBool=TRUE or allSubjectCols=TRUE
 #' @param parallel use parallel backend to perform calculation with 
 #' \code{\link[foreach]{foreach}}. Defaults to FALSE. Not applicable when 
 #' asBool=T. If no parallel backend is registered, then a serial version of 
 #' foreach is ran using \code{\link[foreach]{registerDoSEQ}}.
+#' @param allSubjectCols Flag indicating whether to return all annotations or
+#' metadata columns from features.rd. Defaults to FALSE.
+#' @param overlapType see \code{\link[IRanges]{findOverlaps}}. Defaults to 'any'
 #'
 #' @return a GRanges object with new annotation columns appended at the end 
 #' of sites.rd.
@@ -1306,10 +1310,14 @@ getFeatureCountsBig <- function(sites.rd, features.rd,
 #' InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,
 #' parallel=TRUE)
 #' InGenes
+#' InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",
+#' allSubjectCols=TRUE, parallel=TRUE)
+#' InGenes
 #' }
 getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL, 
                               asBool=FALSE, feature.colnam=NULL, 
-                              parallel=FALSE) {    
+                              parallel=FALSE, allSubjectCols=FALSE,
+                              overlapType='any') {    
     ## this is to avoid "no visible binding for global variable" in R CMD check
     query <- qID <- ok.chrs <- y <- freq <- NULL
     ## set global vars ##
@@ -1329,19 +1337,33 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL,
     
     ## perform overlap analysis in parallel by windows ##  
     res <- foreach(x=iter(chunks), .inorder=FALSE, .combine=rbind,
-                   .export=c("colnam","asBool"),
+                   .export=c("colnam","asBool","allSubjectCols"),
                    .packages=c("GenomicRanges","plyr")) %dopar% {                        
                        
                        if (asBool) {
                            strand(x$subject) <- "*"
                            bore <- overlapsAny(x$query, x$subject, 
-                                               ignore.strand=TRUE)
+                                               ignore.strand=TRUE,
+                                               type=overlapType)
                            res.x <- data.frame(qID=mcols(x$query)$tempyID, 
                                                featureName=bore)                   
+                       } else if (allSubjectCols) {
+                           res.x <- as.data.frame(
+                               findOverlaps(x$query, x$subject, select='all',
+                                            ignore.strand=TRUE,
+                                            type=overlapType))
+                           res.x$qID <- mcols(x$query)$tempyID[res.x$queryHits]
+                           allSubjCols <- mcols(x$subject[res.x$subjectHits])
+                           rownames(allSubjCols) <- NULL
+                           names(allSubjCols) <- paste("featureName",
+                                                       names(allSubjCols),
+                                                       sep=".")
+                           res.x <- cbind(res.x, as.data.frame(allSubjCols))
                        } else {                                   
                            res.x <- as.data.frame(
                                findOverlaps(x$query, x$subject, select='all',
-                                            ignore.strand=TRUE))
+                                            ignore.strand=TRUE,
+                                            type=overlapType))
                            res.x$qID <- mcols(x$query)$tempyID[res.x$queryHits]
                            
                            ## collapse rows where query returned two hits with 
@@ -1388,8 +1410,16 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL,
                        
                        ## change column names for swift merging by 
                        # .mergeAndReturn()
-                       names(res.x)[grepl("featureName",
-                                          names(res.x))] <- colnam
+                       if(allSubjectCols) {
+                           names(res.x)[grepl("featureName",
+                                              names(res.x))] <- 
+                               gsub("featureName", colnam,
+                                    names(res.x)[grepl("featureName", 
+                                                       names(res.x))])
+                       } else {
+                           names(res.x)[grepl("featureName",
+                                              names(res.x))] <- colnam
+                       }                       
                        
                        res.x
                    }
@@ -1401,7 +1431,9 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam=NULL,
     
     ## for legacy code support change sites.rd not in feature.rd to FALSE 
     ## instead of NA
-    mcols(sites.rd)[,colnam][is.na(mcols(sites.rd)[,colnam])] <- FALSE
+    if(!allSubjectCols) {
+        mcols(sites.rd)[,colnam][is.na(mcols(sites.rd)[,colnam])] <- FALSE
+    }
     
     sites.rd
 }
@@ -1520,7 +1552,7 @@ doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL,
         
         ## get feature names column for adding feature name to sites.rd
         ## dont throw error if dists.only flag is TRUE from getNearestFeature
-        if (exists("feature.colnam")) {
+        if(exists("feature.colnam")) {
             if(is.null(feature.colnam)) {
                 answer <- try(getRelevantCol(colnames(mcols(features.rd)),
                                              c("name","featureName"),
@@ -1531,6 +1563,10 @@ doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL,
             
             if(exists("dists.only")) {
                 if(!dists.only & is.na(feature.colnam)) {
+                    stop("No featureName based column found.")
+                }
+            } else if(exists("allSubjectCols")) {
+                if(!allSubjectCols & is.na(feature.colnam)) {
                     stop("No featureName based column found.")
                 }
             } else {
@@ -1569,8 +1605,16 @@ doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL,
         mcols(sites.rd)$tempyID <- mcols(query)$tempyID,
         
         subject <- features.rd,
-        mcols(subject) <- NULL,
-        mcols(subject)$tempyID <- 1:length(subject)
+        if(exists("allSubjectCols")) {
+            if(!allSubjectCols) {
+                mcols(subject) <- NULL
+                mcols(subject)$tempyID <- 1:length(subject)
+            }
+        } else {
+            mcols(subject) <- NULL
+            mcols(subject)$tempyID <- 1:length(subject)
+        }
+        
     )
     
     eval.parent(checks)
@@ -1590,8 +1634,15 @@ doAnnotation <- function(annotType=NULL, ..., postProcessFun=NULL,
         ## make sure res object has the required fields ##
         stopifnot("qID" %in% names(res)),
         
-        ## make sure we only have one resulting row per query ##
-        stopifnot(!any(table(res$qID)>1)),
+        ## make sure we only have one resulting row per query unless 
+        ## allSubjectCols is TRUE ##
+        if(exists("allSubjectCols")) {
+            if(!allSubjectCols) {
+                stopifnot(!any(table(res$qID)>1))
+            }            
+        } else {
+            stopifnot(!any(table(res$qID)>1))
+        },
         
         res <- DataFrame(res),
         
