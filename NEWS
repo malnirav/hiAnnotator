@@ -1,5 +1,8 @@
 hiAnnotator News
 
+CHANGES IN 1.1.1:
+  * added allSubjectCols & overlapType params to getSitesInFeature
+
 CHANGES IN 0.99.9:
   * metadatacol bug fix
 
