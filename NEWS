@@ -1,0 +1,40 @@
+hiAnnotator News
+
+CHANGES IN 1.1.1:
+  * added allSubjectCols & overlapType params to getSitesInFeature
+
+CHANGES IN 0.99.9:
+  * metadatacol bug fix
+
+CHANGES IN 0.99.8:
+  * plotdisFeature() obtains a geom parameter.
+
+CHANGES IN 0.99.7:
+  * Documentation fixes
+
+CHANGES IN 0.99.6:
+  * Using GRanges::sort in makeGRanges().
+
+CHANGES IN 0.99.5:
+  * Documentation changes.
+
+CHANGES IN 0.99.4:
+
+NEW FEATURES:
+  * plotdisFeature(), function to plot distance distribution to 
+    feature boundary.
+
+  * Includes sites.ctrl dataset to compliment sites dataset.
+
+CHANGES IN 0.99.3:
+
+NEW FEATURES:
+  * makeGRanges() inherits total functionality of makeRangedData() and an option
+    to turn off factor to character conversion.
+
+DEPRECATED AND DEFUNCT:
+	* Functions resizeRangedData() & makeRangedData() has been removed in favor
+    of using only GenomicRanges-derived objects.
+
+BUG FIXES:
+  * Improved seqinfo slot population method in makeGRanges()
