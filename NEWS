@@ -1,5 +1,8 @@
 hiAnnotator News
 
+CHANGES IN 1.3.1:
+  * replaced plyr with dplyr
+
 CHANGES IN 1.1.1:
   * added allSubjectCols & overlapType params to getSitesInFeature
 
