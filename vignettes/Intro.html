@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>Introduction</title>
+
+<script type="text/javascript">
+window.onload = function() {
+  var imgs = document.getElementsByTagName('img'), i, img;
+  for (i = 0; i < imgs.length; i++) {
+    img = imgs[i];
+    // center an image if it is the only element of its parent
+    if (img.parentElement.childElementCount === 1)
+      img.parentElement.style.textAlign = 'center';
+  }
+};
+</script>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: #990073
+   }
+
+   pre .number {
+     color: #099;
+   }
+
+   pre .comment {
+     color: #998;
+     font-style: italic
+   }
+
+   pre .keyword {
+     color: #900;
+     font-weight: bold
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: #d14;
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+
+
+<style type="text/css">
+body, td {
+   font-family: sans-serif;
+   background-color: white;
+   font-size: 13px;
+}
+
+body {
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 20px;
+}
+
+tt, code, pre {
+   font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
+}
+
+h1 {
+   font-size:2.2em;
+}
+
+h2 {
+   font-size:1.8em;
+}
+
+h3 {
+   font-size:1.4em;
+}
+
+h4 {
+   font-size:1.0em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+pre, img {
+  max-width: 100%;
+}
+pre {
+  overflow-x: auto;
+}
+pre code {
+   display: block; padding: 0.5em;
+}
+
+code {
+  font-size: 92%;
+  border: 1px solid #ccc;
+}
+
+code[class] {
+  background-color: #F8F8F8;
+}
+
+table, td, th {
+  border: none;
+}
+
+blockquote {
+   color:#666666;
+   margin:0;
+   padding-left: 1em;
+   border-left: 0.5em #EEE solid;
+}
+
+hr {
+   height: 0px;
+   border-bottom: none;
+   border-top-width: thin;
+   border-top-style: dotted;
+   border-top-color: #999999;
+}
+
+@media print {
+   * {
+      background: transparent !important;
+      color: black !important;
+      filter:none !important;
+      -ms-filter: none !important;
+   }
+
+   body {
+      font-size:12pt;
+      max-width:100%;
+   }
+
+   a, a:visited {
+      text-decoration: underline;
+   }
+
+   hr {
+      visibility: hidden;
+      page-break-before: always;
+   }
+
+   pre, blockquote {
+      padding-right: 1em;
+      page-break-inside: avoid;
+   }
+
+   tr, img {
+      page-break-inside: avoid;
+   }
+
+   img {
+      max-width: 100% !important;
+   }
+
+   @page :left {
+      margin: 15mm 20mm 15mm 10mm;
+   }
+
+   @page :right {
+      margin: 15mm 10mm 15mm 20mm;
+   }
+
+   p, h2, h3 {
+      orphans: 3; widows: 3;
+   }
+
+   h2, h3 {
+      page-break-after: avoid;
+   }
+}
+</style>
+
+
+
+</head>
+
+<body>
+<h2>Introduction</h2>
+
+<p><code>hiAnnotator</code> contains set of functions which allow users to annotate a GRanges object with custom set of annotations. The basic philosophy of this package is to take two GRanges objects (query &amp; subject) with common set of space/seqnames (i.e. chromosomes) and return associated annotation per space/seqname and rows from the query matching space/seqnames and rows from the subject (i.e. genes or cpg islands).</p>
+
+<p>This package comes with three types of annotation functions which calculates if a position from query is: within a feature, near a feature, or count features in defined window sizes. Moreover, each function is equipped with parallel backend to utilize the <code>foreach</code> package. The package is also equipped with wrapper functions, which finds appropriate columns needed to make a GRanges object from a common data frame.</p>
+
+<p>The work horse functions performing most of the calculations are from <code>GenomicRanges</code> package which comes from the Bioconductor repository. Most of the functions in the <code>hiAnnotator</code> package are wrapper around following functions: <code>nearest()</code>, and <code>findOverlaps()</code>.</p>
+
+<p>Below are few simple steps to get you started.</p>
+
+<h2>Quick <em>hiAnnotator</em> tutorial.</h2>
+
+<h3>Step 1: Loading the tools</h3>
+
+<p>First load this package and the parallel backend of choice. See loading parallel backend section at the bottom of the page for more choices.</p>
+
+<pre><code class="r">library(hiAnnotator)
+</code></pre>
+
+<h3>Step 2: Loading &amp; formatting the data</h3>
+
+<p>The package comes with example dataframes: <code>sites</code> and <code>genes</code>. In the rest of this tutorial we will use sites as query and genes as subject. Using the <code>makeGRanges()</code> function supplied with the package, one can easily go from a dataframe to a GRanges  object without too much hassle.</p>
+
+<pre><code class="r">data(sites)
+## sites object doesn&#39;t have a start &amp; stop column to denote genomic range, hence soloStart parameter must be TRUE or a nasty error will be thrown!
+alldata.rd &lt;- makeGRanges(sites,soloStart=TRUE) 
+
+data(genes)
+## adding freeze populates SeqInfo slot of GRanges object.
+genes.rd &lt;- makeGRanges(genes, freeze=&quot;hg18&quot;) 
+</code></pre>
+
+<pre><code>## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence
+##   chr6_cox_hap1. Note that only ranges located on a non-circular
+##   sequence whose length is not NA can be considered out-of-bound
+##   (use seqlengths() and isCircular() to get the lengths and
+##   circularity flags of the underlying sequences). You can use trim()
+##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
+##   information.
+</code></pre>
+
+<p>The package also comes with wrapper functions to download annotation tracks off of UCSC genome browser using <code>rtracklayer</code> package.</p>
+
+<pre><code class="r">refflat &lt;- getUCSCtable(&quot;refFlat&quot;,&quot;RefSeq Genes&quot;) 
+genes &lt;- makeGRanges(refflat)
+</code></pre>
+
+<h3>Step 3: Annotating the data</h3>
+
+<p>With the data loaded and formatted, next series of functions highlight various ways they can be annotated. One thing to keep in mind is that, only the <code>intersect</code> of spaces/chromosomes/seqnames between query &amp; subject will be annotated, rest will be ignored and will have NAs in the output. </p>
+
+<h4>getNearestFeature: find the nearest neighbor</h4>
+
+<p>Given a query object, the function retrieves the nearest feature and its properties from a subject and then appends them as new columns within the query object. When used in genomic context, the function can be used to retrieve a nearest gene 5&#39; or 3&#39; end relative to a genomic position of interest. By default, nearest distance to either boundary is calculated unless specifically defined using the <code>side</code> parameter.</p>
+
+<pre><code class="r">nearestGenes &lt;- getNearestFeature(alldata.rd,genes.rd,&quot;NearestGene&quot;)
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;
+## 
+## The following objects are masked from &#39;package:GenomicRanges&#39;:
+## 
+##     intersect, setdiff, union
+## 
+## The following object is masked from &#39;package:GenomeInfoDb&#39;:
+## 
+##     intersect
+## 
+## The following objects are masked from &#39;package:IRanges&#39;:
+## 
+##     collapse, desc, intersect, setdiff, slice, union
+## 
+## The following object is masked from &#39;package:S4Vectors&#39;:
+## 
+##     rename
+## 
+## The following objects are masked from &#39;package:BiocGenerics&#39;:
+## 
+##     combine, intersect, setdiff, union
+## 
+## The following object is masked from &#39;package:stats&#39;:
+## 
+##     filter
+## 
+## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union
+</code></pre>
+
+<pre><code class="r">head(nearestGenes)
+</code></pre>
+
+<pre><code>## GRanges object with 6 ranges and 8 metadata columns:
+##       seqnames               ranges strand |                 Sequence
+##          &lt;Rle&gt;            &lt;IRanges&gt;  &lt;Rle&gt; |              &lt;character&gt;
+##   [1]     chr7 [ 1511435,  1511435]      - | Burgess-MLV-HeLa-nj09f06
+##   [2]     chr7 [ 1572700,  1572700]      - | Burgess-MLV-HeLa-nj12h11
+##   [3]     chr7 [11048891, 11048891]      + |   Burgess-HIV-HeLa-01a12
+##   [4]     chr7 [12167895, 12167895]      + | Burgess-MLV-HeLa-nj08f04
+##   [5]     chr7 [12503464, 12503464]      - | Burgess-MLV-HeLa-nj15c02
+##   [6]     chr7 [12726532, 12726532]      + | Burgess-MLV-HeLa-nj19e04
+##        Position         Chr         Ort       virus NearestGeneDist
+##       &lt;numeric&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt;       &lt;integer&gt;
+##   [1]   1511435        chr7           -         MLV            -891
+##   [2]   1572700        chr7           -         MLV             794
+##   [3]  11048891        chr7           +         HIV          -60916
+##   [4]  12167895        chr7           +         MLV          -49477
+##   [5]  12503464        chr7           -         MLV          -73263
+##   [6]  12726532        chr7           +         MLV           29449
+##       NearestGene NearestGeneOrt
+##       &lt;character&gt;    &lt;character&gt;
+##   [1]       INTS1              -
+##   [2]       PSMG3              -
+##   [3]       PHF14              +
+##   [4]    TMEM106B              +
+##   [5]        SCIN              +
+##   [6]       ARL4A              +
+##   -------
+##   seqinfo: 27 sequences from an unspecified genome; no seqlengths
+</code></pre>
+
+<pre><code class="r"># nearestGenes &lt;- getNearestFeature(alldata.rd,genes.rd,&quot;NearestGene&quot;, parallel=TRUE)
+
+## get nearest 5&#39; genes
+nearestGenes &lt;- getNearestFeature(alldata.rd,genes.rd,&quot;NearestGene&quot;,side=&quot;5p&quot;) 
+head(nearestGenes)
+</code></pre>
+
+<pre><code>## GRanges object with 6 ranges and 8 metadata columns:
+##       seqnames               ranges strand |                 Sequence
+##          &lt;Rle&gt;            &lt;IRanges&gt;  &lt;Rle&gt; |              &lt;character&gt;
+##   [1]     chr7 [ 1511435,  1511435]      - | Burgess-MLV-HeLa-nj09f06
+##   [2]     chr7 [ 1572700,  1572700]      - | Burgess-MLV-HeLa-nj12h11
+##   [3]     chr7 [11048891, 11048891]      + |   Burgess-HIV-HeLa-01a12
+##   [4]     chr7 [12167895, 12167895]      + | Burgess-MLV-HeLa-nj08f04
+##   [5]     chr7 [12503464, 12503464]      - | Burgess-MLV-HeLa-nj15c02
+##   [6]     chr7 [12726532, 12726532]      + | Burgess-MLV-HeLa-nj19e04
+##        Position         Chr         Ort       virus X5pNearestGeneDist
+##       &lt;numeric&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt;          &lt;integer&gt;
+##   [1]   1511435        chr7           -         MLV               -891
+##   [2]   1572700        chr7           -         MLV               3455
+##   [3]  11048891        chr7           +         HIV              68851
+##   [4]  12167895        chr7           +         MLV             -49477
+##   [5]  12503464        chr7           -         MLV             -73263
+##   [6]  12726532        chr7           +         MLV              33047
+##       X5pNearestGene X5pNearestGeneOrt
+##          &lt;character&gt;       &lt;character&gt;
+##   [1]          INTS1                 -
+##   [2]          PSMG3                 -
+##   [3]          PHF14                 +
+##   [4]       TMEM106B                 +
+##   [5]           SCIN                 +
+##   [6]          ARL4A                 +
+##   -------
+##   seqinfo: 27 sequences from an unspecified genome; no seqlengths
+</code></pre>
+
+<pre><code class="r">## get nearest 3&#39; genes
+nearestGenes &lt;- getNearestFeature(alldata.rd,genes.rd,&quot;NearestGene&quot;,side=&quot;3p&quot;)
+head(nearestGenes)
+</code></pre>
+
+<pre><code>## GRanges object with 6 ranges and 8 metadata columns:
+##       seqnames               ranges strand |                 Sequence
+##          &lt;Rle&gt;            &lt;IRanges&gt;  &lt;Rle&gt; |              &lt;character&gt;
+##   [1]     chr7 [ 1511435,  1511435]      - | Burgess-MLV-HeLa-nj09f06
+##   [2]     chr7 [ 1572700,  1572700]      - | Burgess-MLV-HeLa-nj12h11
+##   [3]     chr7 [11048891, 11048891]      + |   Burgess-HIV-HeLa-01a12
+##   [4]     chr7 [12167895, 12167895]      + | Burgess-MLV-HeLa-nj08f04
+##   [5]     chr7 [12503464, 12503464]      - | Burgess-MLV-HeLa-nj15c02
+##   [6]     chr7 [12726532, 12726532]      + | Burgess-MLV-HeLa-nj19e04
+##        Position         Chr         Ort       virus X3pNearestGeneDist
+##       &lt;numeric&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt;          &lt;integer&gt;
+##   [1]   1511435        chr7           -         MLV             -34997
+##   [2]   1572700        chr7           -         MLV                794
+##   [3]  11048891        chr7           +         HIV             -60916
+##   [4]  12167895        chr7           +         MLV             -75519
+##   [5]  12503464        chr7           -         MLV            -156289
+##   [6]  12726532        chr7           +         MLV              29449
+##       X3pNearestGene X3pNearestGeneOrt
+##          &lt;character&gt;       &lt;character&gt;
+##   [1]          INTS1                 -
+##   [2]          PSMG3                 -
+##   [3]          PHF14                 +
+##   [4]       TMEM106B                 +
+##   [5]           SCIN                 +
+##   [6]          ARL4A                 +
+##   -------
+##   seqinfo: 27 sequences from an unspecified genome; no seqlengths
+</code></pre>
+
+<pre><code class="r">## get midpoint of genes
+nearestGenes &lt;- getNearestFeature(alldata.rd,genes.rd,&quot;NearestGene&quot;,side=&quot;midpoint&quot;)
+head(nearestGenes)
+</code></pre>
+
+<pre><code>## GRanges object with 6 ranges and 8 metadata columns:
+##       seqnames               ranges strand |                 Sequence
+##          &lt;Rle&gt;            &lt;IRanges&gt;  &lt;Rle&gt; |              &lt;character&gt;
+##   [1]     chr7 [ 1511435,  1511435]      - | Burgess-MLV-HeLa-nj09f06
+##   [2]     chr7 [ 1572700,  1572700]      - | Burgess-MLV-HeLa-nj12h11
+##   [3]     chr7 [11048891, 11048891]      + |   Burgess-HIV-HeLa-01a12
+##   [4]     chr7 [12167895, 12167895]      + | Burgess-MLV-HeLa-nj08f04
+##   [5]     chr7 [12503464, 12503464]      - | Burgess-MLV-HeLa-nj15c02
+##   [6]     chr7 [12726532, 12726532]      + | Burgess-MLV-HeLa-nj19e04
+##        Position         Chr         Ort       virus
+##       &lt;numeric&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt;
+##   [1]   1511435        chr7           -         MLV
+##   [2]   1572700        chr7           -         MLV
+##   [3]  11048891        chr7           +         HIV
+##   [4]  12167895        chr7           +         MLV
+##   [5]  12503464        chr7           -         MLV
+##   [6]  12726532        chr7           +         MLV
+##       midpointNearestGeneDist midpointNearestGene midpointNearestGeneOrt
+##                     &lt;integer&gt;         &lt;character&gt;            &lt;character&gt;
+##   [1]                  -17944               INTS1                      -
+##   [2]                    2124               PSMG3                      -
+##   [3]                    3968               PHF14                      +
+##   [4]                  -62498            TMEM106B                      +
+##   [5]                 -114776                SCIN                      +
+##   [6]                   31248               ARL4A                      +
+##   -------
+##   seqinfo: 27 sequences from an unspecified genome; no seqlengths
+</code></pre>
+
+<pre><code class="r">### get two nearest upstream and downstream genes relative the query
+nearestTwoGenes &lt;- get2NearestFeature(alldata.rd,genes.rd,&quot;NearestGene&quot;)
+</code></pre>
+
+<pre><code>## u = upstream, d = downstream
+## thinking concept: u2.....u1.....intSite(+).....d1.....d2
+## thinking concept: d2.....d1.....intSite(-).....u1.....u2
+## u1
+## u2
+## d1
+## d2
+</code></pre>
+
+<pre><code class="r">head(nearestTwoGenes)
+</code></pre>
+
+<pre><code>## GRanges object with 6 ranges and 17 metadata columns:
+##       seqnames               ranges strand |                 Sequence
+##          &lt;Rle&gt;            &lt;IRanges&gt;  &lt;Rle&gt; |              &lt;character&gt;
+##   [1]     chr7 [ 1511435,  1511435]      - | Burgess-MLV-HeLa-nj09f06
+##   [2]     chr7 [ 1572700,  1572700]      - | Burgess-MLV-HeLa-nj12h11
+##   [3]     chr7 [11048891, 11048891]      + |   Burgess-HIV-HeLa-01a12
+##   [4]     chr7 [12167895, 12167895]      + | Burgess-MLV-HeLa-nj08f04
+##   [5]     chr7 [12503464, 12503464]      - | Burgess-MLV-HeLa-nj15c02
+##   [6]     chr7 [12726532, 12726532]      + | Burgess-MLV-HeLa-nj19e04
+##        Position         Chr         Ort       virus
+##       &lt;numeric&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt;
+##   [1]   1511435        chr7           -         MLV
+##   [2]   1572700        chr7           -         MLV
+##   [3]  11048891        chr7           +         HIV
+##   [4]  12167895        chr7           +         MLV
+##   [5]  12503464        chr7           -         MLV
+##   [6]  12726532        chr7           +         MLV
+##       Either.NearestGene.upStream1.Dist Either.NearestGene.upStream1
+##                               &lt;integer&gt;                  &lt;character&gt;
+##   [1]                              -891                        INTS1
+##   [2]                               794                        PSMG3
+##   [3]                            -60916                        PHF14
+##   [4]                            -49477                     TMEM106B
+##   [5]                            -73263                         SCIN
+##   [6]                             29449                        ARL4A
+##       Either.NearestGene.upStream1.Ort Either.NearestGene.upStream2.Dist
+##                            &lt;character&gt;                         &lt;integer&gt;
+##   [1]                                -                             36961
+##   [2]                                -                            249253
+##   [3]                                +                           1406919
+##   [4]                                +                            -49477
+##   [5]                                +                            -92208
+##   [6]                                +                             29449
+##       Either.NearestGene.upStream2 Either.NearestGene.upStream2.Ort
+##                        &lt;character&gt;                      &lt;character&gt;
+##   [1]                     TMEM184A                                -
+##   [2]                       MAD1L1                                -
+##   [3]                         PER4                                +
+##   [4]                     TMEM106B                                +
+##   [5]                         SCIN                                +
+##   [6]                        ARL4A                                +
+##       Either.NearestGene.downStream1.Dist Either.NearestGene.downStream1
+##                                 &lt;integer&gt;                    &lt;character&gt;
+##   [1]                              -45800                        MICALL2
+##   [2]                                 794                          PSMG3
+##   [3]                               68851                          PHF14
+##   [4]                              -49477                       TMEM106B
+##   [5]                              260050                       TMEM106B
+##   [6]                               29449                          ARL4A
+##       Either.NearestGene.downStream1.Ort
+##                              &lt;character&gt;
+##   [1]                                  -
+##   [2]                                  -
+##   [3]                                  +
+##   [4]                                  +
+##   [5]                                  +
+##   [6]                                  +
+##       Either.NearestGene.downStream2.Dist Either.NearestGene.downStream2
+##                                 &lt;integer&gt;                    &lt;character&gt;
+##   [1]                             -345054                        ZFAND2A
+##   [2]                                 794                          PSMG3
+##   [3]                            -1168481                       TMEM106B
+##   [4]                             -408832                           SCIN
+##   [5]                              260050                       TMEM106B
+##   [6]                               29449                          ARL4A
+##       Either.NearestGene.downStream2.Ort
+##                              &lt;character&gt;
+##   [1]                                  -
+##   [2]                                  -
+##   [3]                                  +
+##   [4]                                  +
+##   [5]                                  +
+##   [6]                                  +
+##   -------
+##   seqinfo: 27 sequences from an unspecified genome; no seqlengths
+</code></pre>
+
+<h4>getFeatureCounts: find out how many features are in a neighborhood</h4>
+
+<p>Given a query object and window size(s), the function finds all the rows in subject which are &lt;= window size/2 distance away. If weights are assigned to each positions in the subject, then tallied counts are multiplied accordingly. If annotation object is large, spanning greater than 100 million rows, then <code>getFeatureCountsBig()</code> is used which uses midpoint and drops any weights column if specified to get the job done. The time complexity of this function can be found in <code>?findOverlaps</code>.</p>
+
+<pre><code class="r">geneCounts &lt;- getFeatureCounts(alldata.rd, genes.rd, &quot;NumOfGene&quot;)
+head(geneCounts)
+</code></pre>
+
+<pre><code>## GRanges object with 6 ranges and 8 metadata columns:
+##       seqnames               ranges strand |                 Sequence
+##          &lt;Rle&gt;            &lt;IRanges&gt;  &lt;Rle&gt; |              &lt;character&gt;
+##   [1]     chr7 [ 1511435,  1511435]      - | Burgess-MLV-HeLa-nj09f06
+##   [2]     chr7 [ 1572700,  1572700]      - | Burgess-MLV-HeLa-nj12h11
+##   [3]     chr7 [11048891, 11048891]      + |   Burgess-HIV-HeLa-01a12
+##   [4]     chr7 [12167895, 12167895]      + | Burgess-MLV-HeLa-nj08f04
+##   [5]     chr7 [12503464, 12503464]      - | Burgess-MLV-HeLa-nj15c02
+##   [6]     chr7 [12726532, 12726532]      + | Burgess-MLV-HeLa-nj19e04
+##        Position         Chr         Ort       virus NumOfGene.1Kb
+##       &lt;numeric&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt;     &lt;integer&gt;
+##   [1]   1511435        chr7           -         MLV             0
+##   [2]   1572700        chr7           -         MLV             0
+##   [3]  11048891        chr7           +         HIV             2
+##   [4]  12167895        chr7           +         MLV             0
+##   [5]  12503464        chr7           -         MLV             0
+##   [6]  12726532        chr7           +         MLV             0
+##       NumOfGene.10Kb NumOfGene.1Mb
+##            &lt;integer&gt;     &lt;integer&gt;
+##   [1]              1            24
+##   [2]              5            22
+##   [3]              2             4
+##   [4]              0             6
+##   [5]              0             8
+##   [6]              0             8
+##   -------
+##   seqinfo: 27 sequences from an unspecified genome; no seqlengths
+</code></pre>
+
+<pre><code class="r"># geneCounts &lt;- getFeatureCounts(alldata.rd, genes.rd, &quot;NumOfGene&quot;, parallel=TRUE)
+</code></pre>
+
+<p>If dealing with really large set of input objects, the function can break up the data using the <code>chunkSize</code> parameter. This is handy when trying to annotated ChipSeq data on an average laptop/machine. There is also <code>getFeatureCountsBig()</code> function which uses an alternative method to get the counts using <code>findInterval</code>.</p>
+
+<pre><code class="r">geneCounts &lt;- getFeatureCounts(alldata.rd, genes.rd, &quot;NumOfGene&quot;, 
+                               doInChunks=TRUE, chunkSize=100)
+head(geneCounts)
+
+geneCounts &lt;- getFeatureCountsBig(alldata.rd, genes.rd, &quot;NumOfGene&quot;)
+head(geneCounts)
+</code></pre>
+
+<h4>getSitesInFeature: find out a position within a feature</h4>
+
+<p>When used in genomic context, the function annotates genomic positions of interest with information like if they were in a gene or cpg island or whatever annotation that was supplied in the subject.</p>
+
+<pre><code class="r">## Shows which feature(s) a position was found in.
+InGenes &lt;- getSitesInFeature(alldata.rd,genes.rd,&quot;InGene&quot;)
+head(InGenes)
+</code></pre>
+
+<pre><code>## GRanges object with 6 ranges and 7 metadata columns:
+##       seqnames               ranges strand |                 Sequence
+##          &lt;Rle&gt;            &lt;IRanges&gt;  &lt;Rle&gt; |              &lt;character&gt;
+##   [1]     chr7 [ 1511435,  1511435]      - | Burgess-MLV-HeLa-nj09f06
+##   [2]     chr7 [ 1572700,  1572700]      - | Burgess-MLV-HeLa-nj12h11
+##   [3]     chr7 [11048891, 11048891]      + |   Burgess-HIV-HeLa-01a12
+##   [4]     chr7 [12167895, 12167895]      + | Burgess-MLV-HeLa-nj08f04
+##   [5]     chr7 [12503464, 12503464]      - | Burgess-MLV-HeLa-nj15c02
+##   [6]     chr7 [12726532, 12726532]      + | Burgess-MLV-HeLa-nj19e04
+##        Position         Chr         Ort       virus      InGene
+##       &lt;numeric&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt;
+##   [1]   1511435        chr7           -         MLV       FALSE
+##   [2]   1572700        chr7           -         MLV       FALSE
+##   [3]  11048891        chr7           +         HIV       PHF14
+##   [4]  12167895        chr7           +         MLV       FALSE
+##   [5]  12503464        chr7           -         MLV       FALSE
+##   [6]  12726532        chr7           +         MLV       FALSE
+##         InGeneOrt
+##       &lt;character&gt;
+##   [1]        &lt;NA&gt;
+##   [2]        &lt;NA&gt;
+##   [3]           +
+##   [4]        &lt;NA&gt;
+##   [5]        &lt;NA&gt;
+##   [6]        &lt;NA&gt;
+##   -------
+##   seqinfo: 27 sequences from an unspecified genome; no seqlengths
+</code></pre>
+
+<pre><code class="r">## Simply shows TRUE/FALSE 
+InGenes &lt;- getSitesInFeature(alldata.rd, genes.rd, &quot;InGene&quot;, asBool=TRUE)
+head(InGenes)
+</code></pre>
+
+<pre><code>## GRanges object with 6 ranges and 6 metadata columns:
+##       seqnames               ranges strand |                 Sequence
+##          &lt;Rle&gt;            &lt;IRanges&gt;  &lt;Rle&gt; |              &lt;character&gt;
+##   [1]     chr7 [ 1511435,  1511435]      - | Burgess-MLV-HeLa-nj09f06
+##   [2]     chr7 [ 1572700,  1572700]      - | Burgess-MLV-HeLa-nj12h11
+##   [3]     chr7 [11048891, 11048891]      + |   Burgess-HIV-HeLa-01a12
+##   [4]     chr7 [12167895, 12167895]      + | Burgess-MLV-HeLa-nj08f04
+##   [5]     chr7 [12503464, 12503464]      - | Burgess-MLV-HeLa-nj15c02
+##   [6]     chr7 [12726532, 12726532]      + | Burgess-MLV-HeLa-nj19e04
+##        Position         Chr         Ort       virus    InGene
+##       &lt;numeric&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt; &lt;logical&gt;
+##   [1]   1511435        chr7           -         MLV     FALSE
+##   [2]   1572700        chr7           -         MLV     FALSE
+##   [3]  11048891        chr7           +         HIV      TRUE
+##   [4]  12167895        chr7           +         MLV     FALSE
+##   [5]  12503464        chr7           -         MLV     FALSE
+##   [6]  12726532        chr7           +         MLV     FALSE
+##   -------
+##   seqinfo: 27 sequences from an unspecified genome; no seqlengths
+</code></pre>
+
+<pre><code class="r"># InGenes &lt;- getSitesInFeature(alldata.rd, genes.rd, &quot;InGene&quot;, asBool=TRUE, parallel=TRUE)
+</code></pre>
+
+<h4>doAnnotation</h4>
+
+<p>This is a wrapper function which calls one of the functions shown above depending on annotType parameter: within, nearest, twoNearest, counts, countsBig. You can also pass any function to call on the resulting object for any post processing steps.</p>
+
+<pre><code class="r">doAnnotation(annotType=&quot;within&quot;, alldata.rd, genes.rd, &quot;InGene&quot;)
+doAnnotation(annotType=&quot;counts&quot;, alldata.rd, genes.rd, &quot;NumOfGene&quot;)
+doAnnotation(annotType=&quot;countsBig&quot;,alldata.rd,genes.rd,&quot;ChipSeqCounts&quot;)    
+doAnnotation(annotType=&quot;nearest&quot;, alldata.rd, genes.rd, &quot;NearestGene&quot;)    
+doAnnotation(annotType=&quot;twoNearest&quot;, alldata.rd, genes.rd, &quot;TwoNearestGenes&quot;)
+geneCheck &lt;- function(x, wanted) { x$isWantedGene &lt;- x$InGene %in% wanted; 
+                                   return(x) }
+doAnnotation(annotType=&quot;within&quot;,alldata.rd,genes.rd,&quot;InGene&quot;, 
+             postProcessFun=geneCheck, 
+             postProcessFunArgs=list(&quot;wanted&quot;=c(&quot;FOXJ3&quot;,&quot;SEPT9&quot;,&quot;RPTOR&quot;)) )
+</code></pre>
+
+<h3>Plotting Results</h3>
+
+<p><code>hiAnnotator</code> comes with a handy plotting function <code>plotdisFeature</code> which summarizes and plots the distribution of newly annotated data. Function can be used to easily visualize things like distribution of integration sites around gene TSS, density of genes within various window sizes, etc.</p>
+
+<pre><code class="r">res &lt;- doAnnotation(annotType=&quot;within&quot;, alldata.rd, genes.rd, &quot;InGene&quot;, asBool=TRUE)
+plotdisFeature(res, &quot;virus&quot;, &quot;InGene&quot;)
+</code></pre>
+
+<pre><code>## performing boolean summary
+</code></pre>
+
+<p><img src="data:image/png;base64,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" alt="plot of chunk unnamed-chunk-9"/> </p>
+
+<pre><code class="r">res &lt;- doAnnotation(annotType=&quot;nearest&quot;, alldata.rd, genes.rd, &quot;NearestGene&quot;, side=&#39;5p&#39;)
+plotdisFeature(res, &quot;virus&quot;, &quot;X5pNearestGeneDist&quot;)
+</code></pre>
+
+<p><img src="data:image/png;base64,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EXHixAlpzqBBgzZv3iwIgsVimT9/vvTst86dO3/yySeU0n//+9/Skw4JIdnZ2ZWVla5ahYeHV1RU/PrrrwMGDLB/X0qp0WiU7m5tv6HjqitCyHvvvScIwrFjx8xms0KqDoXearWKW+v2IYXEAPwAow088t57791///2JiYnr1693jv7xxx/h4eHiNCHkypUrlNKamhr7meLE7Nmz+/TpY7PZxDlms9m+7IollVJqtVp37969dOnSF154QWor9eyq1f333z98+PCCgoJr1645vO9tt9126tQp+5zr6urEtrJdEUKuX79u34nCkvbdym7RKyQG4Ae46gbc+9///d8333zzKJe8HwAAAkBJREFU448/Xrp06bRp0y5evEgIOXjw4MGDB8UFQkJCHOogcXEY+o033qipqfnoo4/El1FRUVevXhXH4rVr106fPi3OHzJkyIYNGxISEl555RX75pGRkQqtvv/++3Hjxm3bti0lJcXhfR966KGCggL7OeJhdFddEUIcHqursKS9r7/+unfv3g4zFRID8Ae//7SAzvA8n5aWJl1AkpGRMWbMGErp5s2b77zzzsrKSovFkp2dPX78eHEB8uehm7feekt6qKH9SDtw4EBERIQ4JzMz8+WXX25sbLx27dpf//rX5557TlymWbNmv/76qyAI//rXvwgh4vOnpE5ctUpMTPz999/PnTsXEREhva/Y9vTp03FxcZ9++mldXd2VK1dWr1591113GY1GV13ZJ6ycqrSkxWL56quv7K+6kUIKiQH4AQo9uLF06dLExETpOMZvv/0WHR29ZcsWQRDefvvt1q1bR0dHP/300+LzBSmlhJCpU6dGRkb26NFDOlrisEkhbqdTSi9fvjxy5MjY2Ni4uLhnn3328uXL4gLvvffeLbfc0rFjxzlz5tx7773PPvusfScKrWJjY+Pj45csWSLOueeee6SH0x48eLBfv36hoaEtWrR45plnKioqunbt6qor50KvsKTRaDQajQaDoUuXLl9++aVDQ7eJAWgN13iBj+HCQYBAg2P0AACMQ6EHH3M45wkATQ572QAAjMMWPQAA41DoAQAYh0IPAMA4FHoAAMah0AMAMA6FHgCAcSj0AACM+39GNXS9mJC/VAAAAABJRU5ErkJggg==" alt="plot of chunk unnamed-chunk-9"/> </p>
+
+<pre><code class="r">data(sites.ctrl)
+sites$type &lt;- &quot;expr&quot;
+sites &lt;- rbind(sites,sites.ctrl)
+alldata.rd &lt;- makeGRanges(sites, soloStart=TRUE)
+res &lt;- doAnnotation(annotType=&quot;within&quot;, alldata.rd, genes.rd, &quot;InGene&quot;, asBool=TRUE)
+plotdisFeature(res, &quot;virus&quot;, &quot;InGene&quot;)
+</code></pre>
+
+<pre><code>## performing boolean summary
+</code></pre>
+
+<p><img src="data:image/png;base64,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" alt="plot of chunk unnamed-chunk-9"/> </p>
+
+<pre><code class="r">plotdisFeature(res, &quot;virus&quot;, &quot;InGene&quot;, typeRatio=TRUE)
+</code></pre>
+
+<pre><code>## performing boolean summary
+</code></pre>
+
+<p><img src="data:image/png;base64,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" alt="plot of chunk unnamed-chunk-9"/> </p>
+
+<h2>Ways to load parallel backends</h2>
+
+<p>1) Load one of the following libraries depending on machine/OS: <code>doMC</code>, <code>doSMP</code>, <code>doSNOW</code>, <code>doMPI</code>     </p>
+
+<p>2) Register the parallel backend using <code>registerDoXXXX()</code> function depending on the library. See the examples below:  </p>
+
+<pre><code class="r">## Example 1: library(doSMP)
+w &lt;- startWorkers(2)
+registerDoSMP(w)
+getNearestFeature(..., parallel=TRUE)        
+
+## Example 2: library(doMC)
+registerDoMC(2)
+getNearestFeature(..., parallel=TRUE)        
+
+## Example 3: library(doSNOW)
+cl &lt;- makeCluster(2, type = &quot;SOCK&quot;)
+registerDoSNOW(cl)
+getNearestFeature(..., parallel=TRUE)  
+
+## Example 4: library(doParallel)
+cl &lt;- makeCluster(2)
+registerDoParallel(cl)
+getNearestFeature(..., parallel=TRUE)   
+</code></pre>
+
+<p>3) Few backends launch worker processes in the background, so be sure to close them. Read the documentation of respective <code>do*</code> package to get more information. Few examples are shown below.</p>
+
+<p>For doSMP library, use <code>stopWorkers(w)</code>
+For doSNOW &amp; doParallel library, use <code>stopCluster(cl)</code></p>
+
+</body>
+
+</html>
