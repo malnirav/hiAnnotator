@@ -1387,18 +1387,16 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam = NULL,
                           type = overlapType)
       res.x <- data.frame(qID = mcols(x$query)$tempyID, featureName = bore)
     } else if (allSubjectCols) {
-      res.x <- as.data.frame(
-        findOverlaps(
-          x$query, x$subject, select = 'all', ignore.strand = TRUE,
-          type = overlapType
-        )
-      )
+      # remove artificially added featureName column else it will be duplicated! 
+      mcols(x$subject)$featureName <- NULL 
+      res.x <- as.data.frame(findOverlaps(x$query, x$subject, 
+                                          select = 'all', ignore.strand = TRUE,
+                                          type = overlapType))
       res.x$qID <- mcols(x$query)$tempyID[res.x$queryHits]
       allSubjCols <- mcols(x$subject[res.x$subjectHits])
       rownames(allSubjCols) <- NULL
       names(allSubjCols) <- paste("featureName", names(allSubjCols), sep = ".")
-      res.x <-
-        cbind(res.x, as.data.frame(allSubjCols))
+      res.x <- cbind(res.x, as.data.frame(allSubjCols))
     } else {
       res.x <- as.data.frame(
         findOverlaps(
@@ -1408,8 +1406,7 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam = NULL,
       )
       res.x$qID <- mcols(x$query)$tempyID[res.x$queryHits]
       
-      ## collapse rows where query returned two hits with
-      ## the same featureNames
+      ## collapse rows where query returned two hits with the same featureNames
       ## due to alternative splicing or something else.
       res.x$featureName <- mcols(x$subject)$featureName[res.x$subjectHits]
       res.x$strand <- as.character(strand(x$subject))[res.x$subjectHits]
@@ -1426,8 +1423,7 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam = NULL,
         ungroup %>% select(queryHits, qID, featureName, strand) %>%
         unique
       
-      # put singletons & curated non-singletons
-      # back together
+      # put singletons & curated non-singletons back together #
       res.x <- rbind(besties[,names(res.x)], res.x)
       rm(besties)
       

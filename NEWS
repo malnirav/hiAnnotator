@@ -1,5 +1,9 @@
 hiAnnotator News
 
+CHANGES IN 1.3.2:
+  * fixed duplicated featureName column in getSitesInFeature when allSubjectCols
+  is TRUE.
+  
 CHANGES IN 1.3.1:
   * replaced plyr with dplyr
 
