@@ -139,9 +139,9 @@ getUCSCtable <- function(tableName, trackName, bsession = NULL,
   if (!tableName %in% tableNames(ucscTableQuery(bsession,track = trackName))) {
     stop(
       paste(
-        "The provided table name:",tableName,
-        "doesn't exists in track",trackName,
-        "on UCSC for",freeze,"genome"
+        "The provided table name:", tableName,
+        "doesn't exists in track", trackName,
+        "on UCSC for", freeze, "genome"
       )
     )
   }
@@ -191,13 +191,13 @@ getRelevantCol <- function(col.names, col.options,
     if (!multiple.ok) {
       stop(paste(
         "More than one",col.type,"based column found:",
-        paste(col.names[answer],sep = "",collapse = ", ")
+        paste(col.names[answer], sep = "", collapse = ", ")
       ))
     } else {
       answer
     }
   } else if (length(answer) == 0) {
-    stop(paste("No",col.type,"based column found."))
+    stop(paste("No", col.type, "based column found."))
   } else {
     answer
   }
@@ -235,7 +235,7 @@ getRelevantCol <- function(col.names, col.options,
 makeChunks <- function(sites.rd, features.rd, chunkSize = NULL) {
   # do a quick check of things
   .checkArgsSetDefaults()
-  rm("query","subject")
+  rm("query", "subject")
   
   # make chunks
   chunks <- breakInChunks(length(sites.rd),
@@ -282,10 +282,10 @@ makeChunks <- function(sites.rd, features.rd, chunkSize = NULL) {
 #' cleanColname("HIV*test")
 #' cleanColname("HIV-test","myAlias")
 cleanColname <- function(x, description = NULL) {
-  newname <- gsub("[._]+", "_", make.names(x,unique = TRUE))
+  newname <- gsub("[._]+", "_", make.names(x, unique = TRUE))
   if (any(newname != x))
     if (!is.null(description))
-      message("Cleaning the supplied '", description,"'")
+      message("Cleaning the supplied '", description, "'")
   newname
 }
 
@@ -340,10 +340,8 @@ makeGRanges <-
     if (is.null(chromCol)) {
       colIndex <- getRelevantCol(
         names(x),
-        c(
-          "chr","chromosome","tname","space","chrom",
-          "contig","seqnames"
-        ),
+        c("chr", "chromosome", "tname", "space", "chrom", 
+          "contig", "seqnames"),
         "seqnames"
       )
       chromCol <- names(x)[colIndex]
@@ -352,18 +350,17 @@ makeGRanges <-
     
     if (is.null(strandCol)) {
       colIndex <- getRelevantCol(names(x),
-                                 c("ort","orientation","strand"),
+                                 c("ort", "orientation", "strand"),
                                  "strand")
       strandCol <- names(x)[colIndex]
     }
     x$strand <- x[,strandCol]
     
     if (is.null(startCol)) {
-      startCol <- getRelevantCol(
-        names(x),
-        c("position", "intsite", "txstart",
-          "start", "chromstart"),
-        "start", multiple.ok = TRUE
+      startCol <- getRelevantCol(names(x),
+                                 c("position", "intsite", "txstart",
+                                   "start", "chromstart"),
+                                 "start", multiple.ok = TRUE
       )
       startCol <- names(x)[startCol[1]]
     }
@@ -393,7 +390,7 @@ makeGRanges <-
       if (any(factorCols)) {
         for (y in names(which(factorCols))) {
           x[,y] <- as.character(x[,y])
-          if (!any(is.na(suppressWarnings(as.numeric(x[,y]))))) {
+          if (!any(is.na(suppressWarnings(as.numeric(x[, y]))))) {
             x[,y] <- as.numeric(x[,y])
           }
         }
@@ -411,7 +408,7 @@ makeGRanges <-
     }
     
     if (as.logical(positionsOnly)) {
-      x <- x[,c("seqnames","start","end","strand")]
+      x <- x[,c("seqnames", "start", "end", "strand")]
     }
     
     metadataCols <- setdiff(names(x),
@@ -434,7 +431,7 @@ makeGRanges <-
       if (length(genomeLib) != 0) {
         bsGenomeObject <- strsplit(genomeLib,"\\.")[[1]][2]
         chrom.info <- seqlengths(do.call(`:::`,
-                                         list(genomeLib,bsGenomeObject)))
+                                         list(genomeLib, bsGenomeObject)))
       } else {
         ## get the chromInfo file from UCSC
         z <-
@@ -561,7 +558,7 @@ getNearestFeature <- function(sites.rd, features.rd,
   }
   rm(features.rd)
   
-  if (side %in% c('5p','3p','midpoint')) {
+  if (side %in% c('5p', '3p', 'midpoint')) {
     ##get only 5 prime sides of features
     if (side == '5p')
       subject <- flank(subject, width = -1)
@@ -575,7 +572,7 @@ getNearestFeature <- function(sites.rd, features.rd,
       ranges(subject) <- IRanges(mid(ranges(subject)), width = 1)
   }
   
-  prefix <- ifelse(side == "either","",side)
+  prefix <- ifelse(side == "either", "", side)
   colnam <- cleanColname(colnam)
   
   ## chunksize the objects for parallel processing ##
@@ -588,8 +585,8 @@ getNearestFeature <- function(sites.rd, features.rd,
   ## first get the nearest indices, respective tempyIDs, and distances ##
   res <- foreach(
     x = iter(chunks), .inorder = FALSE,
-    .export = c("side","relativeTo"),
-    .packages = c("GenomicRanges","dplyr")
+    .export = c("side", "relativeTo"),
+    .packages = c("GenomicRanges", "dplyr")
   ) %dopar% {
     res.x <- as.data.frame(nearest(
       x$query, x$subject, select = "all",
@@ -611,7 +608,7 @@ getNearestFeature <- function(sites.rd, features.rd,
     
     res <-
       foreach(
-        x = iter(res), y = iter(sapply(chunks,"[[","subject")),
+        x = iter(res), y = iter(sapply(chunks, "[[", "subject")),
         .inorder = FALSE, .combine = rbind
       ) %dopar% {
         # make sure x & y have the respective data chunks! #
@@ -627,12 +624,8 @@ getNearestFeature <- function(sites.rd, features.rd,
         x <- droplevels(subset(x,freq > 1))
         
         x <- x %>% group_by(queryHits) %>%
-          mutate(
-            featureName = paste(unique(featureName),
-                                collapse = ","),
-            strand = paste(unique(strand), collapse =
-                             ",")
-          ) %>%
+          mutate(featureName = paste(unique(featureName), collapse = ","),
+                 strand = paste(unique(strand), collapse = ",")) %>%
           ungroup %>%
           select(queryHits, qID, dist, featureName, strand) %>%
           unique
@@ -640,31 +633,27 @@ getNearestFeature <- function(sites.rd, features.rd,
         # put singletons & curated non-singletons
         # back together!
         besties <- rbind(besties[,names(x)], x)
-        besties <-
-          arrange(besties,qID)
+        besties <- arrange(besties, qID)
         
         besties
       }
     ## change column names for swift merging by .mergeAndReturn() ##
-    names(res)[grepl("featureName",names(res))] <-
-      paste0(prefix,colnam)
-    names(res)[grepl("strand",names(res))] <-
-      paste0(prefix,colnam,"Ort")
+    names(res)[grepl("featureName",names(res))] <- paste0(prefix, colnam)
+    names(res)[grepl("strand",names(res))] <- paste0(prefix, colnam, "Ort")
     
   } else {
     ## fix cases where >1 equally nearest features were returned by
     ## choosing 1 distance
     res <- foreach(x = iter(res), .inorder = FALSE,
                    .combine = rbind) %dopar% {
-                     unique(x[,c("queryHits","qID","dist")])
+                     unique(x[, c("queryHits", "qID", "dist")])
                    }
   }
   
   rm(chunks)
   
   ## change distance column name for .mergeAndReturn() ##
-  names(res)[grepl("dist",names(res))] <-
-    paste0(prefix,colnam,"Dist")
+  names(res)[grepl("dist",names(res))] <- paste0(prefix, colnam, "Dist")
   
   # Do a last check to make sure there is only 1 hit per qID #
   # This is useful in cases where two equally nearest distances
@@ -763,7 +752,7 @@ get2NearestFeature <- function(sites.rd, features.rd,
   subject <- sort(subject)
   rm(features.rd)
   
-  if (side %in% c('5p','3p','midpoint')) {
+  if (side %in% c('5p', '3p', 'midpoint')) {
     ##get only 5 prime sides of features
     if (side == '5p')
       subject <- flank(subject, width = -1)
@@ -828,74 +817,83 @@ get2NearestFeature <- function(sites.rd, features.rd,
   colnam <- cleanColname(colnam)
   
   ## add columns back to query object
-  all.res <- lapply(c("u1","u2","d1","d2"), function(f) {
+  all.res <- lapply(c("u1", "u2", "d1", "d2"), function(f) {
     message(f)
-    res.nrst <- res[,c("queryHits","subjectHits","qID",f)]
+    res.nrst <- res[, c("queryHits", "subjectHits", "qID", f)]
     
     # make sure we haven't jumped a chromosome by shifting nearest indices
     # if we did, then record it as NA at later a stage
     
     # fix cases where chosen subjectHits are off the
     # length of subjectObject
-    fixed <- with(res.nrst, ifelse(get(f) < 1 | get(f) > length(subject),
-                                   subjectHits, get(f)))
+    fixed <-
+      with(res.nrst, ifelse(get(f) < 1 | get(f) > length(subject),
+                            subjectHits, get(f)))
     
     # do the chromosome test & tag rows which were off the subject length #
-    res.nrst$qChr <- as.character(seqnames(query))[res.nrst$queryHits]
+    res.nrst$qChr <-
+      as.character(seqnames(query))[res.nrst$queryHits]
     res.nrst$sChr <- as.character(seqnames(subject))[fixed]
-    rows <- res.nrst$qChr != res.nrst$sChr | res.nrst[,f] < 1 |
-      res.nrst[,f] > length(subject)
+    rows <- res.nrst$qChr != res.nrst$sChr | res.nrst[, f] < 1 |
+      res.nrst[, f] > length(subject)
     
     # overwrite subjectHits indices with that of interested motif for l
     # ater steps
-    res.nrst$subjectHits <- res.nrst[,f]
+    res.nrst$subjectHits <- res.nrst[, f]
     
     # remove unnecessary columns #
-    res.nrst[,f] <- NULL
+    res.nrst[, f] <- NULL
     res.nrst$qChr <- NULL
     res.nrst$sChr <- NULL
     
     # extract cases which fell off the chromosome but drop any queryHits
     # which found multiple nearest hits and only one of them happened to be
     # off the chromosome!
-    res.nrst.bad <- droplevels(res.nrst[rows & !res.nrst$queryHits %in%
-                                          res.nrst$queryHits[!rows],])
-    res.nrst <- droplevels(res.nrst[!rows,])
+    res.nrst.bad <-
+      droplevels(res.nrst[rows & !res.nrst$queryHits %in%
+                            res.nrst$queryHits[!rows], ])
+    res.nrst <- droplevels(res.nrst[!rows, ])
     
-    res.nrst <- getLowestDists(query, subject, res.nrst, side, relativeTo)
-    res.nrst$featureName <- mcols(subject)[,"featureName"][res.nrst$subjectHits]
-    res.nrst$strand <- as.character(strand(subject))[res.nrst$subjectHits]
+    res.nrst <-
+      getLowestDists(query, subject, res.nrst, side, relativeTo)
+    res.nrst$featureName <-
+      mcols(subject)[, "featureName"][res.nrst$subjectHits]
+    res.nrst$strand <-
+      as.character(strand(subject))[res.nrst$subjectHits]
     
     res.nrst <- res.nrst %>% group_by(queryHits, qID, dist) %>%
-      summarise(featureName = paste(unique(featureName), collapse = ","),
-                strand = paste(unique(strand), collapse = ",")) %>% ungroup
+      summarise(
+        featureName = paste(unique(featureName), collapse = ","),
+        strand = paste(unique(strand), collapse = ",")
+      ) %>% ungroup
     
     # add back rows which fell off the edge of chromosome #
     if (any(rows)) {
-      res.nrst.bad[,c("dist", "featureName", "strand")] <- NA
-      res.nrst <- rbind(res.nrst, unique(res.nrst.bad[,names(res.nrst)]))
+      res.nrst.bad[, c("dist", "featureName", "strand")] <- NA
+      res.nrst <-
+        rbind(res.nrst, unique(res.nrst.bad[, names(res.nrst)]))
       res.nrst <- arrange(res.nrst, qID)
     }
     
     if (f == "u1") {
-      coldef <- paste(prefix,colnam,"upStream1",sep = ".")
+      coldef <- paste(prefix, colnam, "upStream1", sep = ".")
     }
     if (f == "u2") {
-      coldef <- paste(prefix,colnam,"upStream2",sep = ".")
+      coldef <- paste(prefix, colnam, "upStream2", sep = ".")
     }
     if (f == "d1") {
-      coldef <- paste(prefix,colnam,"downStream1",sep = ".")
+      coldef <- paste(prefix, colnam, "downStream1", sep = ".")
     }
     if (f == "d2") {
-      coldef <- paste(prefix,colnam,"downStream2",sep = ".")
+      coldef <- paste(prefix, colnam, "downStream2", sep = ".")
     }
     
     ## add meta columns to the result ##
-    names(res.nrst)[grepl("featureName",names(res.nrst))] <- coldef
-    names(res.nrst)[grepl("strand",names(res.nrst))] <-
-      paste(coldef,"Ort", sep = ".")
-    names(res.nrst)[grepl("dist",names(res.nrst))] <- 
-      paste(coldef,"Dist", sep = ".")
+    names(res.nrst)[grepl("featureName", names(res.nrst))] <- coldef
+    names(res.nrst)[grepl("strand", names(res.nrst))] <-
+      paste(coldef, "Ort", sep = ".")
+    names(res.nrst)[grepl("dist", names(res.nrst))] <-
+      paste(coldef, "Dist", sep = ".")
     
     res.nrst
   })
@@ -1115,7 +1113,7 @@ getFeatureCounts <- function(sites.rd, features.rd,
   }
   
   if (doInChunks & chunkSize < length(sites.rd)) {
-    rm("query","subject")
+    rm("query", "subject")
     
     # no need to execute all this if chunkSize is bigger than data size!!!
     total <- length(sites.rd)
@@ -1162,8 +1160,8 @@ getFeatureCounts <- function(sites.rd, features.rd,
     ## perform overlap analysis in parallel by windows ##
     res <- foreach(
       x = iter(chunks), .inorder = FALSE, .combine = rbind,
-      .export = c("widths","weighted","colnam"),
-      .packages = c("GenomicRanges","dplyr")
+      .export = c("widths", "weighted", "colnam"),
+      .packages = c("GenomicRanges", "dplyr")
     ) %dopar% {
       counts <- sapply(widths, function(y) {
         res.x <- findOverlaps(x$query, x$subject, select = 'all',
@@ -1174,17 +1172,17 @@ getFeatureCounts <- function(sites.rd, features.rd,
           res.x$weights <- mcols(x$subject)$weights[res.x$subjectHits]
           res.x$tempyID <- mcols(x$query)$tempyID[res.x$queryHits]
           res.x$counts <- with(res.x, ave(weights,tempyID,FUN = sum))
-          res.x <- unique(res.x[,c("tempyID", "counts")])
+          res.x <- unique(res.x[, c("tempyID", "counts")])
           
           nohits <- setdiff(mcols(x$query)$tempyID, res.x$tempyID)
           res.x <- rbind(res.x, data.frame(tempyID = nohits, counts = 0))
-          res.x[order(res.x$tempyID),"counts"]
+          res.x[order(res.x$tempyID), "counts"]
         } else {
           countQueryHits(res.x)
         }
       })
       counts <- as.data.frame(counts)
-      names(counts) <- paste(colnam,names(counts),sep = ".")
+      names(counts) <- paste(colnam, names(counts), sep = ".")
       counts$qID <- mcols(x$query)$tempyID
       counts
     }
@@ -1240,8 +1238,8 @@ getFeatureCounts <- function(sites.rd, features.rd,
 #' geneCounts2 <- getFeatureCountsBig(alldata.rd,genes.rd,"NumOfGene")
 #' identical(geneCounts1,geneCounts2)
 #' }
-getFeatureCountsBig <- function(sites.rd, features.rd,colnam = NULL, 
-                                widths = c(1000,10000,1000000)) {
+getFeatureCountsBig <- function(sites.rd, features.rd, colnam = NULL,
+                                widths = c(1000, 10000, 1000000)) {
   
   ## this is to avoid "no visible binding for global variable" in R CMD check
   query <- qID <- ok.chrs <- y <- freq <- NULL
@@ -1252,7 +1250,7 @@ getFeatureCountsBig <- function(sites.rd, features.rd,colnam = NULL,
   
   ranges(query) <- mid(ranges(query))
   query <- split(query, seqnames(query))
-  subject <- split(subject,seqnames(subject))
+  subject <- split(subject, seqnames(subject))
   
   # only get labels if not supplied
   if (is.null(names(widths))) {
@@ -1265,7 +1263,7 @@ getFeatureCountsBig <- function(sites.rd, features.rd,colnam = NULL,
   ## query object
   res <- lapply(names(widths), function(windowName) {
     message(".")
-    columnName <- paste(colnam,names(widths[windowName]),sep = ".")
+    columnName <- paste(colnam, names(widths[windowName]), sep = ".")
     
     res.i <- lapply(ok.chrs, function(x) {
       counts <- abs(findInterval(start(query[[x]]) - widths[windowName] / 2,
@@ -1278,10 +1276,10 @@ getFeatureCountsBig <- function(sites.rd, features.rd,colnam = NULL,
       res.x
     })
     
-    do.call(rbind,res.i)
+    do.call(rbind, res.i)
   })
   
-  res <- do.call(cbind,res)
+  res <- do.call(cbind, res)
   
   ## merge results to the query object and return it ##
   .mergeAndReturn()
@@ -1378,8 +1376,8 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam = NULL,
   ## perform overlap analysis in parallel by windows ##
   res <- foreach(
     x = iter(chunks), .inorder = FALSE, .combine = rbind,
-    .export = c("colnam","asBool","allSubjectCols"),
-    .packages = c("GenomicRanges","dplyr")
+    .export = c("colnam", "asBool", "allSubjectCols"),
+    .packages = c("GenomicRanges", "dplyr")
   ) %dopar% {
     if (asBool) {
       strand(x$subject) <- "*"
@@ -1539,15 +1537,15 @@ doAnnotation <-
 #'
 .checkArgsSetDefaults <- function() {
   checks <- expression(
-    if (!is(sites.rd,"GRanges")) {
-      sites.rd <- as(sites.rd,"GRanges")
+    if (!is(sites.rd, "GRanges")) {
+      sites.rd <- as(sites.rd, "GRanges")
     },
     
-    if (!is(features.rd,"GRanges")) {
-      features.rd <- as(features.rd,"GRanges")
+    if (!is(features.rd, "GRanges")) {
+      features.rd <- as(features.rd, "GRanges")
     },
     
-    if (!identical(class(sites.rd),class(features.rd))) {
+    if (!identical(class(sites.rd), class(features.rd))) {
       stop(
         "sites.rd & features.rd are of different classes.
         Please make them the same class: GRanges"
@@ -1583,8 +1581,8 @@ doAnnotation <-
     if (exists("feature.colnam")) {
       if (is.null(feature.colnam)) {
         answer <- try(getRelevantCol(colnames(mcols(features.rd)),
-                                     c("name","featureName"),
-                                     "featureName",multiple.ok = TRUE),
+                                     c("name", "featureName"),
+                                     "featureName", multiple.ok = TRUE),
                       silent = TRUE)
         feature.colnam <- colnames(mcols(features.rd))[answer][1]
       }
