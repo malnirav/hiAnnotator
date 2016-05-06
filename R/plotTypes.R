@@ -113,9 +113,9 @@ plotdisFeature <- function(dat = NULL, grouping = NULL, annotCol = NULL,
     isBool <- TRUE
     plot.frame <- count(dat, type, annotCol, grouping) %>% rename(freq=n)
   } else {
-    dat$Distance <- cut(dat$annotCol, breaks=breaks, include.lowest=TRUE, 
-                        dig.lab=5)
-    plot.frame <- count(dat, type, grouping, Distance) %>% rename(freq=n)
+    dat$Distance <- cut(dat$annotCol, breaks = breaks, include.lowest = TRUE,
+                        dig.lab = 5)
+    plot.frame <- count(dat, type, grouping, Distance) %>% rename(freq = n)
     plot.frame <- subset(plot.frame, !is.na(Distance))
     plot.frame$DistToFeature <- as.numeric(sub(".+,(.+)]", "\\1",
                                                plot.frame$Distance))
@@ -137,91 +137,94 @@ plotdisFeature <- function(dat = NULL, grouping = NULL, annotCol = NULL,
                  Percent[tolower(type) != "expr"]) %>% ungroup %>%
         filter(tolower(type) == "expr")
 
-      p <- ggplot(data=ratiosCalc, aes(x=annotCol, y=Ratio)) + 
-        scale_x_discrete(annotCol, expand=c(0,0)) 
+      p <- ggplot(data = ratiosCalc, aes(x = annotCol, y = Ratio)) + 
+        scale_x_discrete(annotCol, expand = c(0, 0)) 
     } else {
       plot.frame <- arrange(plot.frame, grouping, type, DistToFeature)
       
-      ratiosCalc <- plot.frame %>% group_by(grouping, Distance, DistToFeature) %>% 
-        mutate(Ratio=last(Percent)/first(Percent)) %>% ungroup %>%
+      ratiosCalc <- plot.frame %>%
+        group_by(grouping, Distance, DistToFeature) %>% 
+        mutate(Ratio = last(Percent) / first(Percent)) %>% ungroup %>%
         filter(tolower(type) == "expr")
 
       if(discreteBins) {
-        p <- ggplot(data=ratiosCalc, aes(x=Distance, y=Ratio)) + 
-          scale_x_discrete(annotCol, expand=c(0,0))                
+        p <- ggplot(data = ratiosCalc, aes(x = Distance, y = Ratio)) + 
+          scale_x_discrete(annotCol, expand = c(0, 0))                
       } else {
-        p <- ggplot(data=ratiosCalc, aes(x=DistToFeature, y=Ratio)) +
-          scale_x_continuous(annotCol, expand=c(0,0))
+        p <- ggplot(data = ratiosCalc, aes(x = DistToFeature, y = Ratio)) +
+          scale_x_continuous(annotCol, expand = c(0, 0))
       }
     }
     
-    if(geom=='bar') {
-      p <- p + geom_bar(stat="identity", aes(fill=grouping),
-                        position=ifelse(stacked,"stack","dodge"))
+    if(geom == 'bar') {
+      p <- p + geom_bar(stat = "identity", aes(fill = grouping),
+                        position = ifelse(stacked, "stack", "dodge"))
     } else {
-      p <- p + geom_line(aes(colour=grouping, group=grouping))
+      p <- p + geom_line(aes(colour = grouping, group = grouping))
     }
     
-    p <- p + scale_y_continuous("Ratio Expr/Ctrls", expand=c(0,0)) +
-      geom_hline(yintercept=1)
+    p <- p + scale_y_continuous("Ratio Expr/Ctrls", expand = c(0, 0)) +
+      geom_hline(yintercept = 1)
   } else {
     if(isBool) {
-      p <- ggplot(data=plot.frame, aes(x=annotCol, y=Percent)) + 
-        scale_x_discrete(annotCol, expand=c(0,0)) 
+      p <- ggplot(data = plot.frame, aes(x = annotCol, y = Percent)) + 
+        scale_x_discrete(annotCol, expand = c(0, 0)) 
     } else {
       if (discreteBins) {
-        p <- ggplot(data=plot.frame, aes(x=Distance, y=Percent)) + 
-          scale_x_discrete(annotCol, expand=c(0,0)) 
+        p <- ggplot(data = plot.frame, aes(x = Distance, y = Percent)) + 
+          scale_x_discrete(annotCol, expand = c(0, 0)) 
       } else {
-        p <- ggplot(data=plot.frame, aes(x=DistToFeature, y=Percent)) + 
-          scale_x_continuous(annotCol, expand=c(0,0))
+        p <- ggplot(data = plot.frame, aes(x = DistToFeature, y = Percent)) + 
+          scale_x_continuous(annotCol, expand = c(0, 0))
       }
     }    
     
-    if(geom=='bar') {
-      p <- p + geom_bar(stat="identity", aes(fill=grouping),
-                        position=ifelse(stacked,"stack","dodge"))
+    if(geom == 'bar') {
+      p <- p + geom_bar(stat = "identity", aes(fill = grouping),
+                        position = ifelse(stacked, "stack", "dodge"))
     } else {
-      p <- p + geom_line(aes(colour=grouping, group=grouping))
+      p <- p + geom_line(aes(colour = grouping, group = grouping))
     }
     
-    p <- p + scale_y_continuous("Percent of Sites", 
-                                labels=percent, expand=c(0,0))
+    p <- p + scale_y_continuous("Percent of Sites",
+                                labels = percent, expand = c(0, 0))
     
-    if(all(dat$type!="")) {
-      p <- p + facet_wrap(~type, ncol=1)
+    if(all(dat$type != "")) {
+      p <- p + facet_wrap( ~ type, ncol = 1)
     }
   }
   
   p <- p + theme_bw()
   
   if(!isBool) {
-    p <- p + theme(axis.text.x=element_text(angle=90, hjust=1, vjust=0.5))
+    p <- p + theme(axis.text.x = element_text(angle = 90,
+                                              hjust = 1,
+                                              vjust = 0.5))
   }
   
   n <- length(as.character(unique(dat[, grouping])))
-  allCols <- c("#E41A1C","#377EB8","#4DAF4A","#984EA3","#FF7F00","#FFFF33",
-               "#A65628","#F781BF","#999999","#1B9E77","#D95F02","#7570B3",
-               "#E7298A","#66A61E","#E6AB02","#A6761D","#666666","#7FC97F",
-               "#BEAED4","#FDC086","#FFFF99","#386CB0","#F0027F","#BF5B17",
-               "#66C2A5","#FC8D62","#8DA0CB","#E78AC3","#A6D854","#FFD92F",
-               "#E5C494","#B3B3B3","#A6CEE3","#1F78B4","#B2DF8A","#33A02C",
-               "#FB9A99","#E31A1C","#FDBF6F","#CAB2D6","#6A3D9A","#B15928",
-               "#9E0142","#D53E4F","#F46D43","#FDAE61","#FEE08B","#E6F598",
-               "#ABDDA4","#3288BD","#5E4FA2")
+  allCols <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", "#FF7F00", "#FFFF33",
+               "#A65628", "#F781BF", "#999999", "#1B9E77", "#D95F02", "#7570B3",
+               "#E7298A", "#66A61E", "#E6AB02", "#A6761D", "#666666", "#7FC97F",
+               "#BEAED4", "#FDC086", "#FFFF99", "#386CB0", "#F0027F", "#BF5B17",
+               "#66C2A5", "#FC8D62", "#8DA0CB", "#E78AC3", "#A6D854", "#FFD92F",
+               "#E5C494", "#B3B3B3", "#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C",
+               "#FB9A99", "#E31A1C", "#FDBF6F", "#CAB2D6", "#6A3D9A", "#B15928",
+               "#9E0142", "#D53E4F", "#F46D43", "#FDAE61", "#FEE08B", "#E6F598",
+               "#ABDDA4", "#3288BD", "#5E4FA2")
   
   if(n >= 8 & n <= length(allCols)) {
     dat.colors <- as.character(allCols[1:n])
-    if(geom=='bar') {
-      p <- p + scale_fill_manual(name=grouping, values=dat.colors)
+    if(geom == 'bar') {
+      p <- p + scale_fill_manual(name = grouping, values = dat.colors)
     } else {
-      p <- p + scale_colour_manual(name=grouping, values=dat.colors)
+      p <- p + scale_colour_manual(name = grouping, values = dat.colors)
     }        
   } else {
-    if(geom=='bar') {
-      p <- p + scale_fill_discrete(name=grouping)
+    if(geom == 'bar') {
+      p <- p + scale_fill_discrete(name = grouping)
     } else {
-      p <- p + scale_colour_discrete(name=grouping)
+      p <- p + scale_colour_discrete(name = grouping)
     }        
   }
   
