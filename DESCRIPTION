@@ -1,6 +1,6 @@
 Package: hiAnnotator
 Title: Functions for annotating GRanges objects
-Version: 1.7.2
+Version: 1.7.3
 Date: 2016-05-05
 Author: Nirav V Malani <malnirav@gmail.com>
 Maintainer: Nirav V Malani <malnirav@gmail.com>
