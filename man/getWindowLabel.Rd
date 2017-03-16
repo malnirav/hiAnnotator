@@ -19,10 +19,9 @@ integer. This is one of the helper function used in
 \code{\link{getFeatureCounts}} & \code{\link{getFeatureCountsBig}}.
 }
 \examples{
-getWindowLabel(c(0,1e7,1e3,1e6,2e9))
+getWindowLabel(c(0, 1e7, 1e3, 1e6, 2e9))
 }
 \seealso{
 \code{\link{getFeatureCounts}}, \code{\link{makeGRanges}},
 \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
 }
-

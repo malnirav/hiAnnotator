@@ -32,21 +32,21 @@ on annotType parameter: \code{\link{getFeatureCounts}},
 \examples{
 # Convert a dataframe to GRanges object
 data(sites)
-alldata.rd <- makeGRanges(sites,soloStart=TRUE)
+alldata.rd <- makeGRanges(sites, soloStart = TRUE)
 
 data(genes)
 genes.rd <- makeGRanges(genes)
 
-doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene",asBool=TRUE)
+doAnnotation(annotType = "within", alldata.rd, genes.rd, "InGene", asBool = TRUE)
 \dontrun{
-doAnnotation(annotType="counts",alldata.rd,genes.rd,"NumOfGene")
-doAnnotation(annotType="nearest",alldata.rd,genes.rd,"NearestGene")
-doAnnotation(annotType="countsBig",alldata.rd,genes.rd,"ChipSeqCounts")
+doAnnotation(annotType = "counts", alldata.rd, genes.rd, "NumOfGene")
+doAnnotation(annotType = "nearest", alldata.rd, genes.rd, "NearestGene")
+doAnnotation(annotType = "countsBig", alldata.rd, genes.rd, "ChipSeqCounts")
 geneCheck <- function(x,wanted) { x$isWantedGene <- x$InGene \%in\% wanted;
 return(x) }
-doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene",
-postProcessFun=geneCheck,
-postProcessFunArgs=list("wanted"=c("FOXJ3","SEPT9","RPTOR")) )
+doAnnotation(annotType = "within", alldata.rd, genes.rd, "InGene",
+postProcessFun = geneCheck,
+postProcessFunArgs = list("wanted" = c("FOXJ3", "SEPT9", "RPTOR")) )
 }
 }
 \seealso{
@@ -54,4 +54,3 @@ postProcessFunArgs=list("wanted"=c("FOXJ3","SEPT9","RPTOR")) )
 \code{\link{getFeatureCountsBig}}, \code{\link{getNearestFeature}},
 \code{\link{get2NearestFeature}}, \code{\link{getSitesInFeature}}.
 }
-

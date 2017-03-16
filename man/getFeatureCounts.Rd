@@ -64,19 +64,19 @@ accordingly. For large annotations, use \code{\link{getFeatureCountsBig}}.
 \examples{
 # Convert a dataframe to GRanges object
 data(sites)
-alldata.rd <- makeGRanges(sites,soloStart=TRUE)
+alldata.rd <- makeGRanges(sites, soloStart = TRUE)
 
 data(genes)
 genes.rd <- makeGRanges(genes)
 
-geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene")
+geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene")
 \dontrun{
-geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene",
-doInChunks=TRUE, chunkSize=200)
+geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene",
+doInChunks = TRUE, chunkSize = 200)
 geneCounts
 ## Parallel version of getFeatureCounts
-# geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene",
-parallel=TRUE)
+# geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene",
+parallel = TRUE)
 # geneCounts
 }
 }
@@ -84,4 +84,3 @@ parallel=TRUE)
 \code{\link{makeGRanges}}, \code{\link{getNearestFeature}},
 \code{\link{getSitesInFeature}}, \code{\link{getFeatureCountsBig}}.
 }
-

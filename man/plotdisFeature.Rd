@@ -72,4 +72,3 @@ plotdisFeature(res, "virus", "X5pNearestGeneDist", typeRatio=TRUE)
 \code{\link{makeGRanges}}, \code{\link{getNearestFeature}}, 
 \code{\link{getSitesInFeature}}, \code{\link{getFeatureCounts}}
 }
-

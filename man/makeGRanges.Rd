@@ -51,13 +51,12 @@ It is recommended to run this function before utilizing any other annotation fun
 # Convert a dataframe to GRanges object
 data(genes)
 
-makeGRanges(genes, soloStart=TRUE)
+makeGRanges(genes, soloStart = TRUE)
 makeGRanges(genes)
-#makeGRanges(genes, freeze="hg18", soloStart=TRUE)
-#makeGRanges(genes, freeze="hg18")
+#makeGRanges(genes, freeze = "hg18", soloStart = TRUE)
+#makeGRanges(genes, freeze = "hg18")
 }
 \seealso{
 \code{\link{getNearestFeature}}, \code{\link{getFeatureCounts}},
 \code{\link{getSitesInFeature}}.
 }
-

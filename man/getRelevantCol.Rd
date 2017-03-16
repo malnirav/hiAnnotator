@@ -32,12 +32,11 @@ see also section.
 \examples{
 data(sites)
 names(sites)
-getRelevantCol(names(sites),c("chr","chromosome","tname","seqnames",
+getRelevantCol(names(sites), c("chr", "chromosome", "tname", "seqnames",
 "chrom","contig"),"seqnames")
-getRelevantCol(names(sites),c("ort","orientation","strand"),"strand")
+getRelevantCol(names(sites), c("ort", "orientation", "strand"), "strand")
 }
 \seealso{
 \code{\link{makeGRanges}}, \code{\link{getNearestFeature}},
 \code{\link{getSitesInFeature}}.
 }
-
