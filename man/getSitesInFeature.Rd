@@ -57,22 +57,22 @@ whatever annotation that was supplied in the subject.
 \examples{
 # Convert a dataframe to GRanges object
 data(sites)
-alldata.rd <- makeGRanges(sites,soloStart=TRUE)
+alldata.rd <- makeGRanges(sites, soloStart = TRUE)
 
 data(genes)
 genes.rd <- makeGRanges(genes)
 
-InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene")
+InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene")
 InGenes
 \dontrun{
-InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE)
+InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene", asBool = TRUE)
 InGenes
 ## Parallel version of getSitesInFeature
-InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,
-parallel=TRUE)
+InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene", asBool = TRUE,
+parallel = TRUE)
 InGenes
-InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",
-allSubjectCols=TRUE, parallel=TRUE)
+InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene",
+allSubjectCols = TRUE, parallel = TRUE)
 InGenes
 }
 }
@@ -80,4 +80,3 @@ InGenes
 \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}},
 \code{\link{getNearestFeature}}.
 }
-

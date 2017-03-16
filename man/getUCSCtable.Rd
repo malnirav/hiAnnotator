@@ -28,9 +28,9 @@ Obtain a UCSC annotation table given the table & track name.
 }
 \examples{
 \dontrun{
-refflat <- getUCSCtable("refFlat","RefSeq Genes")
+refflat <- getUCSCtable("refFlat", "RefSeq Genes")
 ## same as above ##
-refflat <- getUCSCtable("refFlat","RefSeq Genes",
+refflat <- getUCSCtable("refFlat", "RefSeq Genes",
 bsession=session,freeze="hg18")
 }
 }
@@ -38,4 +38,3 @@ bsession=session,freeze="hg18")
 \code{\link{makeUCSCsession}}, \code{\link{getNearestFeature}},
 \code{\link{getSitesInFeature}}.
 }
-

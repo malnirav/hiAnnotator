@@ -29,7 +29,7 @@ sent to a parallel node for processing.
 \examples{
 data(sites)
 data(genes)
-sites <- makeGRanges(sites,soloStart=TRUE)
+sites <- makeGRanges(sites, soloStart = TRUE)
 genes <- makeGRanges(genes)
 makeChunks(sites, genes)
 }
@@ -38,4 +38,3 @@ makeChunks(sites, genes)
 \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}},
 \code{\link{getFeatureCounts}}.
 }
-

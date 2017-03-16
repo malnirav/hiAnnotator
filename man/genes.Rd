@@ -14,4 +14,3 @@ the human genome mapped to UCSC freeze hg18. See UCSC table description page
 for the details regarding the column headings.
 }
 \keyword{datasets}
-

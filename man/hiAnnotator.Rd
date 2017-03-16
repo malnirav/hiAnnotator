@@ -22,4 +22,3 @@ object from a common dataframe.
 \author{
 Nirav V Malani
 }
-

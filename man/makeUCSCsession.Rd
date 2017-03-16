@@ -27,4 +27,3 @@ genome(session)
 \code{\link{getUCSCtable}}, \code{\link{makeGRanges}},
 \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}
 }
-

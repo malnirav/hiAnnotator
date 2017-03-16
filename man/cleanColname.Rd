@@ -22,10 +22,9 @@ can be used as column headings.
 \examples{
 cleanColname("HIV-test")
 cleanColname("HIV*test")
-cleanColname("HIV-test","myAlias")
+cleanColname("HIV-test", "myAlias")
 }
 \seealso{
 \code{\link{getFeatureCounts}}, \code{\link{makeGRanges}},
 \code{\link{getNearestFeature}}, \code{\link{getSitesInFeature}}.
 }
-

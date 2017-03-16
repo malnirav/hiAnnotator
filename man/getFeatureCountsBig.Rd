@@ -38,19 +38,18 @@ The counts will differ slightly when compared to
 \examples{
 # Convert a dataframe to GRanges object
 data(sites)
-alldata.rd <- makeGRanges(sites,soloStart=TRUE)
+alldata.rd <- makeGRanges(sites, soloStart = TRUE)
 
 data(genes)
 genes.rd <- makeGRanges(genes)
 
-geneCounts1 <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene")
+geneCounts1 <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene")
 \dontrun{
-geneCounts2 <- getFeatureCountsBig(alldata.rd,genes.rd,"NumOfGene")
-identical(geneCounts1,geneCounts2)
+geneCounts2 <- getFeatureCountsBig(alldata.rd, genes.rd, "NumOfGene")
+identical(geneCounts1, geneCounts2)
 }
 }
 \seealso{
 \code{\link{makeGRanges}}, \code{\link{getNearestFeature}},
 \code{\link{getSitesInFeature}}, \code{\link{getFeatureCounts}}.
 }
-

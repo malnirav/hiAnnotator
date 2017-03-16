@@ -126,9 +126,9 @@ makeUCSCsession <- function(freeze = "hg18") {
 #'
 #' @examples
 #' \dontrun{
-#' refflat <- getUCSCtable("refFlat","RefSeq Genes")
+#' refflat <- getUCSCtable("refFlat", "RefSeq Genes")
 #' ## same as above ##
-#' refflat <- getUCSCtable("refFlat","RefSeq Genes",
+#' refflat <- getUCSCtable("refFlat", "RefSeq Genes",
 #' bsession=session,freeze="hg18")
 #' }
 getUCSCtable <- function(tableName, trackName, bsession = NULL,
@@ -148,7 +148,7 @@ getUCSCtable <- function(tableName, trackName, bsession = NULL,
 
   ## using getTable() instead of track() due to "No supported output types"
   ## error for certain annotation types.
-  getTable(ucscTableQuery(bsession,track = trackName,table = tableName,...))
+  getTable(ucscTableQuery(bsession, track = trackName, table = tableName, ...))
 }
 
 #' Find the column index of interest given the potential choices.
@@ -178,9 +178,9 @@ getUCSCtable <- function(tableName, trackName, bsession = NULL,
 #' @examples
 #' data(sites)
 #' names(sites)
-#' getRelevantCol(names(sites),c("chr","chromosome","tname","seqnames",
+#' getRelevantCol(names(sites), c("chr", "chromosome", "tname", "seqnames",
 #' "chrom","contig"),"seqnames")
-#' getRelevantCol(names(sites),c("ort","orientation","strand"),"strand")
+#' getRelevantCol(names(sites), c("ort", "orientation", "strand"), "strand")
 getRelevantCol <- function(col.names, col.options,
                            col.type = NULL, multiple.ok = FALSE) {
   answer <- sapply(col.options,
@@ -229,7 +229,7 @@ getRelevantCol <- function(col.names, col.options,
 #' @examples
 #' data(sites)
 #' data(genes)
-#' sites <- makeGRanges(sites,soloStart=TRUE)
+#' sites <- makeGRanges(sites, soloStart = TRUE)
 #' genes <- makeGRanges(genes)
 #' makeChunks(sites, genes)
 makeChunks <- function(sites.rd, features.rd, chunkSize = NULL) {
@@ -250,12 +250,16 @@ makeChunks <- function(sites.rd, features.rd, chunkSize = NULL) {
                           ))
 
   mapply(
-    function(x,y) {
+    function(x, y) {
       new.query <- sites.rd[x:y,]
       new.query <- keepSeqlevels(new.query,
-                                 value = unique(as.character(seqnames(new.query))))
+                                 value = seqlevelsInUse(new.query),
+                                 pruning.mode = "coarse")
+      ok.chrs <- intersect(seqlevelsInUse(new.query),
+                           seqlevelsInUse(features.rd))
       new.subject <- suppressWarnings(keepSeqlevels(features.rd,
-                                                    value = seqlevels(new.query)))
+                                                    value = ok.chrs,
+                                                    pruning.mode = "coarse"))
       list("query" = new.query, "subject" = new.subject)
     }, start(chunks), end(chunks), SIMPLIFY = FALSE, USE.NAMES = FALSE
   )
@@ -280,7 +284,7 @@ makeChunks <- function(sites.rd, features.rd, chunkSize = NULL) {
 #' @examples
 #' cleanColname("HIV-test")
 #' cleanColname("HIV*test")
-#' cleanColname("HIV-test","myAlias")
+#' cleanColname("HIV-test", "myAlias")
 cleanColname <- function(x, description = NULL) {
   newname <- gsub("[._]+", "_", make.names(x, unique = TRUE))
   if (any(newname != x))
@@ -328,10 +332,10 @@ cleanColname <- function(x, description = NULL) {
 #' # Convert a dataframe to GRanges object
 #' data(genes)
 #'
-#' makeGRanges(genes, soloStart=TRUE)
+#' makeGRanges(genes, soloStart = TRUE)
 #' makeGRanges(genes)
-#' #makeGRanges(genes, freeze="hg18", soloStart=TRUE)
-#' #makeGRanges(genes, freeze="hg18")
+#' #makeGRanges(genes, freeze = "hg18", soloStart = TRUE)
+#' #makeGRanges(genes, freeze = "hg18")
 makeGRanges <-
   function(x, freeze = NULL, positionsOnly = FALSE, soloStart = FALSE,
            chromCol = NULL, strandCol = NULL, startCol = NULL,
@@ -521,25 +525,25 @@ makeGRanges <-
 #' @examples
 #' # Convert a dataframe to GRanges object
 #' data(sites)
-#' alldata.rd <- makeGRanges(sites,soloStart=TRUE)
+#' alldata.rd <- makeGRanges(sites, soloStart = TRUE)
 #'
 #' data(genes)
 #' genes.rd <- makeGRanges(genes)
 #'
-#' nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene")
+#' nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene")
 #' nearestGenes
-#' nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",
-#' side="5p")
+#' nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene",
+#' side = "5p")
 #' nearestGenes
 #' \dontrun{
-#' nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",
-#' side="3p")
+#' nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene",
+#' side = "3p")
 #' nearestGenes
-#' nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",
-#' side="midpoint")
+#' nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene",
+#' side = "midpoint")
 #' ## Parallel version of getNearestFeature
-#' nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",
-#' parallel=TRUE)
+#' nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene",
+#' parallel = TRUE)
 #' nearestGenes
 #' }
 getNearestFeature <- function(sites.rd, features.rd,
@@ -723,19 +727,19 @@ getNearestFeature <- function(sites.rd, features.rd,
 #' @examples
 #' # Convert a dataframe to GRanges object
 #' data(sites)
-#' alldata.rd <- makeGRanges(sites,soloStart=TRUE)
+#' alldata.rd <- makeGRanges(sites, soloStart = TRUE)
 #'
 #' data(genes)
 #' genes.rd <- makeGRanges(genes)
 #'
-#' nearestGenes <- get2NearestFeature(alldata.rd,genes.rd,"NearestGene")
+#' nearestGenes <- get2NearestFeature(alldata.rd, genes.rd, "NearestGene")
 #' nearestGenes
 #' \dontrun{
-#' nearestGenes <- get2NearestFeature(alldata.rd,genes.rd,"NearestGene",
-#' side="5p")
+#' nearestGenes <- get2NearestFeature(alldata.rd, genes.rd, "NearestGene",
+#' side = "5p")
 #' nearestGenes
-#' nearestGenes <- get2NearestFeature(alldata.rd,genes.rd,"NearestGene",
-#' side="3p")
+#' nearestGenes <- get2NearestFeature(alldata.rd, genes.rd, "NearestGene",
+#' side = "3p")
 #' nearestGenes
 #' }
 get2NearestFeature <- function(sites.rd, features.rd,
@@ -937,12 +941,12 @@ get2NearestFeature <- function(sites.rd, features.rd,
 #' @export
 #'
 #' @examples
-#' query <- GRanges("A", IRanges(c(1, 5, 12, 20), width=1),
-#' strand=c("-","+","-","+"))
-#' subject <- GRanges("A", IRanges(c(1,5,10,15,21), width=8:4),
-#' strand=c("+", "+", "-", "-","-"))
-#' res <- as.data.frame(nearest(query, subject, select="all",
-#' ignore.strand=TRUE))
+#' query <- GRanges("A", IRanges(c(1, 5, 12, 20), width = 1),
+#' strand = c("-", "+", "-", "+"))
+#' subject <- GRanges("A", IRanges(c(1, 5, 10, 15, 21), width = 8:4),
+#' strand = c("+", "+", "-", "-", "-"))
+#' res <- as.data.frame(nearest(query, subject, select = "all",
+#' ignore.strand = TRUE))
 #' res <- getLowestDists(query, subject, res, "either", "query")
 #'
 getLowestDists <- function(query = NULL, subject = NULL, res.nrst = NULL,
@@ -1020,7 +1024,7 @@ getLowestDists <- function(query = NULL, subject = NULL, res.nrst = NULL,
 #' @export
 #'
 #' @examples
-#' getWindowLabel(c(0,1e7,1e3,1e6,2e9))
+#' getWindowLabel(c(0, 1e7, 1e3, 1e6, 2e9))
 getWindowLabel <- function(x) {
   ind <- cut(abs(x), c(0, 1e3, 1e6, 1e9, 1e12),
              include.lowest = TRUE, right = FALSE, labels = FALSE)
@@ -1080,19 +1084,19 @@ getWindowLabel <- function(x) {
 #' @examples
 #' # Convert a dataframe to GRanges object
 #' data(sites)
-#' alldata.rd <- makeGRanges(sites,soloStart=TRUE)
+#' alldata.rd <- makeGRanges(sites, soloStart = TRUE)
 #'
 #' data(genes)
 #' genes.rd <- makeGRanges(genes)
 #'
-#' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene")
+#' geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene")
 #' \dontrun{
-#' geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene",
-#' doInChunks=TRUE, chunkSize=200)
+#' geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene",
+#' doInChunks = TRUE, chunkSize = 200)
 #' geneCounts
 #' ## Parallel version of getFeatureCounts
-#' # geneCounts <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene",
-#' parallel=TRUE)
+#' # geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene",
+#' parallel = TRUE)
 #' # geneCounts
 #' }
 getFeatureCounts <- function(sites.rd, features.rd,
@@ -1228,15 +1232,15 @@ getFeatureCounts <- function(sites.rd, features.rd,
 #' @examples
 #' # Convert a dataframe to GRanges object
 #' data(sites)
-#' alldata.rd <- makeGRanges(sites,soloStart=TRUE)
+#' alldata.rd <- makeGRanges(sites, soloStart = TRUE)
 #'
 #' data(genes)
 #' genes.rd <- makeGRanges(genes)
 #'
-#' geneCounts1 <- getFeatureCounts(alldata.rd,genes.rd,"NumOfGene")
+#' geneCounts1 <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene")
 #' \dontrun{
-#' geneCounts2 <- getFeatureCountsBig(alldata.rd,genes.rd,"NumOfGene")
-#' identical(geneCounts1,geneCounts2)
+#' geneCounts2 <- getFeatureCountsBig(alldata.rd, genes.rd, "NumOfGene")
+#' identical(geneCounts1, geneCounts2)
 #' }
 getFeatureCountsBig <- function(sites.rd, features.rd, colnam = NULL,
                                 widths = c(1000, 10000, 1000000)) {
@@ -1333,22 +1337,22 @@ getFeatureCountsBig <- function(sites.rd, features.rd, colnam = NULL,
 #' @examples
 #' # Convert a dataframe to GRanges object
 #' data(sites)
-#' alldata.rd <- makeGRanges(sites,soloStart=TRUE)
+#' alldata.rd <- makeGRanges(sites, soloStart = TRUE)
 #'
 #' data(genes)
 #' genes.rd <- makeGRanges(genes)
 #'
-#' InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene")
+#' InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene")
 #' InGenes
 #' \dontrun{
-#' InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE)
+#' InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene", asBool = TRUE)
 #' InGenes
 #' ## Parallel version of getSitesInFeature
-#' InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",asBool=TRUE,
-#' parallel=TRUE)
+#' InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene", asBool = TRUE,
+#' parallel = TRUE)
 #' InGenes
-#' InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene",
-#' allSubjectCols=TRUE, parallel=TRUE)
+#' InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene",
+#' allSubjectCols = TRUE, parallel = TRUE)
 #' InGenes
 #' }
 getSitesInFeature <- function(sites.rd, features.rd, colnam = NULL,
@@ -1484,21 +1488,21 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam = NULL,
 #' @examples
 #' # Convert a dataframe to GRanges object
 #' data(sites)
-#' alldata.rd <- makeGRanges(sites,soloStart=TRUE)
+#' alldata.rd <- makeGRanges(sites, soloStart = TRUE)
 #'
 #' data(genes)
 #' genes.rd <- makeGRanges(genes)
 #'
-#' doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene",asBool=TRUE)
+#' doAnnotation(annotType = "within", alldata.rd, genes.rd, "InGene", asBool = TRUE)
 #' \dontrun{
-#' doAnnotation(annotType="counts",alldata.rd,genes.rd,"NumOfGene")
-#' doAnnotation(annotType="nearest",alldata.rd,genes.rd,"NearestGene")
-#' doAnnotation(annotType="countsBig",alldata.rd,genes.rd,"ChipSeqCounts")
+#' doAnnotation(annotType = "counts", alldata.rd, genes.rd, "NumOfGene")
+#' doAnnotation(annotType = "nearest", alldata.rd, genes.rd, "NearestGene")
+#' doAnnotation(annotType = "countsBig", alldata.rd, genes.rd, "ChipSeqCounts")
 #' geneCheck <- function(x,wanted) { x$isWantedGene <- x$InGene %in% wanted;
 #' return(x) }
-#' doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene",
-#' postProcessFun=geneCheck,
-#' postProcessFunArgs=list("wanted"=c("FOXJ3","SEPT9","RPTOR")) )
+#' doAnnotation(annotType = "within", alldata.rd, genes.rd, "InGene",
+#' postProcessFun = geneCheck,
+#' postProcessFunArgs = list("wanted" = c("FOXJ3", "SEPT9", "RPTOR")) )
 #' }
 doAnnotation <-
   function(annotType = NULL, ..., postProcessFun = NULL,

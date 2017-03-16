@@ -69,25 +69,25 @@ of interest.
 \examples{
 # Convert a dataframe to GRanges object
 data(sites)
-alldata.rd <- makeGRanges(sites,soloStart=TRUE)
+alldata.rd <- makeGRanges(sites, soloStart = TRUE)
 
 data(genes)
 genes.rd <- makeGRanges(genes)
 
-nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene")
+nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene")
 nearestGenes
-nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",
-side="5p")
+nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene",
+side = "5p")
 nearestGenes
 \dontrun{
-nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",
-side="3p")
+nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene",
+side = "3p")
 nearestGenes
-nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",
-side="midpoint")
+nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene",
+side = "midpoint")
 ## Parallel version of getNearestFeature
-nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",
-parallel=TRUE)
+nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene",
+parallel = TRUE)
 nearestGenes
 }
 }
@@ -95,4 +95,3 @@ nearestGenes
 \code{\link{makeGRanges}}, \code{\link{getFeatureCounts}},
 \code{\link{getSitesInFeature}}, \code{\link{get2NearestFeature}}.
 }
-
