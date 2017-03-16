@@ -1,19 +1,24 @@
+CHANGES IN 1.9.0
+-----------------------
+
+  * code spacing edits & GenomicRanges package update adjustments
+
 CHANGES IN 1.7.1
 -----------------------
 
   * code spacing edits & namespace conflict fixes
-  
+
 CHANGES IN 1.5.1
 -----------------------
 
   * ggplot2 update bug fixes.
-  
+
 CHANGES IN 1.3.2
 -----------------------
 
   * fixed duplicated featureName column in getSitesInFeature when allSubjectCols
   is TRUE.
-  
+
 CHANGES IN 1.3.1
 -----------------------
 
@@ -54,7 +59,7 @@ CHANGES IN 0.99.4
 
 NEW FEATURES
 
-  * plotdisFeature(), function to plot distance distribution to 
+  * plotdisFeature(), function to plot distance distribution to
     feature boundary.
 
   * Includes sites.ctrl dataset to compliment sites dataset.

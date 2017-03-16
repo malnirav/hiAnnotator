@@ -24,17 +24,17 @@ The package comes with example dataframes: `sites` and `genes`. In the rest of t
 ```{r}
 data(sites)
 ## sites object doesn't have a start & stop column to denote genomic range, hence soloStart parameter must be TRUE or a nasty error will be thrown!
-alldata.rd <- makeGRanges(sites,soloStart=TRUE) 
+alldata.rd <- makeGRanges(sites, soloStart = TRUE) 
 
 data(genes)
 ## adding freeze populates SeqInfo slot of GRanges object.
-genes.rd <- makeGRanges(genes, freeze="hg18") 
+genes.rd <- makeGRanges(genes, freeze = "hg18") 
 ```
 
 The package also comes with wrapper functions to download annotation tracks off of UCSC genome browser using `rtracklayer` package.
 
-```{r, eval=FALSE}
-refflat <- getUCSCtable("refFlat","RefSeq Genes") 
+```{r, eval = FALSE}
+refflat <- getUCSCtable("refFlat", "RefSeq Genes") 
 genes <- makeGRanges(refflat)
 ```
 
@@ -45,25 +45,25 @@ With the data loaded and formatted, next series of functions highlight various w
 Given a query object, the function retrieves the nearest feature and its properties from a subject and then appends them as new columns within the query object. When used in genomic context, the function can be used to retrieve a nearest gene 5' or 3' end relative to a genomic position of interest. By default, nearest distance to either boundary is calculated unless specifically defined using the `side` parameter.
 
 ```{r}
-nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene")
+nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene")
 head(nearestGenes)
 
 # nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TRUE)
 
 ## get nearest 5' genes
-nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="5p") 
+nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene", side = "5p") 
 head(nearestGenes)
 
 ## get nearest 3' genes
-nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="3p")
+nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene", side = "3p")
 head(nearestGenes)
 
 ## get midpoint of genes
-nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="midpoint")
+nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene", side = "midpoint")
 head(nearestGenes)
 
 ### get two nearest upstream and downstream genes relative the query
-nearestTwoGenes <- get2NearestFeature(alldata.rd,genes.rd,"NearestGene")
+nearestTwoGenes <- get2NearestFeature(alldata.rd, genes.rd, "NearestGene")
 head(nearestTwoGenes)
 ```
 
@@ -79,8 +79,8 @@ head(geneCounts)
 If dealing with really large set of input objects, the function can break up the data using the `chunkSize` parameter. This is handy when trying to annotated ChipSeq data on an average laptop/machine. There is also `getFeatureCountsBig()` function which uses an alternative method to get the counts using `findInterval`.
 
 ```{r, eval=FALSE, echo=TRUE}
-geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene", 
-                               doInChunks=TRUE, chunkSize=100)
+geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene",
+                               doInChunks = TRUE, chunkSize = 100)
 head(geneCounts)
 
 geneCounts <- getFeatureCountsBig(alldata.rd, genes.rd, "NumOfGene")
@@ -92,11 +92,11 @@ When used in genomic context, the function annotates genomic positions of intere
 
 ```{r}
 ## Shows which feature(s) a position was found in.
-InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene")
+InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene")
 head(InGenes)
 
 ## Simply shows TRUE/FALSE 
-InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene", asBool=TRUE)
+InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene", asBool = TRUE)
 head(InGenes)
 
 # InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene", asBool=TRUE, parallel=TRUE)
@@ -106,35 +106,35 @@ head(InGenes)
 This is a wrapper function which calls one of the functions shown above depending on annotType parameter: within, nearest, twoNearest, counts, countsBig. You can also pass any function to call on the resulting object for any post processing steps.
 
 ```{r, eval=FALSE, echo=TRUE}
-doAnnotation(annotType="within", alldata.rd, genes.rd, "InGene")
-doAnnotation(annotType="counts", alldata.rd, genes.rd, "NumOfGene")
-doAnnotation(annotType="countsBig",alldata.rd,genes.rd,"ChipSeqCounts")    
-doAnnotation(annotType="nearest", alldata.rd, genes.rd, "NearestGene")    
-doAnnotation(annotType="twoNearest", alldata.rd, genes.rd, "TwoNearestGenes")
+doAnnotation(annotType = "within", alldata.rd, genes.rd, "InGene")
+doAnnotation(annotType = "counts", alldata.rd, genes.rd, "NumOfGene")
+doAnnotation(annotType = "countsBig", alldata.rd, genes.rd, "ChipSeqCounts")    
+doAnnotation(annotType = "nearest", alldata.rd, genes.rd, "NearestGene")    
+doAnnotation(annotType = "twoNearest", alldata.rd, genes.rd, "TwoNearestGenes")
 geneCheck <- function(x, wanted) { x$isWantedGene <- x$InGene %in% wanted; 
                                    return(x) }
-doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene", 
-             postProcessFun=geneCheck, 
-             postProcessFunArgs=list("wanted"=c("FOXJ3","SEPT9","RPTOR")) )
+doAnnotation(annotType = "within", alldata.rd, genes.rd, "InGene",
+             postProcessFun = geneCheck,
+             postProcessFunArgs = list("wanted" = c("FOXJ3", "SEPT9", "RPTOR")) )
 ```
 
 ### Plotting Results
 `hiAnnotator` comes with a handy plotting function `plotdisFeature` which summarizes and plots the distribution of newly annotated data. Function can be used to easily visualize things like distribution of integration sites around gene TSS, density of genes within various window sizes, etc.
 
 ```{r, eval=TRUE, echo=TRUE}
-res <- doAnnotation(annotType="within", alldata.rd, genes.rd, "InGene", asBool=TRUE)
+res <- doAnnotation(annotType = "within", alldata.rd, genes.rd, "InGene", asBool = TRUE)
 plotdisFeature(res, "virus", "InGene")
 
-res <- doAnnotation(annotType="nearest", alldata.rd, genes.rd, "NearestGene", side='5p')
+res <- doAnnotation(annotType = "nearest", alldata.rd, genes.rd, "NearestGene", side = '5p')
 plotdisFeature(res, "virus", "X5pNearestGeneDist")
 
 data(sites.ctrl)
 sites$type <- "expr"
 sites <- rbind(sites,sites.ctrl)
-alldata.rd <- makeGRanges(sites, soloStart=TRUE)
-res <- doAnnotation(annotType="within", alldata.rd, genes.rd, "InGene", asBool=TRUE)
+alldata.rd <- makeGRanges(sites, soloStart = TRUE)
+res <- doAnnotation(annotType = "within", alldata.rd, genes.rd, "InGene", asBool = TRUE)
 plotdisFeature(res, "virus", "InGene")
-plotdisFeature(res, "virus", "InGene", typeRatio=TRUE)
+plotdisFeature(res, "virus", "InGene", typeRatio = TRUE)
 ```
 
 ## Ways to load parallel backends
@@ -146,21 +146,21 @@ plotdisFeature(res, "virus", "InGene", typeRatio=TRUE)
 ## Example 1: library(doSMP)
 w <- startWorkers(2)
 registerDoSMP(w)
-getNearestFeature(..., parallel=TRUE)        
+getNearestFeature(..., parallel = TRUE)
 
 ## Example 2: library(doMC)
 registerDoMC(2)
-getNearestFeature(..., parallel=TRUE)        
+getNearestFeature(..., parallel = TRUE)
 
 ## Example 3: library(doSNOW)
 cl <- makeCluster(2, type = "SOCK")
 registerDoSNOW(cl)
-getNearestFeature(..., parallel=TRUE)  
+getNearestFeature(..., parallel = TRUE)
 
 ## Example 4: library(doParallel)
 cl <- makeCluster(2)
 registerDoParallel(cl)
-getNearestFeature(..., parallel=TRUE)   
+getNearestFeature(..., parallel = TRUE)   
 ```
 
 3) Few backends launch worker processes in the background, so be sure to close them. Read the documentation of respective `do*` package to get more information. Few examples are shown below.
