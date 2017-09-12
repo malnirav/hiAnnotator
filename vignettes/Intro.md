@@ -26,11 +26,11 @@ The package comes with example dataframes: `sites` and `genes`. In the rest of t
 ```r
 data(sites)
 ## sites object doesn't have a start & stop column to denote genomic range, hence soloStart parameter must be TRUE or a nasty error will be thrown!
-alldata.rd <- makeGRanges(sites,soloStart=TRUE) 
+alldata.rd <- makeGRanges(sites, soloStart = TRUE) 
 
 data(genes)
 ## adding freeze populates SeqInfo slot of GRanges object.
-genes.rd <- makeGRanges(genes, freeze="hg18") 
+genes.rd <- makeGRanges(genes, freeze = "hg18") 
 ```
 
 ```
@@ -47,7 +47,7 @@ The package also comes with wrapper functions to download annotation tracks off 
 
 
 ```r
-refflat <- getUCSCtable("refFlat","RefSeq Genes") 
+refflat <- getUCSCtable("refFlat", "RefSeq Genes") 
 genes <- makeGRanges(refflat)
 ```
 
@@ -59,37 +59,51 @@ Given a query object, the function retrieves the nearest feature and its propert
 
 
 ```r
-nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene")
+nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene")
 ```
 
 ```
 ## 
 ## Attaching package: 'dplyr'
-## 
+```
+
+```
 ## The following objects are masked from 'package:GenomicRanges':
 ## 
 ##     intersect, setdiff, union
-## 
+```
+
+```
 ## The following object is masked from 'package:GenomeInfoDb':
 ## 
 ##     intersect
-## 
+```
+
+```
 ## The following objects are masked from 'package:IRanges':
 ## 
 ##     collapse, desc, intersect, setdiff, slice, union
+```
+
+```
+## The following objects are masked from 'package:S4Vectors':
 ## 
-## The following object is masked from 'package:S4Vectors':
-## 
-##     rename
-## 
+##     first, intersect, rename, setdiff, setequal, union
+```
+
+```
 ## The following objects are masked from 'package:BiocGenerics':
 ## 
 ##     combine, intersect, setdiff, union
+```
+
+```
+## The following objects are masked from 'package:stats':
 ## 
-## The following object is masked from 'package:stats':
-## 
-##     filter
-## 
+##     filter, lag
+```
+
+```
 ## The following objects are masked from 'package:base':
 ## 
 ##     intersect, setdiff, setequal, union
@@ -133,7 +147,7 @@ head(nearestGenes)
 # nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene", parallel=TRUE)
 
 ## get nearest 5' genes
-nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="5p") 
+nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene", side = "5p") 
 head(nearestGenes)
 ```
 
@@ -169,7 +183,7 @@ head(nearestGenes)
 
 ```r
 ## get nearest 3' genes
-nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="3p")
+nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene", side = "3p")
 head(nearestGenes)
 ```
 
@@ -205,7 +219,7 @@ head(nearestGenes)
 
 ```r
 ## get midpoint of genes
-nearestGenes <- getNearestFeature(alldata.rd,genes.rd,"NearestGene",side="midpoint")
+nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene", side = "midpoint")
 head(nearestGenes)
 ```
 
@@ -241,16 +255,34 @@ head(nearestGenes)
 
 ```r
 ### get two nearest upstream and downstream genes relative the query
-nearestTwoGenes <- get2NearestFeature(alldata.rd,genes.rd,"NearestGene")
+nearestTwoGenes <- get2NearestFeature(alldata.rd, genes.rd, "NearestGene")
 ```
 
 ```
 ## u = upstream, d = downstream
+```
+
+```
 ## thinking concept: u2.....u1.....intSite(+).....d1.....d2
+```
+
+```
 ## thinking concept: d2.....d1.....intSite(-).....u1.....u2
+```
+
+```
 ## u1
+```
+
+```
 ## u2
+```
+
+```
 ## d1
+```
+
+```
 ## d2
 ```
 
@@ -383,8 +415,8 @@ If dealing with really large set of input objects, the function can break up the
 
 
 ```r
-geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene", 
-                               doInChunks=TRUE, chunkSize=100)
+geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene",
+                               doInChunks = TRUE, chunkSize = 100)
 head(geneCounts)
 
 geneCounts <- getFeatureCountsBig(alldata.rd, genes.rd, "NumOfGene")
@@ -397,7 +429,7 @@ When used in genomic context, the function annotates genomic positions of intere
 
 ```r
 ## Shows which feature(s) a position was found in.
-InGenes <- getSitesInFeature(alldata.rd,genes.rd,"InGene")
+InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene")
 head(InGenes)
 ```
 
@@ -433,7 +465,7 @@ head(InGenes)
 
 ```r
 ## Simply shows TRUE/FALSE 
-InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene", asBool=TRUE)
+InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene", asBool = TRUE)
 head(InGenes)
 ```
 
@@ -468,16 +500,16 @@ This is a wrapper function which calls one of the functions shown above dependin
 
 
 ```r
-doAnnotation(annotType="within", alldata.rd, genes.rd, "InGene")
-doAnnotation(annotType="counts", alldata.rd, genes.rd, "NumOfGene")
-doAnnotation(annotType="countsBig",alldata.rd,genes.rd,"ChipSeqCounts")    
-doAnnotation(annotType="nearest", alldata.rd, genes.rd, "NearestGene")    
-doAnnotation(annotType="twoNearest", alldata.rd, genes.rd, "TwoNearestGenes")
+doAnnotation(annotType = "within", alldata.rd, genes.rd, "InGene")
+doAnnotation(annotType = "counts", alldata.rd, genes.rd, "NumOfGene")
+doAnnotation(annotType = "countsBig", alldata.rd, genes.rd, "ChipSeqCounts")    
+doAnnotation(annotType = "nearest", alldata.rd, genes.rd, "NearestGene")    
+doAnnotation(annotType = "twoNearest", alldata.rd, genes.rd, "TwoNearestGenes")
 geneCheck <- function(x, wanted) { x$isWantedGene <- x$InGene %in% wanted; 
                                    return(x) }
-doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene", 
-             postProcessFun=geneCheck, 
-             postProcessFunArgs=list("wanted"=c("FOXJ3","SEPT9","RPTOR")) )
+doAnnotation(annotType = "within", alldata.rd, genes.rd, "InGene",
+             postProcessFun = geneCheck,
+             postProcessFunArgs = list("wanted" = c("FOXJ3", "SEPT9", "RPTOR")) )
 ```
 
 ### Plotting Results
@@ -485,7 +517,7 @@ doAnnotation(annotType="within",alldata.rd,genes.rd,"InGene",
 
 
 ```r
-res <- doAnnotation(annotType="within", alldata.rd, genes.rd, "InGene", asBool=TRUE)
+res <- doAnnotation(annotType = "within", alldata.rd, genes.rd, "InGene", asBool = TRUE)
 plotdisFeature(res, "virus", "InGene")
 ```
 
@@ -493,21 +525,21 @@ plotdisFeature(res, "virus", "InGene")
 ## performing boolean summary
 ```
 
-![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png) 
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png)
 
 ```r
-res <- doAnnotation(annotType="nearest", alldata.rd, genes.rd, "NearestGene", side='5p')
+res <- doAnnotation(annotType = "nearest", alldata.rd, genes.rd, "NearestGene", side = '5p')
 plotdisFeature(res, "virus", "X5pNearestGeneDist")
 ```
 
-![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-2.png) 
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-2.png)
 
 ```r
 data(sites.ctrl)
 sites$type <- "expr"
 sites <- rbind(sites,sites.ctrl)
-alldata.rd <- makeGRanges(sites, soloStart=TRUE)
-res <- doAnnotation(annotType="within", alldata.rd, genes.rd, "InGene", asBool=TRUE)
+alldata.rd <- makeGRanges(sites, soloStart = TRUE)
+res <- doAnnotation(annotType = "within", alldata.rd, genes.rd, "InGene", asBool = TRUE)
 plotdisFeature(res, "virus", "InGene")
 ```
 
@@ -515,17 +547,17 @@ plotdisFeature(res, "virus", "InGene")
 ## performing boolean summary
 ```
 
-![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-3.png) 
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-3.png)
 
 ```r
-plotdisFeature(res, "virus", "InGene", typeRatio=TRUE)
+plotdisFeature(res, "virus", "InGene", typeRatio = TRUE)
 ```
 
 ```
 ## performing boolean summary
 ```
 
-![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-4.png) 
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-4.png)
 
 ## Ways to load parallel backends
 1) Load one of the following libraries depending on machine/OS: `doMC`, `doSMP`, `doSNOW`, `doMPI`     
@@ -537,21 +569,21 @@ plotdisFeature(res, "virus", "InGene", typeRatio=TRUE)
 ## Example 1: library(doSMP)
 w <- startWorkers(2)
 registerDoSMP(w)
-getNearestFeature(..., parallel=TRUE)        
+getNearestFeature(..., parallel = TRUE)
 
 ## Example 2: library(doMC)
 registerDoMC(2)
-getNearestFeature(..., parallel=TRUE)        
+getNearestFeature(..., parallel = TRUE)
 
 ## Example 3: library(doSNOW)
 cl <- makeCluster(2, type = "SOCK")
 registerDoSNOW(cl)
-getNearestFeature(..., parallel=TRUE)  
+getNearestFeature(..., parallel = TRUE)
 
 ## Example 4: library(doParallel)
 cl <- makeCluster(2)
 registerDoParallel(cl)
-getNearestFeature(..., parallel=TRUE)   
+getNearestFeature(..., parallel = TRUE)   
 ```
 
 3) Few backends launch worker processes in the background, so be sure to close them. Read the documentation of respective `do*` package to get more information. Few examples are shown below.
