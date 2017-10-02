@@ -17,6 +17,8 @@
 #' @importFrom scales percent
 #' @importFrom dplyr count arrange summarise rename mutate inner_join select
 #' ungroup group_by last first %>%
+#' @importFrom methods as is
+#' @importFrom utils read.delim
 #' @docType package
 #' @name hiAnnotator
 #' @author Nirav V Malani
@@ -431,7 +433,7 @@ makeGRanges <-
     }
 
     if (!is.null(freeze)) {
-      genomeLib <- grep(freeze, installed.genomes(), value = TRUE)
+      genomeLib <- grep(freeze, BSgenome::installed.genomes(), value = TRUE)
       if (length(genomeLib) != 0) {
         bsGenomeObject <- strsplit(genomeLib,"\\.")[[1]][2]
         chrom.info <- seqlengths(do.call(`:::`,
@@ -459,7 +461,7 @@ makeGRanges <-
       }
 
       # amend seqinfo slot of sites.gr #
-      seqlevels(sites.gr) <- sortSeqlevels(seqlevels(sites.gr))
+      seqlevels(sites.gr) <- sortSeqlevels(seqlevelsInUse(sites.gr))
       seqlengths(sites.gr) <- chrom.info[seqlevels(sites.gr)]
     }
 
@@ -657,7 +659,7 @@ getNearestFeature <- function(sites.rd, features.rd,
   rm(chunks)
 
   ## change distance column name for .mergeAndReturn() ##
-  names(res)[grepl("dist",names(res))] <- paste0(prefix, colnam, "Dist")
+  names(res)[grep("dist", names(res))] <- paste0(prefix, colnam, "Dist")
 
   # Do a last check to make sure there is only 1 hit per qID #
   # This is useful in cases where two equally nearest distances
@@ -784,35 +786,27 @@ get2NearestFeature <- function(sites.rd, features.rd,
   res <- getLowestDists(query, subject, res, side, relativeTo)
 
   ## perform upstream-downstream checks by testing distances
-  res$u2 <- with(res,
-                 ifelse(dist < 0,
-                        ifelse(qStrand == "+", subjectHits - 1,
-                               subjectHits + 1),
-                        ifelse(qStrand == "+", subjectHits - 2,
-                               subjectHits + 2)
-                 ))
+  res <- res %>%
+    mutate(u2 = ifelse(dist < 0,
+                       ifelse(qStrand == "+", subjectHits - 1,
+                              subjectHits + 1),
+                       ifelse(qStrand == "+", subjectHits - 2,
+                              subjectHits + 2)),
+           u1 = ifelse(dist < 0, 
+                       subjectHits,
+                       ifelse(qStrand == "+", subjectHits - 1, 
+                              subjectHits + 1)),
+           d1 = ifelse(dist < 0,
+                       ifelse(qStrand == "+", subjectHits + 1,
+                              subjectHits - 1), 
+                       subjectHits),
+           d2 = ifelse(dist < 0,
+                       ifelse(qStrand == "+", subjectHits + 2,
+                              subjectHits - 2),
+                       ifelse(qStrand == "+", subjectHits + 1,
+                              subjectHits - 1)))
 
-  res$u1 <- with(res,
-                 ifelse(dist < 0, subjectHits,
-                        ifelse(qStrand == "+", subjectHits - 1, subjectHits + 1)
-                 ))
-
-  res$d1 <- with(res,
-                 ifelse(dist < 0,
-                        ifelse(qStrand == "+", subjectHits + 1,
-                               subjectHits - 1),
-                        subjectHits
-                 ))
-
-  res$d2 <- with(res,
-                 ifelse(dist < 0,
-                        ifelse(qStrand == "+", subjectHits + 2,
-                               subjectHits - 2),
-                        ifelse(qStrand == "+", subjectHits + 1,
-                               subjectHits - 1)
-                 ))
-
-  prefix <- ifelse(side == "either","Either",side)
+  prefix <- ifelse(side == "either", "Either", side)
 
   message("u = upstream, d = downstream")
   message("thinking concept: u2.....u1.....intSite(+).....d1.....d2")
@@ -830,13 +824,11 @@ get2NearestFeature <- function(sites.rd, features.rd,
 
     # fix cases where chosen subjectHits are off the
     # length of subjectObject
-    fixed <-
-      with(res.nrst, ifelse(get(f) < 1 | get(f) > length(subject),
-                            subjectHits, get(f)))
+    fixed <- with(res.nrst, ifelse(get(f) < 1 | get(f) > length(subject),
+                                   subjectHits, get(f)))
 
     # do the chromosome test & tag rows which were off the subject length #
-    res.nrst$qChr <-
-      as.character(seqnames(query))[res.nrst$queryHits]
+    res.nrst$qChr <- as.character(seqnames(query))[res.nrst$queryHits]
     res.nrst$sChr <- as.character(seqnames(subject))[fixed]
     rows <- res.nrst$qChr != res.nrst$sChr | res.nrst[, f] < 1 |
       res.nrst[, f] > length(subject)
@@ -988,10 +980,10 @@ getLowestDists <- function(query = NULL, subject = NULL, res.nrst = NULL,
     ## query or subject!
     if (relativeTo == 'query') {
       bore <- as.character(strand(query))[res.nrst$query] == "+"
-      dist.lowest2 <- ifelse(bore,-dist.lowest, dist.lowest)
+      dist.lowest2 <- ifelse(bore, -dist.lowest, dist.lowest)
     } else {
       bore <- as.character(strand(subject))[res.nrst$subjectHits] == "-"
-      dist.lowest2 <- ifelse(bore,-dist.lowest, dist.lowest)
+      dist.lowest2 <- ifelse(bore, -dist.lowest, dist.lowest)
     }
     rm(bore)
 
@@ -999,12 +991,9 @@ getLowestDists <- function(query = NULL, subject = NULL, res.nrst = NULL,
 
     ## fix cases where two nested features were returned by choosing
     ## the lowest absolute distances for both features.
-    mins <- with(res.nrst, tapply(abs(dist), queryHits, min))
-    res.nrst$lowest <- with(res.nrst, abs(dist) == mins[as.character(queryHits)])
-    res.nrst <- droplevels(res.nrst[res.nrst$lowest,])
-    res.nrst$lowest <- NULL
-
-    res.nrst
+    res.nrst %>% group_by(queryHits) %>% 
+      dplyr::filter(abs(dist) == min(abs(dist))) %>%
+      ungroup %>% as.data.frame
   }
 
 #' Generate a window size label.
@@ -1121,7 +1110,7 @@ getFeatureCounts <- function(sites.rd, features.rd,
 
     # no need to execute all this if chunkSize is bigger than data size!!!
     total <- length(sites.rd)
-    starts <- seq(1,total,by = chunkSize)
+    starts <- seq(1, total, by = chunkSize)
     stops <- unique(c(seq(chunkSize, total, by = chunkSize), total))
     stopifnot(length(starts) == length(stops))
     message("Breaking up sites.rd into chunks of ",chunkSize)
@@ -1175,7 +1164,7 @@ getFeatureCounts <- function(sites.rd, features.rd,
           res.x <- as.data.frame(res.x)
           res.x$weights <- mcols(x$subject)$weights[res.x$subjectHits]
           res.x$tempyID <- mcols(x$query)$tempyID[res.x$queryHits]
-          res.x$counts <- with(res.x, ave(weights,tempyID,FUN = sum))
+          res.x$counts <- with(res.x, ave(weights, tempyID, FUN = sum))
           res.x <- unique(res.x[, c("tempyID", "counts")])
 
           nohits <- setdiff(mcols(x$query)$tempyID, res.x$tempyID)
@@ -1415,8 +1404,8 @@ getSitesInFeature <- function(sites.rd, features.rd, colnam = NULL,
 
       # isolate non-singletons to save time & memory! #
       res.x <- res.x %>% group_by(queryHits) %>% mutate(freq = n())
-      besties <- ungroup(res.x) %>% filter(freq == 1)
-      res.x <- ungroup(res.x) %>% filter(freq > 1)
+      besties <- ungroup(res.x) %>% dplyr::filter(freq == 1)
+      res.x <- ungroup(res.x) %>% dplyr::filter(freq > 1)
 
       # collapse multiple featureName #
       res.x <- res.x %>% group_by(queryHits) %>%

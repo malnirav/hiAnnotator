@@ -25,7 +25,7 @@ as a discrete axis. This conserves plotting area, thus default is TRUE.}
 \item{geom}{plot distribution using bars or lines? Default is 'bar'. One can
 use 'line' as well when there are many groups.}
 
-\item{stacked}{make a stacked plot? Only applies when geom is 'bar'. 
+\item{stacked}{make a stacked plot? Only applies when geom is 'bar'.
 Default is FALSE.}
 
 \item{typeRatio}{whether to plot data as ratio of experimental to controls.
@@ -41,9 +41,9 @@ feature of interest.}
 ggplot2 plot and/or table of summarized plot data.
 }
 \description{
-Given a dataframe of samples and distance based annotation, the function 
-calculates the distribution of data in or around the given annotation. 
-From genomic point of view, the function can be used to identify 
+Given a dataframe of samples and distance based annotation, the function
+calculates the distribution of data in or around the given annotation.
+From genomic point of view, the function can be used to identify
 distribution of data  around genomic features like gene TSS, CpG island, etc.
 }
 \examples{
@@ -62,13 +62,13 @@ asBool=TRUE)
 plotdisFeature(res, "virus", "InGene")
 plotdisFeature(res, "virus", "InGene", typeRatio=TRUE)
 \dontrun{
-res <- doAnnotation(annotType="nearest", res, genes.rd, "NearestGene", 
+res <- doAnnotation(annotType="nearest", res, genes.rd, "NearestGene",
 side='5p')
 plotdisFeature(res, "virus", "X5pNearestGeneDist")
 plotdisFeature(res, "virus", "X5pNearestGeneDist", typeRatio=TRUE)
 }
 }
 \seealso{
-\code{\link{makeGRanges}}, \code{\link{getNearestFeature}}, 
+\code{\link{makeGRanges}}, \code{\link{getNearestFeature}},
 \code{\link{getSitesInFeature}}, \code{\link{getFeatureCounts}}
 }
