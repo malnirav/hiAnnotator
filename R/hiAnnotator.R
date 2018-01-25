@@ -241,7 +241,7 @@ makeChunks <- function(sites.rd, features.rd, chunkSize = NULL) {
 
   # make chunks
   chunks <- breakInChunks(length(sites.rd),
-                          ifelse(
+                          chunksize=ifelse(
                             !is.null(chunkSize),
                             length(sites.rd) / chunkSize,
                             ifelse(
