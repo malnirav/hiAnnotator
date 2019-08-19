@@ -346,8 +346,7 @@ makeGRanges <-
     if (is.null(chromCol)) {
       colIndex <- getRelevantCol(
         names(x),
-        c("chr", "chromosome", "tname", "space", "chrom",
-          "contig", "seqnames"),
+        c("chr", "chromosome", "tname", "space", "chrom", "contig", "seqnames"),
         "seqnames"
       )
       chromCol <- names(x)[colIndex]
@@ -355,9 +354,15 @@ makeGRanges <-
     x$seqnames <- x[,chromCol]
 
     if (is.null(strandCol)) {
-      colIndex <- getRelevantCol(names(x),
-                                 c("ort", "orientation", "strand"),
-                                 "strand")
+      colIndex <- tryCatch(
+        getRelevantCol(names(x),
+                       c("ort", "orientation", "strand"),
+                       "strand"),
+        error = function(e) NULL)
+      if(is.null(colIndex)) {
+        x$strand <- "*"
+        colIndex <- grep("strand", names(x))
+      }
       strandCol <- names(x)[colIndex]
     }
     x$strand <- x[,strandCol]
@@ -467,7 +472,7 @@ makeGRanges <-
 
     sites.gr <- sort(sites.gr, ignore.strand = TRUE)
     sites.gr
-  }
+}
 
 #' Get nearest annotation boundary for a position range.
 #'
@@ -792,13 +797,13 @@ get2NearestFeature <- function(sites.rd, features.rd,
                               subjectHits + 1),
                        ifelse(qStrand == "+", subjectHits - 2,
                               subjectHits + 2)),
-           u1 = ifelse(dist < 0, 
+           u1 = ifelse(dist < 0,
                        subjectHits,
-                       ifelse(qStrand == "+", subjectHits - 1, 
+                       ifelse(qStrand == "+", subjectHits - 1,
                               subjectHits + 1)),
            d1 = ifelse(dist < 0,
                        ifelse(qStrand == "+", subjectHits + 1,
-                              subjectHits - 1), 
+                              subjectHits - 1),
                        subjectHits),
            d2 = ifelse(dist < 0,
                        ifelse(qStrand == "+", subjectHits + 2,
@@ -991,7 +996,7 @@ getLowestDists <- function(query = NULL, subject = NULL, res.nrst = NULL,
 
     ## fix cases where two nested features were returned by choosing
     ## the lowest absolute distances for both features.
-    res.nrst %>% group_by(queryHits) %>% 
+    res.nrst %>% group_by(queryHits) %>%
       dplyr::filter(abs(dist) == min(abs(dist))) %>%
       ungroup %>% as.data.frame
   }
@@ -1593,18 +1598,6 @@ doAnnotation <-
           stop("No featureName based column found.")
         }
       }
-    },
-
-    ## check strand column of the feature ##
-    if (all(strand(features.rd) == "*")) {
-      message("Setting strand to '+' for features.rd parameter")
-      strand(features.rd) <- "+"
-    },
-
-    ## check strand column of the feature ##
-    if (all(strand(sites.rd) == "*")) {
-      message("Setting strand to '+' for sites.rd parameter")
-      strand(sites.rd) <- "+"
     },
 
     ## use only chroms that are present in both sites.rd and features.rd ##

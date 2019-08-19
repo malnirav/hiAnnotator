@@ -4,9 +4,9 @@
 \alias{makeGRanges}
 \title{Make a sorted GRanges object from a dataframe.}
 \usage{
-makeGRanges(x, freeze = NULL, positionsOnly = FALSE, soloStart = FALSE,
-  chromCol = NULL, strandCol = NULL, startCol = NULL, stopCol = NULL,
-  keepFactors = FALSE)
+makeGRanges(x, freeze = NULL, positionsOnly = FALSE,
+  soloStart = FALSE, chromCol = NULL, strandCol = NULL,
+  startCol = NULL, stopCol = NULL, keepFactors = FALSE)
 }
 \arguments{
 \item{x}{dataframe to be converted into a GRanges object}

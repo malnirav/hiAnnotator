@@ -4,7 +4,8 @@
 \alias{getRelevantCol}
 \title{Find the column index of interest given the potential choices.}
 \usage{
-getRelevantCol(col.names, col.options, col.type = NULL, multiple.ok = FALSE)
+getRelevantCol(col.names, col.options, col.type = NULL,
+  multiple.ok = FALSE)
 }
 \arguments{
 \item{col.names}{column names from a dataframe}

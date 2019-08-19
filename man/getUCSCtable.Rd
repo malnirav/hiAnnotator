@@ -4,7 +4,8 @@
 \alias{getUCSCtable}
 \title{Obtain a UCSC annotation table given the table & track name.}
 \usage{
-getUCSCtable(tableName, trackName, bsession = NULL, freeze = "hg18", ...)
+getUCSCtable(tableName, trackName, bsession = NULL, freeze = "hg18",
+  ...)
 }
 \arguments{
 \item{tableName}{Name of the annotation table as it appears on UCSC browser.}

@@ -1,7 +1,7 @@
 Package: hiAnnotator
 Title: Functions for annotating GRanges objects
-Version: 1.17.0
-Date: 2017-09-12
+Version: 1.19.0
+Date: 2019-08-19
 Author: Nirav V Malani <malnirav@gmail.com>
 Maintainer: Nirav V Malani <malnirav@gmail.com>
 Description: hiAnnotator contains set of functions which allow users to
@@ -38,4 +38,4 @@ Suggests:
     BiocGenerics
 biocViews: Software, Annotation
 LazyLoad: yes
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
