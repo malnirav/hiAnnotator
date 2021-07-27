@@ -4,9 +4,17 @@
 \alias{makeGRanges}
 \title{Make a sorted GRanges object from a dataframe.}
 \usage{
-makeGRanges(x, freeze = NULL, positionsOnly = FALSE,
-  soloStart = FALSE, chromCol = NULL, strandCol = NULL,
-  startCol = NULL, stopCol = NULL, keepFactors = FALSE)
+makeGRanges(
+  x,
+  freeze = NULL,
+  positionsOnly = FALSE,
+  soloStart = FALSE,
+  chromCol = NULL,
+  strandCol = NULL,
+  startCol = NULL,
+  stopCol = NULL,
+  keepFactors = FALSE
+)
 }
 \arguments{
 \item{x}{dataframe to be converted into a GRanges object}
@@ -53,8 +61,8 @@ data(genes)
 
 makeGRanges(genes, soloStart = TRUE)
 makeGRanges(genes)
-#makeGRanges(genes, freeze = "hg18", soloStart = TRUE)
-#makeGRanges(genes, freeze = "hg18")
+#makeGRanges(genes, freeze = "hg19", soloStart = TRUE)
+#makeGRanges(genes, freeze = "hg19")
 }
 \seealso{
 \code{\link{getNearestFeature}}, \code{\link{getFeatureCounts}},

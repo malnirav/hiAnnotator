@@ -4,7 +4,9 @@
 \name{sites.ctrl}
 \alias{sites.ctrl}
 \title{Controls for Sample Retrovirus Integration Sites data}
-\format{A data frame with 3909 rows and 6 variables}
+\format{
+A data frame with 3909 rows and 6 variables
+}
 \description{
 Controls for a sample dataset containing collection of unique HIV & MLV
 integration sites in the human genome mapped to UCSC freeze hg18 from

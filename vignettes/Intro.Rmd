@@ -24,7 +24,7 @@ The package comes with example dataframes: `sites` and `genes`. In the rest of t
 ```{r}
 data(sites)
 ## sites object doesn't have a start & stop column to denote genomic range, hence soloStart parameter must be TRUE or a nasty error will be thrown!
-alldata.rd <- makeGRanges(sites, soloStart = TRUE) 
+alldata.rd <- makeGRanges(sites, soloStart = TRUE, freeze = "hg18") 
 
 data(genes)
 ## adding freeze populates SeqInfo slot of GRanges object.

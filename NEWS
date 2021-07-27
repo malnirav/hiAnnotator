@@ -1,3 +1,8 @@
+CHANGES IN 1.27.1
+-----------------------
+
+  * Suggest 'markdown' package in DESCRIPTION and utilize hg19 as default freeze where applicable.
+
 CHANGES IN 1.19.0
 -----------------------
 

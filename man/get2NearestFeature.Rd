@@ -5,8 +5,14 @@
 \title{Get two nearest upstream and downstream annotation boundary for a
 position range.}
 \usage{
-get2NearestFeature(sites.rd, features.rd, colnam = NULL,
-  side = "either", feature.colnam = NULL, relativeTo = "subject")
+get2NearestFeature(
+  sites.rd,
+  features.rd,
+  colnam = NULL,
+  side = "either",
+  feature.colnam = NULL,
+  relativeTo = "subject"
+)
 }
 \arguments{
 \item{sites.rd}{GRanges object to be used as the query.}

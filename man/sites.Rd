@@ -4,7 +4,9 @@
 \name{sites}
 \alias{sites}
 \title{Sample Retrovirus Integration Sites data}
-\format{A data frame with 1303 rows and 5 variables}
+\format{
+A data frame with 1303 rows and 5 variables
+}
 \source{
 \url{http://www.ncbi.nlm.nih.gov/pubmed/?term=12805549}
 }

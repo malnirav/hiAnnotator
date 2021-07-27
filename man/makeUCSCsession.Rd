@@ -4,10 +4,10 @@
 \alias{makeUCSCsession}
 \title{Initiate UCSC genome browser session given the freeze argument.}
 \usage{
-makeUCSCsession(freeze = "hg18")
+makeUCSCsession(freeze = "hg19")
 }
 \arguments{
-\item{freeze}{one of following: hg18, mm8, rheM, etc. Default is hg18.}
+\item{freeze}{one of following: hg19, mm8, rheM, etc. Default is hg19.}
 }
 \value{
 browser session object compatible with rtracklayer functions.

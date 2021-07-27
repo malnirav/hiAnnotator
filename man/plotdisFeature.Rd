@@ -4,9 +4,17 @@
 \alias{plotdisFeature}
 \title{Plot distance distribution to a feature boundary.}
 \usage{
-plotdisFeature(dat = NULL, grouping = NULL, annotCol = NULL,
-  breaks = NULL, discreteBins = TRUE, geom = "bar",
-  stacked = FALSE, typeRatio = FALSE, printPlotData = FALSE)
+plotdisFeature(
+  dat = NULL,
+  grouping = NULL,
+  annotCol = NULL,
+  breaks = NULL,
+  discreteBins = TRUE,
+  geom = "bar",
+  stacked = FALSE,
+  typeRatio = FALSE,
+  printPlotData = FALSE
+)
 }
 \arguments{
 \item{dat}{a dataframe/GRanges with required columns to make the plot.}

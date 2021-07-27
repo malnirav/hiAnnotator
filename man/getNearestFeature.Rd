@@ -4,9 +4,16 @@
 \alias{getNearestFeature}
 \title{Get nearest annotation boundary for a position range.}
 \usage{
-getNearestFeature(sites.rd, features.rd, colnam = NULL,
-  side = "either", feature.colnam = NULL, dists.only = FALSE,
-  parallel = FALSE, relativeTo = "subject")
+getNearestFeature(
+  sites.rd,
+  features.rd,
+  colnam = NULL,
+  side = "either",
+  feature.colnam = NULL,
+  dists.only = FALSE,
+  parallel = FALSE,
+  relativeTo = "subject"
+)
 }
 \arguments{
 \item{sites.rd}{GRanges object to be used as the query.}

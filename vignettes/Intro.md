@@ -26,7 +26,7 @@ The package comes with example dataframes: `sites` and `genes`. In the rest of t
 ```r
 data(sites)
 ## sites object doesn't have a start & stop column to denote genomic range, hence soloStart parameter must be TRUE or a nasty error will be thrown!
-alldata.rd <- makeGRanges(sites, soloStart = TRUE) 
+alldata.rd <- makeGRanges(sites, soloStart = TRUE, freeze = "hg18") 
 
 data(genes)
 ## adding freeze populates SeqInfo slot of GRanges object.
@@ -35,12 +35,11 @@ genes.rd <- makeGRanges(genes, freeze = "hg18")
 
 ```
 ## Warning in valid.GenomicRanges.seqinfo(x, suggest.trim = TRUE): GRanges object contains 1 out-of-bound range located on sequence
-##   chr6_cox_hap1. Note that only ranges located on a non-circular
-##   sequence whose length is not NA can be considered out-of-bound
-##   (use seqlengths() and isCircular() to get the lengths and
-##   circularity flags of the underlying sequences). You can use trim()
-##   to trim these ranges. See ?`trim,GenomicRanges-method` for more
-##   information.
+##   chr6_cox_hap1. Note that ranges located on a sequence whose length is
+##   unknown (NA) or on a circular sequence are not considered out-of-bound
+##   (use seqlengths() and isCircular() to get the lengths and circularity
+##   flags of the underlying sequences). You can use trim() to trim these
+##   ranges. See ?`trim,GenomicRanges-method` for more information.
 ```
 
 The package also comes with wrapper functions to download annotation tracks off of UCSC genome browser using `rtracklayer` package.
@@ -65,6 +64,12 @@ nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene")
 ```
 ## 
 ## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:hiAnnotator':
+## 
+##     intersect, setdiff, union
 ```
 
 ```
@@ -115,32 +120,24 @@ head(nearestGenes)
 
 ```
 ## GRanges object with 6 ranges and 8 metadata columns:
-##       seqnames               ranges strand |                 Sequence
-##          <Rle>            <IRanges>  <Rle> |              <character>
-##   [1]     chr7 [ 1511435,  1511435]      - | Burgess-MLV-HeLa-nj09f06
-##   [2]     chr7 [ 1572700,  1572700]      - | Burgess-MLV-HeLa-nj12h11
-##   [3]     chr7 [11048891, 11048891]      + |   Burgess-HIV-HeLa-01a12
-##   [4]     chr7 [12167895, 12167895]      + | Burgess-MLV-HeLa-nj08f04
-##   [5]     chr7 [12503464, 12503464]      - | Burgess-MLV-HeLa-nj15c02
-##   [6]     chr7 [12726532, 12726532]      + | Burgess-MLV-HeLa-nj19e04
-##        Position         Chr         Ort       virus NearestGeneDist
-##       <numeric> <character> <character> <character>       <integer>
-##   [1]   1511435        chr7           -         MLV            -891
-##   [2]   1572700        chr7           -         MLV             794
-##   [3]  11048891        chr7           +         HIV          -60916
-##   [4]  12167895        chr7           +         MLV          -49477
-##   [5]  12503464        chr7           -         MLV          -73263
-##   [6]  12726532        chr7           +         MLV           29449
-##       NearestGene NearestGeneOrt
-##       <character>    <character>
-##   [1]       INTS1              -
-##   [2]       PSMG3              -
-##   [3]       PHF14              +
-##   [4]    TMEM106B              +
-##   [5]        SCIN              +
-##   [6]       ARL4A              +
+##       seqnames    ranges strand |               Sequence  Position         Chr
+##          <Rle> <IRanges>  <Rle> |            <character> <numeric> <character>
+##   [1]     chr1    773398      + | Burgess-HIV-HeLa-03e07    773398        chr1
+##   [2]     chr1   1636200      - | Burgess-HIV-HeLa-10d11   1636200        chr1
+##   [3]     chr1   2503557      - | Burgess-HIV-HeLa-04h05   2503557        chr1
+##   [4]     chr1   3409787      + | Burgess-MLV-HeLa-nj1..   3409787        chr1
+##   [5]     chr1   3420249      - | Burgess-MLV-HeLa-nj1..   3420249        chr1
+##   [6]     chr1   8103835      + | Burgess-MLV-HeLa-oi0..   8103835        chr1
+##               Ort       virus NearestGeneDist NearestGene NearestGeneOrt
+##       <character> <character>       <integer> <character>    <character>
+##   [1]           +         HIV           -6205   LOC643837              +
+##   [2]           -         HIV            9435      CDK11B              -
+##   [3]           -         HIV           -4551     C1orf93              +
+##   [4]           +         MLV          -15422       MEGF6              -
+##   [5]           -         MLV          -25884       MEGF6              -
+##   [6]           +         MLV          -94855      ERRFI1              -
 ##   -------
-##   seqinfo: 27 sequences from an unspecified genome; no seqlengths
+##   seqinfo: 27 sequences from an unspecified genome
 ```
 
 ```r
@@ -153,32 +150,32 @@ head(nearestGenes)
 
 ```
 ## GRanges object with 6 ranges and 8 metadata columns:
-##       seqnames               ranges strand |                 Sequence
-##          <Rle>            <IRanges>  <Rle> |              <character>
-##   [1]     chr7 [ 1511435,  1511435]      - | Burgess-MLV-HeLa-nj09f06
-##   [2]     chr7 [ 1572700,  1572700]      - | Burgess-MLV-HeLa-nj12h11
-##   [3]     chr7 [11048891, 11048891]      + |   Burgess-HIV-HeLa-01a12
-##   [4]     chr7 [12167895, 12167895]      + | Burgess-MLV-HeLa-nj08f04
-##   [5]     chr7 [12503464, 12503464]      - | Burgess-MLV-HeLa-nj15c02
-##   [6]     chr7 [12726532, 12726532]      + | Burgess-MLV-HeLa-nj19e04
-##        Position         Chr         Ort       virus X5pNearestGeneDist
-##       <numeric> <character> <character> <character>          <integer>
-##   [1]   1511435        chr7           -         MLV               -891
-##   [2]   1572700        chr7           -         MLV               3455
-##   [3]  11048891        chr7           +         HIV              68851
-##   [4]  12167895        chr7           +         MLV             -49477
-##   [5]  12503464        chr7           -         MLV             -73263
-##   [6]  12726532        chr7           +         MLV              33047
-##       X5pNearestGene X5pNearestGeneOrt
-##          <character>       <character>
-##   [1]          INTS1                 -
-##   [2]          PSMG3                 -
-##   [3]          PHF14                 +
-##   [4]       TMEM106B                 +
-##   [5]           SCIN                 +
-##   [6]          ARL4A                 +
+##       seqnames    ranges strand |               Sequence  Position         Chr
+##          <Rle> <IRanges>  <Rle> |            <character> <numeric> <character>
+##   [1]     chr1    773398      + | Burgess-HIV-HeLa-03e07    773398        chr1
+##   [2]     chr1   1636200      - | Burgess-HIV-HeLa-10d11   1636200        chr1
+##   [3]     chr1   2503557      - | Burgess-HIV-HeLa-04h05   2503557        chr1
+##   [4]     chr1   3409787      + | Burgess-MLV-HeLa-nj1..   3409787        chr1
+##   [5]     chr1   3420249      - | Burgess-MLV-HeLa-nj1..   3420249        chr1
+##   [6]     chr1   8103835      + | Burgess-MLV-HeLa-oi0..   8103835        chr1
+##               Ort       virus X5pNearestGeneDist X5pNearestGene
+##       <character> <character>          <integer>    <character>
+##   [1]           +         HIV              20472      LOC643837
+##   [2]           -         HIV               9435         CDK11B
+##   [3]           -         HIV              -4551        C1orf93
+##   [4]           +         MLV              48781       ARHGEF16
+##   [5]           -         MLV              46965        MIR551A
+##   [6]           +         MLV             -94855         ERRFI1
+##       X5pNearestGeneOrt
+##             <character>
+##   [1]                 +
+##   [2]                 -
+##   [3]                 +
+##   [4]                 +
+##   [5]                 -
+##   [6]                 -
 ##   -------
-##   seqinfo: 27 sequences from an unspecified genome; no seqlengths
+##   seqinfo: 27 sequences from an unspecified genome
 ```
 
 ```r
@@ -189,32 +186,32 @@ head(nearestGenes)
 
 ```
 ## GRanges object with 6 ranges and 8 metadata columns:
-##       seqnames               ranges strand |                 Sequence
-##          <Rle>            <IRanges>  <Rle> |              <character>
-##   [1]     chr7 [ 1511435,  1511435]      - | Burgess-MLV-HeLa-nj09f06
-##   [2]     chr7 [ 1572700,  1572700]      - | Burgess-MLV-HeLa-nj12h11
-##   [3]     chr7 [11048891, 11048891]      + |   Burgess-HIV-HeLa-01a12
-##   [4]     chr7 [12167895, 12167895]      + | Burgess-MLV-HeLa-nj08f04
-##   [5]     chr7 [12503464, 12503464]      - | Burgess-MLV-HeLa-nj15c02
-##   [6]     chr7 [12726532, 12726532]      + | Burgess-MLV-HeLa-nj19e04
-##        Position         Chr         Ort       virus X3pNearestGeneDist
-##       <numeric> <character> <character> <character>          <integer>
-##   [1]   1511435        chr7           -         MLV             -34997
-##   [2]   1572700        chr7           -         MLV                794
-##   [3]  11048891        chr7           +         HIV             -60916
-##   [4]  12167895        chr7           +         MLV             -75519
-##   [5]  12503464        chr7           -         MLV            -156289
-##   [6]  12726532        chr7           +         MLV              29449
-##       X3pNearestGene X3pNearestGeneOrt
-##          <character>       <character>
-##   [1]          INTS1                 -
-##   [2]          PSMG3                 -
-##   [3]          PHF14                 +
-##   [4]       TMEM106B                 +
-##   [5]           SCIN                 +
-##   [6]          ARL4A                 +
+##       seqnames    ranges strand |               Sequence  Position         Chr
+##          <Rle> <IRanges>  <Rle> |            <character> <numeric> <character>
+##   [1]     chr1    773398      + | Burgess-HIV-HeLa-03e07    773398        chr1
+##   [2]     chr1   1636200      - | Burgess-HIV-HeLa-10d11   1636200        chr1
+##   [3]     chr1   2503557      - | Burgess-HIV-HeLa-04h05   2503557        chr1
+##   [4]     chr1   3409787      + | Burgess-MLV-HeLa-nj1..   3409787        chr1
+##   [5]     chr1   3420249      - | Burgess-MLV-HeLa-nj1..   3420249        chr1
+##   [6]     chr1   8103835      + | Burgess-MLV-HeLa-oi0..   8103835        chr1
+##               Ort       virus X3pNearestGeneDist X3pNearestGene
+##       <character> <character>          <integer>    <character>
+##   [1]           +         HIV              -6205      LOC643837
+##   [2]           -         HIV             -12171         CDK11A
+##   [3]           -         HIV               8383          MMEL1
+##   [4]           +         MLV             -15422          MEGF6
+##   [5]           -         MLV             -25884          MEGF6
+##   [6]           +         MLV            -109469         ERRFI1
+##       X3pNearestGeneOrt
+##             <character>
+##   [1]                 +
+##   [2]                 -
+##   [3]                 -
+##   [4]                 -
+##   [5]                 -
+##   [6]                 -
 ##   -------
-##   seqinfo: 27 sequences from an unspecified genome; no seqlengths
+##   seqinfo: 27 sequences from an unspecified genome
 ```
 
 ```r
@@ -225,32 +222,32 @@ head(nearestGenes)
 
 ```
 ## GRanges object with 6 ranges and 8 metadata columns:
-##       seqnames               ranges strand |                 Sequence
-##          <Rle>            <IRanges>  <Rle> |              <character>
-##   [1]     chr7 [ 1511435,  1511435]      - | Burgess-MLV-HeLa-nj09f06
-##   [2]     chr7 [ 1572700,  1572700]      - | Burgess-MLV-HeLa-nj12h11
-##   [3]     chr7 [11048891, 11048891]      + |   Burgess-HIV-HeLa-01a12
-##   [4]     chr7 [12167895, 12167895]      + | Burgess-MLV-HeLa-nj08f04
-##   [5]     chr7 [12503464, 12503464]      - | Burgess-MLV-HeLa-nj15c02
-##   [6]     chr7 [12726532, 12726532]      + | Burgess-MLV-HeLa-nj19e04
-##        Position         Chr         Ort       virus
-##       <numeric> <character> <character> <character>
-##   [1]   1511435        chr7           -         MLV
-##   [2]   1572700        chr7           -         MLV
-##   [3]  11048891        chr7           +         HIV
-##   [4]  12167895        chr7           +         MLV
-##   [5]  12503464        chr7           -         MLV
-##   [6]  12726532        chr7           +         MLV
-##       midpointNearestGeneDist midpointNearestGene midpointNearestGeneOrt
-##                     <integer>         <character>            <character>
-##   [1]                  -17944               INTS1                      -
-##   [2]                    2124               PSMG3                      -
-##   [3]                    3968               PHF14                      +
-##   [4]                  -62498            TMEM106B                      +
-##   [5]                 -114776                SCIN                      +
-##   [6]                   31248               ARL4A                      +
+##       seqnames    ranges strand |               Sequence  Position         Chr
+##          <Rle> <IRanges>  <Rle> |            <character> <numeric> <character>
+##   [1]     chr1    773398      + | Burgess-HIV-HeLa-03e07    773398        chr1
+##   [2]     chr1   1636200      - | Burgess-HIV-HeLa-10d11   1636200        chr1
+##   [3]     chr1   2503557      - | Burgess-HIV-HeLa-04h05   2503557        chr1
+##   [4]     chr1   3409787      + | Burgess-MLV-HeLa-nj1..   3409787        chr1
+##   [5]     chr1   3420249      - | Burgess-MLV-HeLa-nj1..   3420249        chr1
+##   [6]     chr1   8103835      + | Burgess-MLV-HeLa-oi0..   8103835        chr1
+##               Ort       virus midpointNearestGeneDist midpointNearestGene
+##       <character> <character>               <integer>         <character>
+##   [1]           +         HIV                    7134           LOC643837
+##   [2]           -         HIV                   -1360              CDK11A
+##   [3]           -         HIV                   -6878             C1orf93
+##   [4]           +         MLV                   35516            ARHGEF16
+##   [5]           -         MLV                   35893               MEGF6
+##   [6]           +         MLV                 -102162              ERRFI1
+##       midpointNearestGeneOrt
+##                  <character>
+##   [1]                      +
+##   [2]                      -
+##   [3]                      +
+##   [4]                      +
+##   [5]                      -
+##   [6]                      -
 ##   -------
-##   seqinfo: 27 sequences from an unspecified genome; no seqlengths
+##   seqinfo: 27 sequences from an unspecified genome
 ```
 
 ```r
@@ -292,80 +289,72 @@ head(nearestTwoGenes)
 
 ```
 ## GRanges object with 6 ranges and 17 metadata columns:
-##       seqnames               ranges strand |                 Sequence
-##          <Rle>            <IRanges>  <Rle> |              <character>
-##   [1]     chr7 [ 1511435,  1511435]      - | Burgess-MLV-HeLa-nj09f06
-##   [2]     chr7 [ 1572700,  1572700]      - | Burgess-MLV-HeLa-nj12h11
-##   [3]     chr7 [11048891, 11048891]      + |   Burgess-HIV-HeLa-01a12
-##   [4]     chr7 [12167895, 12167895]      + | Burgess-MLV-HeLa-nj08f04
-##   [5]     chr7 [12503464, 12503464]      - | Burgess-MLV-HeLa-nj15c02
-##   [6]     chr7 [12726532, 12726532]      + | Burgess-MLV-HeLa-nj19e04
-##        Position         Chr         Ort       virus
-##       <numeric> <character> <character> <character>
-##   [1]   1511435        chr7           -         MLV
-##   [2]   1572700        chr7           -         MLV
-##   [3]  11048891        chr7           +         HIV
-##   [4]  12167895        chr7           +         MLV
-##   [5]  12503464        chr7           -         MLV
-##   [6]  12726532        chr7           +         MLV
-##       Either.NearestGene.upStream1.Dist Either.NearestGene.upStream1
-##                               <integer>                  <character>
-##   [1]                              -891                        INTS1
-##   [2]                               794                        PSMG3
-##   [3]                            -60916                        PHF14
-##   [4]                            -49477                     TMEM106B
-##   [5]                            -73263                         SCIN
-##   [6]                             29449                        ARL4A
-##       Either.NearestGene.upStream1.Ort Either.NearestGene.upStream2.Dist
-##                            <character>                         <integer>
-##   [1]                                -                             36961
-##   [2]                                -                            249253
-##   [3]                                +                           1406919
-##   [4]                                +                            -49477
-##   [5]                                +                            -92208
-##   [6]                                +                             29449
-##       Either.NearestGene.upStream2 Either.NearestGene.upStream2.Ort
+##       seqnames    ranges strand |               Sequence  Position         Chr
+##          <Rle> <IRanges>  <Rle> |            <character> <numeric> <character>
+##   [1]     chr1    773398      + | Burgess-HIV-HeLa-03e07    773398        chr1
+##   [2]     chr1   1636200      - | Burgess-HIV-HeLa-10d11   1636200        chr1
+##   [3]     chr1   2503557      - | Burgess-HIV-HeLa-04h05   2503557        chr1
+##   [4]     chr1   3409787      + | Burgess-MLV-HeLa-nj1..   3409787        chr1
+##   [5]     chr1   3420249      - | Burgess-MLV-HeLa-nj1..   3420249        chr1
+##   [6]     chr1   8103835      + | Burgess-MLV-HeLa-oi0..   8103835        chr1
+##               Ort       virus Either.NearestGene.upStream1.Dist
+##       <character> <character>                         <integer>
+##   [1]           +         HIV                             -6205
+##   [2]           -         HIV                              9435
+##   [3]           -         HIV                             -4551
+##   [4]           +         MLV                            -15422
+##   [5]           -         MLV                            -25884
+##   [6]           +         MLV                            -94855
+##       Either.NearestGene.upStream1 Either.NearestGene.upStream1.Ort
 ##                        <character>                      <character>
-##   [1]                     TMEM184A                                -
-##   [2]                       MAD1L1                                -
-##   [3]                         PER4                                +
-##   [4]                     TMEM106B                                +
-##   [5]                         SCIN                                +
-##   [6]                        ARL4A                                +
-##       Either.NearestGene.downStream1.Dist Either.NearestGene.downStream1
-##                                 <integer>                    <character>
-##   [1]                              -45800                        MICALL2
-##   [2]                                 794                          PSMG3
-##   [3]                               68851                          PHF14
-##   [4]                              -49477                       TMEM106B
-##   [5]                              260050                       TMEM106B
-##   [6]                               29449                          ARL4A
-##       Either.NearestGene.downStream1.Ort
-##                              <character>
-##   [1]                                  -
-##   [2]                                  -
-##   [3]                                  +
-##   [4]                                  +
-##   [5]                                  +
-##   [6]                                  +
+##   [1]                    LOC643837                                +
+##   [2]                       CDK11B                                -
+##   [3]                      C1orf93                                +
+##   [4]                        MEGF6                                -
+##   [5]                        MEGF6                                -
+##   [6]                       ERRFI1                                -
+##       Either.NearestGene.upStream2.Dist Either.NearestGene.upStream2
+##                               <integer>                  <character>
+##   [1]                            414938                        OR4F3
+##   [2]                              9435                       CDK11B
+##   [3]                           -424348                       ACTRT2
+##   [4]                           -435638                     FLJ42875
+##   [5]                             46872                      MIR551A
+##   [6]                           -180361                      TNFRSF9
+##       Either.NearestGene.upStream2.Ort Either.NearestGene.downStream1.Dist
+##                            <character>                           <integer>
+##   [1]                                +                              -77585
+##   [2]                                -                                9435
+##   [3]                                +                               76733
+##   [4]                                -                               57334
+##   [5]                                -                             -446100
+##   [6]                                -                              231215
+##       Either.NearestGene.downStream1 Either.NearestGene.downStream1.Ort
+##                          <character>                        <character>
+##   [1]                         SAMD11                                  +
+##   [2]                         CDK11B                                  -
+##   [3]                          PLCH2                                  +
+##   [4]                        MIR551A                                  -
+##   [5]                       FLJ42875                                  -
+##   [6]                           RERE                                  -
 ##       Either.NearestGene.downStream2.Dist Either.NearestGene.downStream2
 ##                                 <integer>                    <character>
-##   [1]                             -345054                        ZFAND2A
-##   [2]                                 794                          PSMG3
-##   [3]                            -1168481                       TMEM106B
-##   [4]                             -408832                           SCIN
-##   [5]                              260050                       TMEM106B
-##   [6]                               29449                          ARL4A
+##   [1]                             -112431                         KLHL17
+##   [2]                                9435                         CDK11B
+##   [3]                              176816                           RER1
+##   [4]                              127404                           WDR8
+##   [5]                             -446100                       FLJ42875
+##   [6]                              231215                           RERE
 ##       Either.NearestGene.downStream2.Ort
 ##                              <character>
-##   [1]                                  -
+##   [1]                                  +
 ##   [2]                                  -
 ##   [3]                                  +
-##   [4]                                  +
-##   [5]                                  +
-##   [6]                                  +
+##   [4]                                  -
+##   [5]                                  -
+##   [6]                                  -
 ##   -------
-##   seqinfo: 27 sequences from an unspecified genome; no seqlengths
+##   seqinfo: 27 sequences from an unspecified genome
 ```
 
 #### getFeatureCounts: find out how many features are in a neighborhood
@@ -379,32 +368,24 @@ head(geneCounts)
 
 ```
 ## GRanges object with 6 ranges and 8 metadata columns:
-##       seqnames               ranges strand |                 Sequence
-##          <Rle>            <IRanges>  <Rle> |              <character>
-##   [1]     chr7 [ 1511435,  1511435]      - | Burgess-MLV-HeLa-nj09f06
-##   [2]     chr7 [ 1572700,  1572700]      - | Burgess-MLV-HeLa-nj12h11
-##   [3]     chr7 [11048891, 11048891]      + |   Burgess-HIV-HeLa-01a12
-##   [4]     chr7 [12167895, 12167895]      + | Burgess-MLV-HeLa-nj08f04
-##   [5]     chr7 [12503464, 12503464]      - | Burgess-MLV-HeLa-nj15c02
-##   [6]     chr7 [12726532, 12726532]      + | Burgess-MLV-HeLa-nj19e04
-##        Position         Chr         Ort       virus NumOfGene.1Kb
-##       <numeric> <character> <character> <character>     <integer>
-##   [1]   1511435        chr7           -         MLV             0
-##   [2]   1572700        chr7           -         MLV             0
-##   [3]  11048891        chr7           +         HIV             2
-##   [4]  12167895        chr7           +         MLV             0
-##   [5]  12503464        chr7           -         MLV             0
-##   [6]  12726532        chr7           +         MLV             0
-##       NumOfGene.10Kb NumOfGene.1Mb
-##            <integer>     <integer>
-##   [1]              1            24
-##   [2]              5            22
-##   [3]              2             4
-##   [4]              0             6
-##   [5]              0             8
-##   [6]              0             8
+##       seqnames    ranges strand |               Sequence  Position         Chr
+##          <Rle> <IRanges>  <Rle> |            <character> <numeric> <character>
+##   [1]     chr1    773398      + | Burgess-HIV-HeLa-03e07    773398        chr1
+##   [2]     chr1   1636200      - | Burgess-HIV-HeLa-10d11   1636200        chr1
+##   [3]     chr1   2503557      - | Burgess-HIV-HeLa-04h05   2503557        chr1
+##   [4]     chr1   3409787      + | Burgess-MLV-HeLa-nj1..   3409787        chr1
+##   [5]     chr1   3420249      - | Burgess-MLV-HeLa-nj1..   3420249        chr1
+##   [6]     chr1   8103835      + | Burgess-MLV-HeLa-oi0..   8103835        chr1
+##               Ort       virus NumOfGene.1Kb NumOfGene.10Kb NumOfGene.1Mb
+##       <character> <character>     <integer>      <integer>     <integer>
+##   [1]           +         HIV             1              1            52
+##   [2]           -         HIV             8              8            71
+##   [3]           -         HIV             0              1            24
+##   [4]           +         MLV             1              1            22
+##   [5]           -         MLV             1              1            22
+##   [6]           +         MLV             0              0            13
 ##   -------
-##   seqinfo: 27 sequences from an unspecified genome; no seqlengths
+##   seqinfo: 27 sequences from an unspecified genome
 ```
 
 ```r
@@ -435,32 +416,24 @@ head(InGenes)
 
 ```
 ## GRanges object with 6 ranges and 7 metadata columns:
-##       seqnames               ranges strand |                 Sequence
-##          <Rle>            <IRanges>  <Rle> |              <character>
-##   [1]     chr7 [ 1511435,  1511435]      - | Burgess-MLV-HeLa-nj09f06
-##   [2]     chr7 [ 1572700,  1572700]      - | Burgess-MLV-HeLa-nj12h11
-##   [3]     chr7 [11048891, 11048891]      + |   Burgess-HIV-HeLa-01a12
-##   [4]     chr7 [12167895, 12167895]      + | Burgess-MLV-HeLa-nj08f04
-##   [5]     chr7 [12503464, 12503464]      - | Burgess-MLV-HeLa-nj15c02
-##   [6]     chr7 [12726532, 12726532]      + | Burgess-MLV-HeLa-nj19e04
-##        Position         Chr         Ort       virus      InGene
-##       <numeric> <character> <character> <character> <character>
-##   [1]   1511435        chr7           -         MLV       FALSE
-##   [2]   1572700        chr7           -         MLV       FALSE
-##   [3]  11048891        chr7           +         HIV       PHF14
-##   [4]  12167895        chr7           +         MLV       FALSE
-##   [5]  12503464        chr7           -         MLV       FALSE
-##   [6]  12726532        chr7           +         MLV       FALSE
-##         InGeneOrt
-##       <character>
-##   [1]        <NA>
-##   [2]        <NA>
-##   [3]           +
-##   [4]        <NA>
-##   [5]        <NA>
-##   [6]        <NA>
+##       seqnames    ranges strand |               Sequence  Position         Chr
+##          <Rle> <IRanges>  <Rle> |            <character> <numeric> <character>
+##   [1]     chr1    773398      + | Burgess-HIV-HeLa-03e07    773398        chr1
+##   [2]     chr1   1636200      - | Burgess-HIV-HeLa-10d11   1636200        chr1
+##   [3]     chr1   2503557      - | Burgess-HIV-HeLa-04h05   2503557        chr1
+##   [4]     chr1   3409787      + | Burgess-MLV-HeLa-nj1..   3409787        chr1
+##   [5]     chr1   3420249      - | Burgess-MLV-HeLa-nj1..   3420249        chr1
+##   [6]     chr1   8103835      + | Burgess-MLV-HeLa-oi0..   8103835        chr1
+##               Ort       virus        InGene   InGeneOrt
+##       <character> <character>   <character> <character>
+##   [1]           +         HIV     LOC643837           +
+##   [2]           -         HIV CDK11B,CDK11A           -
+##   [3]           -         HIV         FALSE        <NA>
+##   [4]           +         MLV         MEGF6           -
+##   [5]           -         MLV         MEGF6           -
+##   [6]           +         MLV         FALSE        <NA>
 ##   -------
-##   seqinfo: 27 sequences from an unspecified genome; no seqlengths
+##   seqinfo: 27 sequences from an unspecified genome
 ```
 
 ```r
@@ -471,24 +444,24 @@ head(InGenes)
 
 ```
 ## GRanges object with 6 ranges and 6 metadata columns:
-##       seqnames               ranges strand |                 Sequence
-##          <Rle>            <IRanges>  <Rle> |              <character>
-##   [1]     chr7 [ 1511435,  1511435]      - | Burgess-MLV-HeLa-nj09f06
-##   [2]     chr7 [ 1572700,  1572700]      - | Burgess-MLV-HeLa-nj12h11
-##   [3]     chr7 [11048891, 11048891]      + |   Burgess-HIV-HeLa-01a12
-##   [4]     chr7 [12167895, 12167895]      + | Burgess-MLV-HeLa-nj08f04
-##   [5]     chr7 [12503464, 12503464]      - | Burgess-MLV-HeLa-nj15c02
-##   [6]     chr7 [12726532, 12726532]      + | Burgess-MLV-HeLa-nj19e04
-##        Position         Chr         Ort       virus    InGene
-##       <numeric> <character> <character> <character> <logical>
-##   [1]   1511435        chr7           -         MLV     FALSE
-##   [2]   1572700        chr7           -         MLV     FALSE
-##   [3]  11048891        chr7           +         HIV      TRUE
-##   [4]  12167895        chr7           +         MLV     FALSE
-##   [5]  12503464        chr7           -         MLV     FALSE
-##   [6]  12726532        chr7           +         MLV     FALSE
+##       seqnames    ranges strand |               Sequence  Position         Chr
+##          <Rle> <IRanges>  <Rle> |            <character> <numeric> <character>
+##   [1]     chr1    773398      + | Burgess-HIV-HeLa-03e07    773398        chr1
+##   [2]     chr1   1636200      - | Burgess-HIV-HeLa-10d11   1636200        chr1
+##   [3]     chr1   2503557      - | Burgess-HIV-HeLa-04h05   2503557        chr1
+##   [4]     chr1   3409787      + | Burgess-MLV-HeLa-nj1..   3409787        chr1
+##   [5]     chr1   3420249      - | Burgess-MLV-HeLa-nj1..   3420249        chr1
+##   [6]     chr1   8103835      + | Burgess-MLV-HeLa-oi0..   8103835        chr1
+##               Ort       virus    InGene
+##       <character> <character> <logical>
+##   [1]           +         HIV      TRUE
+##   [2]           -         HIV      TRUE
+##   [3]           -         HIV     FALSE
+##   [4]           +         MLV      TRUE
+##   [5]           -         MLV      TRUE
+##   [6]           +         MLV     FALSE
 ##   -------
-##   seqinfo: 27 sequences from an unspecified genome; no seqlengths
+##   seqinfo: 27 sequences from an unspecified genome
 ```
 
 ```r

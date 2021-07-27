@@ -4,8 +4,12 @@
 \alias{doAnnotation}
 \title{Annotate a GRanges object using one of annotation functions.}
 \usage{
-doAnnotation(annotType = NULL, ..., postProcessFun = NULL,
-  postProcessFunArgs = list())
+doAnnotation(
+  annotType = NULL,
+  ...,
+  postProcessFun = NULL,
+  postProcessFunArgs = list()
+)
 }
 \arguments{
 \item{annotType}{one of following: within, nearest, twoNearest, counts,

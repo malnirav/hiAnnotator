@@ -5,8 +5,13 @@
 \title{Get the lowest biological distance from the 5' or 3' boundaries of query
 and subject.}
 \usage{
-getLowestDists(query = NULL, subject = NULL, res.nrst = NULL,
-  side = "either", relativeTo = "subject")
+getLowestDists(
+  query = NULL,
+  subject = NULL,
+  res.nrst = NULL,
+  side = "either",
+  relativeTo = "subject"
+)
 }
 \arguments{
 \item{query}{GRanges object to be used as the query which holds data for

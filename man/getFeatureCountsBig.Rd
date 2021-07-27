@@ -6,8 +6,12 @@
 range/position for large annotation objects spanning greater than
 1 billion rows.}
 \usage{
-getFeatureCountsBig(sites.rd, features.rd, colnam = NULL,
-  widths = c(1000, 10000, 1e+06))
+getFeatureCountsBig(
+  sites.rd,
+  features.rd,
+  colnam = NULL,
+  widths = c(1000, 10000, 1e+06)
+)
 }
 \arguments{
 \item{sites.rd}{GRanges object to be used as the query.}

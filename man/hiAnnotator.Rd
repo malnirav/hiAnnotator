@@ -3,7 +3,6 @@
 \docType{package}
 \name{hiAnnotator}
 \alias{hiAnnotator}
-\alias{hiAnnotator-package}
 \title{Annotating GRanges objects with hiAnnotator.}
 \description{
 hiAnnotator contains set of functions which allow users to annotate a

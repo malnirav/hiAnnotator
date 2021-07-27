@@ -1,20 +1,20 @@
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(hiAnnotator)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 data(sites)
 ## sites object doesn't have a start & stop column to denote genomic range, hence soloStart parameter must be TRUE or a nasty error will be thrown!
-alldata.rd <- makeGRanges(sites, soloStart = TRUE) 
+alldata.rd <- makeGRanges(sites, soloStart = TRUE, freeze = "hg18") 
 
 data(genes)
 ## adding freeze populates SeqInfo slot of GRanges object.
 genes.rd <- makeGRanges(genes, freeze = "hg18") 
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  refflat <- getUCSCtable("refFlat", "RefSeq Genes")
 #  genes <- makeGRanges(refflat)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 nearestGenes <- getNearestFeature(alldata.rd, genes.rd, "NearestGene")
 head(nearestGenes)
 
@@ -36,12 +36,12 @@ head(nearestGenes)
 nearestTwoGenes <- get2NearestFeature(alldata.rd, genes.rd, "NearestGene")
 head(nearestTwoGenes)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene")
 head(geneCounts)
 # geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene", parallel=TRUE)
 
-## ---- eval=FALSE, echo=TRUE----------------------------------------------
+## ---- eval=FALSE, echo=TRUE---------------------------------------------------
 #  geneCounts <- getFeatureCounts(alldata.rd, genes.rd, "NumOfGene",
 #                                 doInChunks = TRUE, chunkSize = 100)
 #  head(geneCounts)
@@ -49,7 +49,7 @@ head(geneCounts)
 #  geneCounts <- getFeatureCountsBig(alldata.rd, genes.rd, "NumOfGene")
 #  head(geneCounts)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ## Shows which feature(s) a position was found in.
 InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene")
 head(InGenes)
@@ -60,7 +60,7 @@ head(InGenes)
 
 # InGenes <- getSitesInFeature(alldata.rd, genes.rd, "InGene", asBool=TRUE, parallel=TRUE)
 
-## ---- eval=FALSE, echo=TRUE----------------------------------------------
+## ---- eval=FALSE, echo=TRUE---------------------------------------------------
 #  doAnnotation(annotType = "within", alldata.rd, genes.rd, "InGene")
 #  doAnnotation(annotType = "counts", alldata.rd, genes.rd, "NumOfGene")
 #  doAnnotation(annotType = "countsBig", alldata.rd, genes.rd, "ChipSeqCounts")
@@ -72,7 +72,7 @@ head(InGenes)
 #               postProcessFun = geneCheck,
 #               postProcessFunArgs = list("wanted" = c("FOXJ3", "SEPT9", "RPTOR")) )
 
-## ---- eval=TRUE, echo=TRUE-----------------------------------------------
+## ---- eval=TRUE, echo=TRUE----------------------------------------------------
 res <- doAnnotation(annotType = "within", alldata.rd, genes.rd, "InGene", asBool = TRUE)
 plotdisFeature(res, "virus", "InGene")
 
@@ -87,7 +87,7 @@ res <- doAnnotation(annotType = "within", alldata.rd, genes.rd, "InGene", asBool
 plotdisFeature(res, "virus", "InGene")
 plotdisFeature(res, "virus", "InGene", typeRatio = TRUE)
 
-## ----par_examples, eval=FALSE, echo=TRUE---------------------------------
+## ----par_examples, eval=FALSE, echo=TRUE--------------------------------------
 #  ## Example 1: library(doSMP)
 #  w <- startWorkers(2)
 #  registerDoSMP(w)

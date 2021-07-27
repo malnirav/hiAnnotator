@@ -5,10 +5,17 @@
 \title{Get counts of annotation within a defined window around each query
 range or positions.}
 \usage{
-getFeatureCounts(sites.rd, features.rd, colnam = NULL,
-  chromSizes = NULL, widths = c(1000, 10000, 1e+06),
-  weightsColname = NULL, doInChunks = FALSE, chunkSize = 10000,
-  parallel = FALSE)
+getFeatureCounts(
+  sites.rd,
+  features.rd,
+  colnam = NULL,
+  chromSizes = NULL,
+  widths = c(1000, 10000, 1e+06),
+  weightsColname = NULL,
+  doInChunks = FALSE,
+  chunkSize = 10000,
+  parallel = FALSE
+)
 }
 \arguments{
 \item{sites.rd}{GRanges object to be used as the query.}

@@ -4,9 +4,16 @@
 \alias{getSitesInFeature}
 \title{Find overlapping positions/ranges that match between the query and subject.}
 \usage{
-getSitesInFeature(sites.rd, features.rd, colnam = NULL, asBool = FALSE,
-  feature.colnam = NULL, parallel = FALSE, allSubjectCols = FALSE,
-  overlapType = "any")
+getSitesInFeature(
+  sites.rd,
+  features.rd,
+  colnam = NULL,
+  asBool = FALSE,
+  feature.colnam = NULL,
+  parallel = FALSE,
+  allSubjectCols = FALSE,
+  overlapType = "any"
+)
 }
 \arguments{
 \item{sites.rd}{GRanges object to be used as the query.}

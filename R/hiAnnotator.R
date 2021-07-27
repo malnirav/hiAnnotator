@@ -19,6 +19,7 @@
 #' ungroup group_by last first %>%
 #' @importFrom methods as is
 #' @importFrom utils read.delim
+#' @importFrom stats dist
 #' @docType package
 #' @name hiAnnotator
 #' @author Nirav V Malani
@@ -86,7 +87,7 @@ NULL
 
 #' Initiate UCSC genome browser session given the freeze argument.
 #'
-#' @param freeze one of following: hg18, mm8, rheM, etc. Default is hg18.
+#' @param freeze one of following: hg19, mm8, rheM, etc. Default is hg19.
 #'
 #' @return browser session object compatible with rtracklayer functions.
 #'
@@ -102,7 +103,7 @@ NULL
 #' session <- makeUCSCsession("mm8")
 #' genome(session)
 #' }
-makeUCSCsession <- function(freeze = "hg18") {
+makeUCSCsession <- function(freeze = "hg19") {
   bsession <- browserSession()
   genome(bsession) <- freeze
   bsession
@@ -116,7 +117,7 @@ makeUCSCsession <- function(freeze = "hg18") {
 #' @param bsession UCSC session object returned by \code{\link{makeUCSCsession}}
 #' or \code{\link{browserSession}}. If left NULL the function will call
 #' \code{\link{makeUCSCsession}} with the provided freeze to initiate a session.
-#' @param freeze one of following: hg18, mm8, rheM, etc. Default is hg18.
+#' @param freeze one of following: hg19, mm8, rheM, etc. Default is hg19.
 #' @param ... Arguments to be passed to \code{\link{ucscTableQuery}}.
 #'
 #' @return a dataframe containing the annotation data.
@@ -131,10 +132,10 @@ makeUCSCsession <- function(freeze = "hg18") {
 #' refflat <- getUCSCtable("refFlat", "RefSeq Genes")
 #' ## same as above ##
 #' refflat <- getUCSCtable("refFlat", "RefSeq Genes",
-#' bsession=session,freeze="hg18")
+#' bsession=session,freeze="hg19")
 #' }
 getUCSCtable <- function(tableName, trackName, bsession = NULL,
-                         freeze = "hg18", ...) {
+                         freeze = "hg19", ...) {
   if (is.null(bsession)) {
     bsession <- makeUCSCsession(freeze)
   }
@@ -336,8 +337,8 @@ cleanColname <- function(x, description = NULL) {
 #'
 #' makeGRanges(genes, soloStart = TRUE)
 #' makeGRanges(genes)
-#' #makeGRanges(genes, freeze = "hg18", soloStart = TRUE)
-#' #makeGRanges(genes, freeze = "hg18")
+#' #makeGRanges(genes, freeze = "hg19", soloStart = TRUE)
+#' #makeGRanges(genes, freeze = "hg19")
 makeGRanges <-
   function(x, freeze = NULL, positionsOnly = FALSE, soloStart = FALSE,
            chromCol = NULL, strandCol = NULL, startCol = NULL,

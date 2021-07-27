@@ -4,8 +4,7 @@
 \alias{getUCSCtable}
 \title{Obtain a UCSC annotation table given the table & track name.}
 \usage{
-getUCSCtable(tableName, trackName, bsession = NULL, freeze = "hg18",
-  ...)
+getUCSCtable(tableName, trackName, bsession = NULL, freeze = "hg19", ...)
 }
 \arguments{
 \item{tableName}{Name of the annotation table as it appears on UCSC browser.}
@@ -17,7 +16,7 @@ UCSC browser.}
 or \code{\link{browserSession}}. If left NULL the function will call
 \code{\link{makeUCSCsession}} with the provided freeze to initiate a session.}
 
-\item{freeze}{one of following: hg18, mm8, rheM, etc. Default is hg18.}
+\item{freeze}{one of following: hg19, mm8, rheM, etc. Default is hg19.}
 
 \item{...}{Arguments to be passed to \code{\link{ucscTableQuery}}.}
 }
@@ -32,7 +31,7 @@ Obtain a UCSC annotation table given the table & track name.
 refflat <- getUCSCtable("refFlat", "RefSeq Genes")
 ## same as above ##
 refflat <- getUCSCtable("refFlat", "RefSeq Genes",
-bsession=session,freeze="hg18")
+bsession=session,freeze="hg19")
 }
 }
 \seealso{
